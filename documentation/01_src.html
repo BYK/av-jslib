@@ -266,9 +266,18 @@
 		<h2>
 			<span class="name"><a href="08_file.html">aParser</a></span>
 			
+				<span class="ico"><a href="#"></a></span>
+			
 		</h2>
 		<div class="list">
 		
+			
+				<h3>Constructors</h3>
+				<ul>
+					
+						<li><a href="08_file.html#aParser">aParser</a></li>
+					
+				</ul>
 			
 			
 		
@@ -340,8 +349,6 @@
 				<h3>Objects</h3>
 				<ul>
 					
-						<li><a href="11_file.html#QuickEdit.ruleText">QuickEdit.ruleText</a></li>
-					
 						<li><a href="11_file.html#QuickEdit.uploadBoxCount">QuickEdit.uploadBoxCount</a></li>
 					
 				</ul>
@@ -365,7 +372,7 @@
 <span class='linenumber'>  5</span>  * @name DBGrid class
 <span class='linenumber'>  6</span>  *
 <span class='linenumber'>  7</span>  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
-<span class='linenumber'>  8</span>  * @version	1.4
+<span class='linenumber'>  8</span>  * @version	1.4.1
 <span class='linenumber'>  9</span>  *
 <span class='linenumber'> 10</span>  * @requires	&lt;a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string&lt;/a>
 <span class='linenumber'> 11</span>  * @requires	&lt;a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js&lt;/a>
@@ -605,7 +612,7 @@
 <span class='linenumber'>245</span> </span><span class="WHIT">		</span><span class="NAME">this.tableElement.className</span><span class="PUNC">=</span><span class="STRN">"DBGrid"</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'>246</span> </span><span class="WHIT">		</span><span class="NAME">this.tableElement.filterBoxes</span><span class="PUNC">=</span><span class="PUNC">[</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'>247</span> </span><span class="WHIT">		</span><span class="WHIT">
-<span class='linenumber'>248</span> </span><span class="WHIT">		</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">tableCaption</span><span class="PUNC">=</span><span class="NAME">this.tableElement.appendChild</span><span class="PUNC">(</span><span class="NAME">document.createElement</span><span class="PUNC">(</span><span class="STRN">"caption"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>248</span> </span><span class="WHIT">		</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">tableCaption</span><span class="PUNC">=</span><span class="NAME">this.tableElement.appendChild</span><span class="PUNC">(</span><span class="NAME">document.createElement</span><span class="PUNC">(</span><span class="STRN">"caption"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">' ('</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">this.rowCount</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">' rows)'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'>249</span> </span><span class="WHIT">		</span><span class="WHIT">
 <span class='linenumber'>250</span> </span><span class="WHIT">		</span><span class="NAME">this.tableElement.columnList</span><span class="PUNC">=</span><span class="NAME">tableCaption.appendChild</span><span class="PUNC">(</span><span class="NAME">document.createElement</span><span class="PUNC">(</span><span class="STRN">"div"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'>251</span> </span><span class="WHIT">		</span><span class="NAME">this.tableElement.columnList.id</span><span class="PUNC">=</span><span class="STRN">"DBGrid"</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">this.guid</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">"_columnList"</span><span class="PUNC">;</span><span class="WHIT">

@@ -5,7 +5,7 @@
  * @name DBGrid class
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.4
+ * @version	1.4.1
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string</a>
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
@@ -245,7 +245,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.className="DBGrid";
 		this.tableElement.filterBoxes=[];
 		
-		var tableCaption=this.tableElement.appendChild(document.createElement("caption"));
+		var tableCaption=this.tableElement.appendChild(document.createElement("caption") + ' (' + this.rowCount + ' rows)');
 		
 		this.tableElement.columnList=tableCaption.appendChild(document.createElement("div"));
 		this.tableElement.columnList.id="DBGrid" + this.guid + "_columnList";

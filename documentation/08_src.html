@@ -266,9 +266,18 @@
 		<h2>
 			<span class="name"><a href="08_file.html">aParser</a></span>
 			
+				<span class="ico"><a href="#"></a></span>
+			
 		</h2>
 		<div class="list">
 		
+			
+				<h3>Constructors</h3>
+				<ul>
+					
+						<li><a href="08_file.html#aParser">aParser</a></li>
+					
+				</ul>
 			
 			
 		
@@ -340,8 +349,6 @@
 				<h3>Objects</h3>
 				<ul>
 					
-						<li><a href="11_file.html#QuickEdit.ruleText">QuickEdit.ruleText</a></li>
-					
 						<li><a href="11_file.html#QuickEdit.uploadBoxCount">QuickEdit.uploadBoxCount</a></li>
 					
 				</ul>
@@ -375,117 +382,122 @@
 <span class='linenumber'> 15</span> </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">aParser</span><span class="PUNC">!=</span><span class="STRN">"undefined"</span><span class="PUNC">)</span><span class="WHIT">
 <span class='linenumber'> 16</span> </span><span class="WHIT">	</span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Error</span><span class="PUNC">(</span><span class="STRN">'"aParser" namespace had already been taken!'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"aV.main.aParser.js@"</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">window.location.href</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">25</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'> 17</span> 
-<span class='linenumber'> 18</span> </span><span class="NAME">aParser</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 19</span> 
-<span class='linenumber'> 20</span> </span><span class="COMM">/**
-<span class='linenumber'> 21</span>  * Evaluates and assigns the attributes given in attributeStr as string to the given element.
-<span class='linenumber'> 22</span>  * Works incrementally, which means will override existing properties but leaves the ones which
-<span class='linenumber'> 23</span>  * are not mentioned in attributeStr as they are.
-<span class='linenumber'> 24</span>  * 
-<span class='linenumber'> 25</span>  * @deprecated Used internally, might be used if necessary.
-<span class='linenumber'> 26</span>  * @return {HTMLElement} Returns the given element if succeeds, false if fails.
-<span class='linenumber'> 27</span>  * @param {HTMLElementObject} element The element whose attributes will be set.
-<span class='linenumber'> 28</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
-<span class='linenumber'> 29</span>  * @param {String} attributeStr The string which containts the attributes.
-<span class='linenumber'> 30</span>  */</span><span class="WHIT">
-<span class='linenumber'> 31</span> </span><span class="NAME">aParser.setElementAttributes</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">element</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 32</span> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 33</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">attributes</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 34</span> </span><span class="WHIT">	</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">eval</span><span class="PUNC">(</span><span class="STRN">"attributes={"</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">"};"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 35</span> </span><span class="WHIT">		</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 36</span> </span><span class="WHIT">	</span><span class="WHIT">
-<span class='linenumber'> 37</span> </span><span class="WHIT">	</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 38</span> </span><span class="WHIT">		</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">=</span><span class="NAME">attributes</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 39</span> </span><span class="WHIT">	</span><span class="KEYW">else</span><span class="WHIT">
-<span class='linenumber'> 40</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 41</span> </span><span class="WHIT">		</span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">attrName</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="NAME">attributes</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 42</span> </span><span class="WHIT">			</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">[</span><span class="NAME">attrName</span><span class="PUNC">]</span><span class="PUNC">=</span><span class="NAME">attributes</span><span class="PUNC">[</span><span class="NAME">attrName</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 43</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 44</span> </span><span class="WHIT">	</span><span class="WHIT">
-<span class='linenumber'> 45</span> </span><span class="WHIT">	</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">element</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 46</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 47</span> 
-<span class='linenumber'> 48</span> </span><span class="COMM">/**
-<span class='linenumber'> 49</span>  * Collects the elements which satisfies the CSS query given in queryString and
-<span class='linenumber'> 50</span>  * assigns them the attributes given in attributeStr as text. If attributeStr
-<span class='linenumber'> 51</span>  * is *, then it uses the elements' inline attribute whose name is given in
-<span class='linenumber'> 52</span>  * propertyName to gather the element spesific attributeStr.
-<span class='linenumber'> 53</span>  * 
-<span class='linenumber'> 54</span>  * @method
-<span class='linenumber'> 55</span>  * @deprecated Used internally, in most cases you shouldn't be in a need for calling this function.
-<span class='linenumber'> 56</span>  * @param {String} queryStr The CSS query string for determination of the proper elements.
-<span class='linenumber'> 57</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
-<span class='linenumber'> 58</span>  * @param {String} attributeStr The string which containts the attributes.
-<span class='linenumber'> 59</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
-<span class='linenumber'> 60</span>  */</span><span class="WHIT">
-<span class='linenumber'> 61</span> </span><span class="NAME">aParser.retrieveElementsAndSetAttributes</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 62</span> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 63</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">elements</span><span class="PUNC">=</span><span class="NAME">cssQuery</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 64</span> </span><span class="WHIT">	</span><span class="WHIT">
-<span class='linenumber'> 65</span> </span><span class="WHIT">	</span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">=</span><span class="NAME">elements.length</span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">>=</span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">--</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 66</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 67</span> </span><span class="WHIT">		</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="WHIT">
-<span class='linenumber'> 68</span> </span><span class="WHIT">					</span><span class="NAME">aParser.setElementAttributes</span><span class="PUNC">(</span><span class="WHIT">
-<span class='linenumber'> 69</span> </span><span class="WHIT">						</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT">
-<span class='linenumber'> 70</span> </span><span class="WHIT">						</span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT">
-<span class='linenumber'> 71</span> </span><span class="WHIT">						</span><span class="PUNC">(</span><span class="NAME">attributeStr</span><span class="PUNC">!=</span><span class="STRN">'*'</span><span class="PUNC">)</span><span class="PUNC">?</span><span class="NAME">attributeStr</span><span class="PUNC">:</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">getAttribute</span><span class="PUNC">(</span><span class="NAME">propertyName</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 72</span> </span><span class="WHIT">					</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 73</span> </span><span class="WHIT">				</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 74</span> </span><span class="WHIT">			</span><span class="NAME">additionalOp</span><span class="PUNC">(</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 75</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">	</span><span class="WHIT">
-<span class='linenumber'> 76</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 77</span> 
-<span class='linenumber'> 78</span> </span><span class="COMM">/**
-<span class='linenumber'> 79</span>  * Assigns the elements' attributes rules from the ruleText
-<span class='linenumber'> 80</span>  * 
-<span class='linenumber'> 81</span>  * @method
-<span class='linenumber'> 82</span>  * @param {String} ruleText The text which contains the rules in an external CSS file like structure.
-<span class='linenumber'> 83</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
-<span class='linenumber'> 84</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
-<span class='linenumber'> 85</span>  */</span><span class="WHIT">
-<span class='linenumber'> 86</span> </span><span class="NAME">aParser.assignAttributesFromText</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 87</span> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 88</span> </span><span class="WHIT">	</span><span class="NAME">ruleText</span><span class="PUNC">+</span><span class="PUNC">=</span><span class="STRN">"\n*[quickEdit]{*}"</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 89</span> </span><span class="WHIT">	</span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="NAME">ruleText.replace</span><span class="PUNC">(</span><span class="REGX">/\/\*.+\*\//ig</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 90</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">matcher</span><span class="PUNC">=</span><span class="REGX">/([^\{]+)\s*\{\s*([^\}]+)\s*\}/ig</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 91</span> </span><span class="WHIT">	</span><span class="WHIT">
-<span class='linenumber'> 92</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 93</span> </span><span class="WHIT">	</span><span class="KEYW">while</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">result</span><span class="PUNC">=</span><span class="NAME">matcher.exec</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'> 94</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 95</span> </span><span class="WHIT">		</span><span class="NAME">queryStr</span><span class="PUNC">=</span><span class="NAME">result</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 96</span> </span><span class="WHIT">		</span><span class="NAME">attributeStr</span><span class="PUNC">=</span><span class="NAME">result</span><span class="PUNC">[</span><span class="NUMB">2</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 97</span> </span><span class="WHIT">		</span><span class="WHIT">
-<span class='linenumber'> 98</span> </span><span class="WHIT">		</span><span class="NAME">aParser.retrieveElementsAndSetAttributes</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 99</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'>100</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'>101</span> 
-<span class='linenumber'>102</span> </span><span class="COMM">/**
-<span class='linenumber'>103</span>  * Assigns the elements' attributes rules from the given text file.
-<span class='linenumber'>104</span>  * Loads the file and then calls the assignAttributesFromText to
-<span class='linenumber'>105</span>  * parse its text content.
-<span class='linenumber'>106</span>  * 
-<span class='linenumber'>107</span>  * @method
-<span class='linenumber'>108</span>  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
-<span class='linenumber'>109</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
-<span class='linenumber'>110</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
-<span class='linenumber'>111</span>  */</span><span class="WHIT">
-<span class='linenumber'>112</span> </span><span class="NAME">aParser.assignAttributesFromFile</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fileAddress</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'>113</span> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'>114</span> </span><span class="WHIT">	</span><span class="NAME">AJAX.makeRequest</span><span class="PUNC">(</span><span class="WHIT">
-<span class='linenumber'>115</span> </span><span class="WHIT">		</span><span class="STRN">'GET'</span><span class="PUNC">,</span><span class="WHIT">
-<span class='linenumber'>116</span> </span><span class="WHIT">		</span><span class="NAME">fileAddress</span><span class="PUNC">,</span><span class="WHIT">
-<span class='linenumber'>117</span> </span><span class="WHIT">		</span><span class="STRN">''</span><span class="PUNC">,</span><span class="WHIT">
-<span class='linenumber'>118</span> </span><span class="WHIT">		</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">requestObject</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'>119</span> </span><span class="WHIT">		</span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'>120</span> </span><span class="WHIT">			</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="STRN">''</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'>121</span> </span><span class="WHIT">			</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">requestObject.status</span><span class="PUNC">==</span><span class="NUMB">200</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NAME">requestObject.status</span><span class="PUNC">==</span><span class="NUMB">0</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">requestObject.responseText</span><span class="PUNC">)</span><span class="WHIT">
-<span class='linenumber'>122</span> </span><span class="WHIT">				</span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="NAME">requestObject.responseText</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'>123</span> </span><span class="WHIT">			</span><span class="WHIT">
-<span class='linenumber'>124</span> </span><span class="WHIT">			</span><span class="NAME">aParser.assignAttributesFromText</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'>125</span> </span><span class="WHIT">		</span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'>126</span> </span><span class="WHIT">	</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'>127</span> </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'>128</span> </span>
+<span class='linenumber'> 18</span> </span><span class="COMM">/**
+<span class='linenumber'> 19</span>  * Represents a name space for aParser's functions and methods.
+<span class='linenumber'> 20</span>  * 
+<span class='linenumber'> 21</span>  * @namespace
+<span class='linenumber'> 22</span>  */</span><span class="WHIT">
+<span class='linenumber'> 23</span> </span><span class="NAME">aParser</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 24</span> 
+<span class='linenumber'> 25</span> </span><span class="COMM">/**
+<span class='linenumber'> 26</span>  * Evaluates and assigns the attributes given in attributeStr as string to the given element.
+<span class='linenumber'> 27</span>  * Works incrementally, which means will override existing properties but leaves the ones which
+<span class='linenumber'> 28</span>  * are not mentioned in attributeStr as they are.
+<span class='linenumber'> 29</span>  * 
+<span class='linenumber'> 30</span>  * @deprecated Used internally, might be used if necessary.
+<span class='linenumber'> 31</span>  * @return {HTMLElement} Returns the given element if succeeds, false if fails.
+<span class='linenumber'> 32</span>  * @param {HTMLElementObject} element The element whose attributes will be set.
+<span class='linenumber'> 33</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
+<span class='linenumber'> 34</span>  * @param {String} attributeStr The string which containts the attributes.
+<span class='linenumber'> 35</span>  */</span><span class="WHIT">
+<span class='linenumber'> 36</span> </span><span class="NAME">aParser.setElementAttributes</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">element</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 37</span> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 38</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">attributes</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 39</span> </span><span class="WHIT">	</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">eval</span><span class="PUNC">(</span><span class="STRN">"attributes={"</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">"};"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 40</span> </span><span class="WHIT">		</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 41</span> </span><span class="WHIT">	</span><span class="WHIT">
+<span class='linenumber'> 42</span> </span><span class="WHIT">	</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 43</span> </span><span class="WHIT">		</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">=</span><span class="NAME">attributes</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 44</span> </span><span class="WHIT">	</span><span class="KEYW">else</span><span class="WHIT">
+<span class='linenumber'> 45</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 46</span> </span><span class="WHIT">		</span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">attrName</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="NAME">attributes</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 47</span> </span><span class="WHIT">			</span><span class="NAME">element</span><span class="PUNC">[</span><span class="NAME">propertyName</span><span class="PUNC">]</span><span class="PUNC">[</span><span class="NAME">attrName</span><span class="PUNC">]</span><span class="PUNC">=</span><span class="NAME">attributes</span><span class="PUNC">[</span><span class="NAME">attrName</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 48</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 49</span> </span><span class="WHIT">	</span><span class="WHIT">
+<span class='linenumber'> 50</span> </span><span class="WHIT">	</span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">element</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 51</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 52</span> 
+<span class='linenumber'> 53</span> </span><span class="COMM">/**
+<span class='linenumber'> 54</span>  * Collects the elements which satisfies the CSS query given in queryString and
+<span class='linenumber'> 55</span>  * assigns them the attributes given in attributeStr as text. If attributeStr
+<span class='linenumber'> 56</span>  * is *, then it uses the elements' inline attribute whose name is given in
+<span class='linenumber'> 57</span>  * propertyName to gather the element spesific attributeStr.
+<span class='linenumber'> 58</span>  * 
+<span class='linenumber'> 59</span>  * @method
+<span class='linenumber'> 60</span>  * @deprecated Used internally, in most cases you shouldn't be in a need for calling this function.
+<span class='linenumber'> 61</span>  * @param {String} queryStr The CSS query string for determination of the proper elements.
+<span class='linenumber'> 62</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
+<span class='linenumber'> 63</span>  * @param {String} attributeStr The string which containts the attributes.
+<span class='linenumber'> 64</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
+<span class='linenumber'> 65</span>  */</span><span class="WHIT">
+<span class='linenumber'> 66</span> </span><span class="NAME">aParser.retrieveElementsAndSetAttributes</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 67</span> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 68</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">elements</span><span class="PUNC">=</span><span class="NAME">cssQuery</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 69</span> </span><span class="WHIT">	</span><span class="WHIT">
+<span class='linenumber'> 70</span> </span><span class="WHIT">	</span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">=</span><span class="NAME">elements.length</span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">>=</span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">--</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 71</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 72</span> </span><span class="WHIT">		</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="WHIT">
+<span class='linenumber'> 73</span> </span><span class="WHIT">					</span><span class="NAME">aParser.setElementAttributes</span><span class="PUNC">(</span><span class="WHIT">
+<span class='linenumber'> 74</span> </span><span class="WHIT">						</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 75</span> </span><span class="WHIT">						</span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 76</span> </span><span class="WHIT">						</span><span class="PUNC">(</span><span class="NAME">attributeStr</span><span class="PUNC">!=</span><span class="STRN">'*'</span><span class="PUNC">)</span><span class="PUNC">?</span><span class="NAME">attributeStr</span><span class="PUNC">:</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">getAttribute</span><span class="PUNC">(</span><span class="NAME">propertyName</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 77</span> </span><span class="WHIT">					</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 78</span> </span><span class="WHIT">				</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 79</span> </span><span class="WHIT">			</span><span class="NAME">additionalOp</span><span class="PUNC">(</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 80</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">	</span><span class="WHIT">
+<span class='linenumber'> 81</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 82</span> 
+<span class='linenumber'> 83</span> </span><span class="COMM">/**
+<span class='linenumber'> 84</span>  * Assigns the elements' attributes rules from the ruleText
+<span class='linenumber'> 85</span>  * 
+<span class='linenumber'> 86</span>  * @method
+<span class='linenumber'> 87</span>  * @param {String} ruleText The text which contains the rules in an external CSS file like structure.
+<span class='linenumber'> 88</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
+<span class='linenumber'> 89</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
+<span class='linenumber'> 90</span>  */</span><span class="WHIT">
+<span class='linenumber'> 91</span> </span><span class="NAME">aParser.assignAttributesFromText</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 92</span> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 93</span> </span><span class="WHIT">	</span><span class="NAME">ruleText</span><span class="PUNC">+</span><span class="PUNC">=</span><span class="STRN">"\n*[quickEdit]{*}"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 94</span> </span><span class="WHIT">	</span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="NAME">ruleText.replace</span><span class="PUNC">(</span><span class="REGX">/\/\*.+\*\//ig</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 95</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">matcher</span><span class="PUNC">=</span><span class="REGX">/([^\{]+)\s*\{\s*([^\}]+)\s*\}/ig</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 96</span> </span><span class="WHIT">	</span><span class="WHIT">
+<span class='linenumber'> 97</span> </span><span class="WHIT">	</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 98</span> </span><span class="WHIT">	</span><span class="KEYW">while</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">result</span><span class="PUNC">=</span><span class="NAME">matcher.exec</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 99</span> </span><span class="WHIT">	</span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>100</span> </span><span class="WHIT">		</span><span class="NAME">queryStr</span><span class="PUNC">=</span><span class="NAME">result</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>101</span> </span><span class="WHIT">		</span><span class="NAME">attributeStr</span><span class="PUNC">=</span><span class="NAME">result</span><span class="PUNC">[</span><span class="NUMB">2</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>102</span> </span><span class="WHIT">		</span><span class="WHIT">
+<span class='linenumber'>103</span> </span><span class="WHIT">		</span><span class="NAME">aParser.retrieveElementsAndSetAttributes</span><span class="PUNC">(</span><span class="NAME">queryStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attributeStr</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>104</span> </span><span class="WHIT">	</span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>105</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>106</span> 
+<span class='linenumber'>107</span> </span><span class="COMM">/**
+<span class='linenumber'>108</span>  * Assigns the elements' attributes rules from the given text file.
+<span class='linenumber'>109</span>  * Loads the file and then calls the assignAttributesFromText to
+<span class='linenumber'>110</span>  * parse its text content.
+<span class='linenumber'>111</span>  * 
+<span class='linenumber'>112</span>  * @method
+<span class='linenumber'>113</span>  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
+<span class='linenumber'>114</span>  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
+<span class='linenumber'>115</span>  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
+<span class='linenumber'>116</span>  */</span><span class="WHIT">
+<span class='linenumber'>117</span> </span><span class="NAME">aParser.assignAttributesFromFile</span><span class="PUNC">=</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fileAddress</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'>118</span> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>119</span> </span><span class="WHIT">	</span><span class="NAME">AJAX.makeRequest</span><span class="PUNC">(</span><span class="WHIT">
+<span class='linenumber'>120</span> </span><span class="WHIT">		</span><span class="STRN">'GET'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'>121</span> </span><span class="WHIT">		</span><span class="NAME">fileAddress</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'>122</span> </span><span class="WHIT">		</span><span class="STRN">''</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'>123</span> </span><span class="WHIT">		</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">requestObject</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'>124</span> </span><span class="WHIT">		</span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>125</span> </span><span class="WHIT">			</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="STRN">''</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>126</span> </span><span class="WHIT">			</span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">requestObject.status</span><span class="PUNC">==</span><span class="NUMB">200</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NAME">requestObject.status</span><span class="PUNC">==</span><span class="NUMB">0</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">requestObject.responseText</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'>127</span> </span><span class="WHIT">				</span><span class="NAME">ruleText</span><span class="PUNC">=</span><span class="NAME">requestObject.responseText</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>128</span> </span><span class="WHIT">			</span><span class="WHIT">
+<span class='linenumber'>129</span> </span><span class="WHIT">			</span><span class="NAME">aParser.assignAttributesFromText</span><span class="PUNC">(</span><span class="NAME">ruleText</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">propertyName</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">additionalOp</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>130</span> </span><span class="WHIT">		</span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>131</span> </span><span class="WHIT">	</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>132</span> </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>133</span> </span>
 </pre>
 </div>
 <!--============= /DOCS =============-->

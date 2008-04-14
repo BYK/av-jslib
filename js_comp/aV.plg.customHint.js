@@ -1,0 +1,13 @@
+/**
+ * @fileOverview	Extens visual effects library to provide custom hints support.
+ * @name Visual Effects - customHint Extension
+ *
+ * @author	Burak Yiğit KAYA	byk@amplio-vita.net
+ * @version	1.2
+ *
+ * @requires	<a href="http://amplio-vita.net/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
+ * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ *
+ */
+
+eval(function(p,a,c,k,e,r){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('8(12 4=="1i")11 S 1y("4 1t 1h 19 10 X!","R.P.5.1w@"+1s.1q.1g,1c);4.18.15(f(){4.5=o.V("U");4.5.Q=\'5\';4.5.7.O="N";4.5.9={n:2,l:2,G:1r,1p:1m};4.5.i=f(){8(6.j){1a(6.j);6.j=C}};4.5.D=f(a,b){6.7.y="x";6.7.w="x";k c=u.t(6.T,4.r()/3);6.7.w=c+\'g\';k d=u.t(6.W,4.s()/3);6.7.y=d+\'g\';6.7.Y=((4.5.9["n"]+a+c)<(4.r()+4.v()))?(4.5.9["n"]+a+\'g\'):(4.5.9["n"]+a-c+\'g\');6.7.1x=((4.5.9["l"]+b+d)<(4.s()+4.L()))?(4.5.9["l"]+b+\'g\'):(4.5.9["l"]+b-d+\'g\')};4.5.K=f(a,b,c){6.i();8(a)6.m=a;4.1v(6,0);6.7.p="J";6.D(b,c);4.H(6,1,F)};4.5.q=f(){6.i();6.m=\'\';4.H(6,0,F,f(){6.7.p=\'1o\'})};4.5.1n=4.5.q;4.5.1k=4.5.i;4.5.B=f(){6.j=1f(\'4.5.q();\',4.5.9["G"])};o.1e.1d(4.5);1j.1b(o,"1l",f(e){k a=(e.E)?e.E:e.17;k b;8(a&&a!=4.5&&a.h){16(a!=4.5&&a.h&&!a.h("z")&&a.A&&a.h("14")!="13")a=a.A;b=(a.h)?a.h("z"):C;8(b=="%1u%")b=a.m}8(a&&(b==4.5.m||a==4.5)){4.5.i()}I 8(!b&&a!=4.5&&4.5.7.p==\'J\'&&!4.5.j){4.5.B()}I 8(a&&b&&a!=4.5.M){4.5.K(b,e.Z+4.v(),e.1z+4.L())}8(a&&a!=4.5)4.5.M=a})});',62,98,'||||Visual|customHint|this|style|if|config||||||function|px|getAttribute|clearTimer|hideTimer|var|offsetY|innerHTML|offsetX|document|visibility|hide|clientWidth|clientHeight|min|Math|scrollLeft|width|auto|height|hint|parentNode|onmouseout|null|_adjustSizeNPosition|srcElement|true|timeout|fade|else|visible|pop|scrollTop|lastElement|absolute|position|plg|id|aV|new|scrollWidth|DIV|createElement|scrollHeight|found|left|clientX|be|throw|typeof|false|showParentHint|push|while|target|initFunctions|cannot|clearTimeout|add|37|appendChild|body|setTimeout|href|library|undefined|Events|onmouseover|mousemove|300|onclick|hidden|maxWidth|location|500|window|functions|self|setOpacity|js|top|Error|clientY'.split('|'),0,{}))

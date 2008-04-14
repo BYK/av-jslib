@@ -1,0 +1,32 @@
+body, input
+{
+	font-family: Tahoma, Sans;
+	font-size: 12pt;
+}
+#userCart
+{
+	width: 220px;
+}
+#userCart li
+{
+	border: #BB9922 1px solid;
+	margin: 4px;
+	padding: 4px;
+}
+#userCart span
+{
+	text-decoration: underline;
+	margin-left: 10px;
+}
+.editable
+{
+	border: #000000 1px dashed;
+}
+.editable input
+{
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	display: inline;
+	width: 30px!important;
+}

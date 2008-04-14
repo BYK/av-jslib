@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1">
+<html>
+	<head>
+		<title>Dynamic Language Changer Example Page</title>
+		<script type="text/javascript" src="../../js/aV.main.ajax.js"></script>
+		<script type="text/javascript" src="../../js/aV.plg.dynamicLanguage.js"></script>
+		<style type="text/css">
+			.aBox {width: 200px; border: 1px solid #dddddd; height: 400px; overflow: hidden; padding: 0px}
+			.boxTitle {width: 100%; background: #dddddd; color: #000090; margin: 0px}
+			.boxContent {width: 100%; padding: 1px; height: auto; overflow-x: hidden; overflow-y: auto}
+		</style>
+	</head>
+	<body onload="AJAX.dynamicLanguage.load('tr');">
+		<div><input type="button" value="tr" onClick="AJAX.dynamicLanguage.load('tr');" /><input type="button" value="en" onClick="AJAX.dynamicLanguage.load('en');" /></div>
+		<h2 langText="welcome"></h2>
+		This is the test page for dynamicLangChanger. This part is not in the range of dynamic language.
+		And the part below <i>is</i><br /><br />
+		<div langText="submit_area"></div>
+		<div class="aBox">
+			<div class="boxTitle" langText="title1">Baþlýk</div>
+			<div class="boxContent" langText="content1">Resim, yazý içerik</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,34 @@
+div.searchDiv {
+	width: 200px;
+	display: block;
+	border: 1px dashed #000080;
+	padding: 5px;
+}
+
+input.customSelectTextInput {
+	display: block;
+	width: 100%;
+	margin: 2px 2px 2px 1px;
+	background: #ffffe1;
+	border: 1px solid #000000;
+}
+
+ul.customSelect {
+	width: 100%;
+	font: 8pt Arial;
+	display: block;
+	border: 1px solid #ff9900;
+	list-style-type: none;
+	padding: 0px;
+	margin: 1px;
+}
+
+ul.customSelect li {
+	display: block;
+	background: #ffffff;
+	padding: 1px;
+}
+
+ul.customSelect li.selected {
+	background: #ffffe1;
+}

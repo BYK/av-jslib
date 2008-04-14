@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>CustomHint Demo Page</title>
+		<link href="../../css/aV.plg.customHint.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../../js/aV.main.events.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.visual.js"></script>
+		<script type="text/javascript" src="../../js/aV.plg.customHint.js"></script>
+		<script type="text/javascript" src="config.js"></script>
+		<style type="text/css">
+			#content>div
+			{
+				overflow: hidden;
+				padding: 2px;
+				margin: 5px;
+				border: 1px solid #000000;
+			}
+			#content>div div
+			{
+				overflow: hidden;
+				padding: 2px;
+				margin: 5px;
+				border: 1px dashed #ff0000;
+			}
+		</style>
+	</head>
+	<body onload="Visual.init();">
+		<h1>CustomHint Demo Page</h1>
+		<div id="content">
+			<div hint="This is a text">Hover your mouse over me to see my hint!</div><br />
+			<div hint="I am the Parent's hint">I have a hint<br />
+				<div>I do not have a hint but I'll show my parent element's hint</div>
+				<div>Level 1: <br />
+					<div>We all will also show the top parent div's hint since we do not have one :(</div>
+				</div>
+			</div>
+			<div hint="I am the GREAT div's hint">I have a hint, I'm great!<br />
+				<div showParentHint="false">I do not have a hint and I cannot
+ show my parent element's hint either because they set my showParentHint property to false :'(</div>
+			</div>
+		</div>
+	</body>
+</html>

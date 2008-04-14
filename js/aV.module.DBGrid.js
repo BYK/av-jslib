@@ -280,7 +280,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.expandButton.disabled=true;
 		tableCaption.appendChild(this.tableElement.expandButton);
 
-		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") +  + ' (' + this.rowCount + ' rows)'));
+		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ' rows)'));
 		
 		this.tableElement.setColumnVisibility=function(colIndex, visible)
 		{

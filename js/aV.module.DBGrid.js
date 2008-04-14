@@ -245,7 +245,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.className="DBGrid";
 		this.tableElement.filterBoxes=[];
 		
-		var tableCaption=this.tableElement.appendChild(document.createElement("caption") + ' (' + this.rowCount + ' rows)');
+		var tableCaption=this.tableElement.appendChild(document.createElement("caption"));
 		
 		this.tableElement.columnList=tableCaption.appendChild(document.createElement("div"));
 		this.tableElement.columnList.id="DBGrid" + this.guid + "_columnList";
@@ -280,7 +280,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.expandButton.disabled=true;
 		tableCaption.appendChild(this.tableElement.expandButton);
 
-		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption")));
+		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") +  + ' (' + this.rowCount + ' rows)'));
 		
 		this.tableElement.setColumnVisibility=function(colIndex, visible)
 		{

@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type: text/xhtml; charset=utf-8" />
+		<title>Resize Slider Test Page</title>
+		<link rel="stylesheet" type="text/css" href="../../css/aV.plg.sliders.css" />
+		<script type="text/javascript" src="../../js/aV.main.events.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.visual.js"></script>
+		<script type="text/javascript" src="../../js/aV.plg.slider.js"></script>
+		<script type="text/javascript">
+			function sampleCallback(sliderObj)
+			{
+				document.getElementById(sliderObj.prevSib.id + "Width").innerHTML=parseInt(sliderObj.prevSib.style.width);
+				document.getElementById(sliderObj.nextSib.id + "Width").innerHTML=parseInt(sliderObj.nextSib.style.width);				
+				//alert(sliderObj.prevSib.style.width + " and " + sliderObj.nextSib.style.width);
+			}
+		</script>
+	</head>
+	<body onload="Visual.init()">
+		<div id="bigContainer">
+			<div id="topPanel">
+				Move your mouse between the content borders to see&amp;use the slider.<br />
+				Double click on the slider to collapse to the larger side.
+			</div>
+			<div id="leftPanel" style="width: 350px">
+				Lorem ipsum utamur eligendi singulis et vel, eu sed veniam everti. Explicari complectitur ea vel. Cetero percipit eu pro. Sit legimus graecis cu. Ad per suscipiantur signiferumque, idque atomorum ei his! Stet veniam similique ut mea. Usu detracto dissentiet conclusionemque ut, vel ea disputationi conclusionemque.<br />
+				<div class="info">I am <span class="wdth" id="leftPanelWidth">350</span> pixels wide.</div>
+			</div>
+			<div class="slider" onSlideEnd="sampleCallback">&nbsp;</div>
+			<div id="content" style="width: 300px">
+				Eu vidit errem blandit pro, diceret vulputate scribentur id mea! Intellegam temporibus te per. Et quem accusamus constituto vel! Quo te commune principes definiebas! Cu primis maiorum inimicus eos? At eum malorum accommodare conclusionemque, at vix option voluptua, quo et novum lobortis elaboraret.<br />
+				<div class="info">I am <span class="wdth" id="contentWidth">300</span> pixels wide.</div>
+			</div>
+			<div class="slider" onSlideEnd="sampleCallback">&nbsp;</div>			
+			<div id="rightPanel" style="width: 200px">
+				At vocent feugiat mediocritatem per! Duo et nusquam eloquentiam, eos magna nobis voluptatum et, eam at corpora gubergren constituto. Semper invenire est ei, libris aliquam ea usu. Est ex soleat quodsi legimus. Id esse solet elaboraret vix, eam affert alterum ei. An reque nominati prodesset mei, pro eirmod meliore id, et erat idque salutandi nec?<br />
+				<div class="info">I am <span class="wdth" id="rightPanelWidth">200</span> pixels wide.</div>
+			</div>
+		</div>
+	</body>
+</html>

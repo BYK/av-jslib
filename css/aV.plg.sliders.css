@@ -1,0 +1,100 @@
+body {
+	font: 10pt Tahoma;
+	color: #000000;
+}
+
+#bigContainer {
+	width: 886px;
+	height: 400px;
+	padding: 5px;
+	margin: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+	border: 1px solid #ff9999;	
+}
+
+#topPanel {
+	float: left;
+	clear: both;
+	width: 100%;
+	margin: 1px;
+	margin-bottom: 10px;
+	padding: 2px;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	text-align: center;
+}
+
+#leftPanel, #rightPanel {
+	float: left;
+	clear: none;
+	margin: 0px;
+	padding: 2px;
+	border: 1px solid #000000;
+	overflow-x: hidden;
+	overflow-y: auto;
+	height: 350px;
+	background: #ffffff;
+}
+
+#content {
+	float: left;
+	padding: 2px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border: 1px solid #ff9900;
+	height: 350px;
+	background: #ffffff;
+}
+
+.slider {
+	float: left;
+	width: 3px;
+	overflow: hidden;
+	cursor: e-resize;
+	background: #ffffff;
+	padding: 2px;
+	margin: 0px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.slider_hover {
+	float: left;
+	width: 3px;
+	overflow: hidden;
+	cursor: e-resize;
+	background: #eeeeee;
+	padding: 1px;
+	margin: 0px;
+	margin-left: 1px;
+	margin-right: 1px;
+	border: 1px dotted #000070;
+}
+
+.slider_active {
+	float: left;
+	width: 3px;
+	overflow: hidden;
+	cursor: e-resize;
+	background: #eeeeee;
+	padding: 1px;
+	border: 1px solid #000070;
+	margin: 0px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.info {
+	font-style: italic;
+	font-size: 8pt;
+	margin: 10px;
+	width: 100%;
+	text-align: center;
+}
+
+.wdth {
+	font-weight: bold;
+	color: #0000cc;
+}

@@ -280,7 +280,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.expandButton.disabled=true;
 		tableCaption.appendChild(this.tableElement.expandButton);
 
-		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ' rows)'));
+		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ')'));
 		
 		this.tableElement.setColumnVisibility=function(colIndex, visible)
 		{
@@ -530,7 +530,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 					newCell.innerHTML=this._extractCellValue(this.rows[i], j);
 				else
 					newCell.appendChild(document.createTextNode(this._extractCellValue(this.rows[i], j)));
-				newCell.lastStr=newCell.firstChild.nodeValue;
+				newCell.lastStr=newCell.innerHTML;
 				newRow.appendChild(newCell);
 			}
 			
@@ -795,9 +795,9 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 						break;
 					default:
 						groupHeader.childNodes[i].appendChild(document.createElement('br'));
-						if (groupHeader.childNodes[i].lastStr!=currentRow.childNodes[i].firstChild.nodeValue)
+						if (groupHeader.childNodes[i].lastStr!=currentRow.childNodes[i].innerHTML)
 						{
-							groupHeader.childNodes[i].appendChild(document.createTextNode(currentRow.childNodes[i].firstChild.nodeValue));
+							groupHeader.childNodes[i].innerHTML+=currentRow.childNodes[i].innerHTML;
 							groupHeader.childNodes[i].lastStr=currentRow.childNodes[i].firstChild.nodeValue;
 						}
 				}

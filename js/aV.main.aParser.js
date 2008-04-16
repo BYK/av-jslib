@@ -136,14 +136,15 @@ aParser.assignAttributesFromFile=function(fileAddress, propertyName, additionalO
 
 /**
  * Assigns the element's attributes using the inline style elements defined in the document.
- * The style elements' types should be "text/aParser" for aParser to recognize them.
+ * The style elements' types should be "text/propertyName" for aParser to recognize them.
+ * propertyName in "text/propertyName" refers to the given parameter's value.
  * 
  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
  */
 aParser.assignAttributesFromStyleTag=function(propertyName, additionalOp)
 {
-	var styleTags=cssQuery('style[type="text/aParser"]');
+	var styleTags=cssQuery('style[type="text/' + propertyName + '"]');
 	for (var i=0; i<styleTags.length; i++)
 		aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, additionalOp);
 };

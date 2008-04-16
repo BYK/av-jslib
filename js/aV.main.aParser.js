@@ -3,7 +3,7 @@
  * @name	aParser
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.0
+ * @version	1.1
  * 
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
@@ -105,7 +105,7 @@ aParser.assignAttributesFromText=function(ruleText, propertyName, additionalOp)
 };
 
 /**
- * Assigns the elements' attributes rules from the given text file.
+ * Assigns the elements' attributes using the rules from the given text file.
  * Loads the file and then calls the assignAttributesFromText to
  * parse its text content.
  * 
@@ -113,8 +113,9 @@ aParser.assignAttributesFromText=function(ruleText, propertyName, additionalOp)
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
  * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
+ * @param {Boolean} [includeStyleTags] Tells the function that whether it should use the inline style tags for additional rules. Defaul value is TRUE.
  */
-aParser.assignAttributesFromFile=function(fileAddress, propertyName, additionalOp)
+aParser.assignAttributesFromFile=function(fileAddress, propertyName, additionalOp, includeStyleTags)
 {
 	AJAX.makeRequest(
 		'GET',
@@ -127,6 +128,22 @@ aParser.assignAttributesFromFile=function(fileAddress, propertyName, additionalO
 				ruleText=requestObject.responseText;
 			
 			aParser.assignAttributesFromText(ruleText, propertyName, additionalOp);
+			if (includeStyleTags || typeof(includeStyleTags)=='undefined')
+				aParser.assignAttributesFromStyleTag(propertyName, additionalOp);
 		}
 	);
-}
+};
+
+/**
+ * Assigns the element's attributes using the inline style elements defined in the document.
+ * The style elements' types should be "text/aParser" for aParser to recognize them.
+ * 
+ * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
+ * @param {Function(HTMLElement)} [additionalOp] The function, which will be called for each found element.
+ */
+aParser.assignAttributesFromStyleTag=function(propertyName, additionalOp)
+{
+	var styleTags=cssQuery('style[type="text/aParser"]');
+	for (var i=0; i<styleTags.length; i++)
+		aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, additionalOp);
+};

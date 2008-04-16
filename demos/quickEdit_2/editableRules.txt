@@ -1,0 +1,17 @@
+#idInfo>li>div
+{
+	action: 'change.php',
+	params: 'var=' + element.id + '&val',
+	condition: 1
+}
+#idExtraInfo
+{
+	type: 'textarea'
+}
+#idPicture
+{
+	action: 'change.php',
+	params: 'var=' + element.id + '&val',
+	fade: 0.5,
+	condition: 1
+}

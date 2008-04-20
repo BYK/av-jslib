@@ -3,7 +3,7 @@
  * @name Visual Effects&Functions Library
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.5
+ * @version	1.5.1
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
@@ -474,8 +474,6 @@ Visual.getCSSRule=function(ruleName, deleteFlag)
 /** end of unknown author's external code */
 
 
-/** code from Firefox-WebDeveloper Toolbar Extension */
-
 /**
  * Gathers the REAL position of the given HTML element.
  *
@@ -487,46 +485,16 @@ Visual.getCSSRule=function(ruleName, deleteFlag)
  */
 Visual._getElementPosition=function(element, xPosition)
 {
+	if (!element)
+		return;
+	var axis=(xPosition)?'Left':'Top';
 	var position = 0;
 
-	// If the element is set
-	if(element)
+	do
 	{
-			var elementOffsetParent = element.offsetParent;
-
-			// If the element has an offset parent
-			if(elementOffsetParent)
-			{
-					// While there is an offset parent
-					while((elementOffsetParent = element.offsetParent) != null)
-					{
-							// If getting the x position
-							if(xPosition)
-							{
-									position += element.offsetLeft;
-							}
-							else
-							{
-									position += element.offsetTop;
-							}
-
-							element = elementOffsetParent;
-					}
-			}
-			else
-			{
-					// If getting the x position
-					if(xPosition)
-					{
-							position = element.offsetLeft;
-					}
-					else
-					{
-							position = element.offsetTop;
-					}
-			}
+		position+=element['offset' + axis];
 	}
-
+	while (element=element.offsetParent)
 	return position;
 };
 
@@ -550,8 +518,6 @@ Visual.getElementPositionY=function(element)
 {
 	return Visual._getElementPosition(element, false);
 };
-
-/** end of the code from Firefox-WebDeveloper Toolbar Extension */
 
 /**
  * Initializes the Visual system.

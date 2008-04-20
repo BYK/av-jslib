@@ -7,29 +7,6 @@
  *
  * @requires <a href="http://amplio-vita.net/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
- *
- * <br /><a href="#Examples">Some example usages</a>
- */
-
-/**
- * @name Examples
- * @type example
- *
- * @example
- * &lt;div hint="This is a text"&gt;Hover your mouse over me to see my hint!&lt;/div&gt;
- *
- * @example
- * &lt;div hint="I am the Parent's hint"&gt;I have a hint<br />
- * 	&lt;div&gt;I do not have a hint but I'll show my parent element's hint&lt;/div&gt;<br />
- * 	&lt;div&gt;Level 1:<br />
- * 		&lt;div&gt;We all will also show the top parent div's hint since we do not have one :(&lt;/div&gt;<br />
- * 	&lt;/div&gt;<br />
- * &lt;/div&gt;
- *
- * @example
- * &lt;div hint="I am the GREAT div's hint"&gt;I have a hint, I'm great!<br />
- * 	&lt;div showParentHint="false"&gt;I do not have a hint and I cannot<br /> show my parent element's hint either because they set my showParentHint property to false :'(&lt;/div&gt;<br />
- * &lt;/div&gt;
  */
 
 /**

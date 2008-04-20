@@ -3,7 +3,7 @@
  * @name quickEdit
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	2.0.1
+ * @version	2.1
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
@@ -38,6 +38,7 @@ if (typeof QuickEdit!="undefined")
  * @config {String} textEditError The error message which will be showed when an error is occured while uploading the new text content.
  * @config {String} ruleFile Path to the external file which contains the rule definitons for editable items.
  * @config {Boolean} useInfoBox The script will try to use the InfoBox extension(if exists) to display messages instead of <b>alert</b> function.
+ * @config {String[]} forbiddenTags The tag names in uppercase which should not be assigned for quickEdit in any case.
  */
 QuickEdit = {};
 
@@ -48,7 +49,8 @@ QuickEdit.config=
 	imgUploadError: "An error occured while uploading the new image. Please try again.",
 	textEditError: "An error occured while changing the value. Please try again.",
 	ruleFile: "editableRules.txt",
-	useInfoBox: true
+	useInfoBox: true,
+	forbiddenTags: ["INPUT", "SELECT", "OPTION", "TEXTAREA", "FORM", "HR", "BR", "IFRAME"]
 };
 
 /**
@@ -97,6 +99,14 @@ QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
 	//add the necessary form code to the container div. Keeping this part as is, is strongly recommended but might be customized
 	inHTML+='<form style="float: left; width: 100%" action="' + postAddress + '" id="uploadForm' + QuickEdit.uploadBoxCount + '" method="post" enctype="multipart/form-data" target="uploadIframe' + QuickEdit.uploadBoxCount + '">';
 	
+	try
+	{
+		eval("params=" + params);
+	}
+	catch (error)
+	{
+		params=params;
+	}
 	
 	var paramList=params.split('&');
 	for (var i=0; i<paramList.length-1; i++)
@@ -167,7 +177,7 @@ QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
 		return false;
 				
 	if (!title) //if no spesific title is defined, use the default one
-		title=QuickEdit.config["imgUploadTitle"];	
+		title=QuickEdit.config["imgUploadTitle"];
 	var uplBox=QuickEdit.createUploadBox(title, uploadAddress, params, QuickEdit._imgLoaded); //create an upload box, just as we want :)
 	imgElement.editing=true; //set the image's editing mode to true, to indicate it now has an uploadBox
 	uplBox.callerElement=imgElement; //set the uploadBox's callerElement as our image, for further use
@@ -331,6 +341,16 @@ QuickEdit._setEditedValue=function(nameContainer)
 		nameContainer.disabled=true;
 	};
 	
+	var params;
+	try
+	{
+		eval("params=" + labelObject.quickEdit.params);
+	}
+	catch (error)
+	{
+		params=labelObject.quickEdit.params;
+	}
+	
 	AJAX.makeRequest(
 		"POST",
 		labelObject.quickEdit.action,
@@ -417,6 +437,22 @@ QuickEdit._editLabel=function(labelObject)
 };
 
 /**
+ * Returns true if the element's TAG is not in the config.forbiddenTags list.
+ * 
+ * @private
+ * @deprecated Used internally for element initialization.
+ * @return {Boolean}
+ * @param {HTMLObject} element
+ */
+QuickEdit._checkElement=function(element)
+{
+	for (var i=QuickEdit.config.forbiddenTags.length-1; i>=0; i--)
+		if (element.tagName==QuickEdit.config.forbiddenTags[i])
+			return false;
+	return true;
+};
+
+/**
  * Assigns the necessary functions to the editable element which
  * is gathered and whose attributes are set by aParser.setElementAttributes
  * 
@@ -447,6 +483,7 @@ QuickEdit.init=function()
 	aParser.assignAttributesFromFile(
 		QuickEdit.config['ruleFile'],
 		'quickEdit',
+		QuickEdit._checkElement,
 		QuickEdit._setEditableElement
 	);
 

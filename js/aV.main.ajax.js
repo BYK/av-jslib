@@ -13,6 +13,7 @@ if (typeof AJAX!="undefined")
 /**
  * Represents a namespace, AJAX, for the new functions and global parameters of those functions.
  *
+ * @namespace
  * @config	{String}	[noAjax]	The error message which user will see if his/her browser does not support AJAX.
  * If you want to disable this warning, just set this to false.
  * @config	{String}	[loadImgPath]	The "loading" gif's path, which might be used in various places.
@@ -20,7 +21,6 @@ if (typeof AJAX!="undefined")
  * If you want to disable this text, just set this to false.
  * @config	{String}	[pageLeaveWarning]	The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
  * If you want to disable this warning, just set this to false.
- * @namespace
  */
 AJAX = {};
 

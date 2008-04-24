@@ -3,7 +3,7 @@
  * @name quickEdit
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	2.1
+ * @version	2.1.1
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
@@ -91,7 +91,10 @@ QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
 	var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;responseText=responseText.replace(/<\S[^><]*>/g, '');if(!responseText)return;var destroyContainer=true;if(this.parentNode.callBackFunc)destroyContainer=this.parentNode.callBackFunc(this.parentNode,responseText);if(destroyContainer)QuickEdit._destroyUploadBox(this.parentNode);";
 	
 	//prepare the inner visual structure of the uploadBox container div - this part might be customized
-	var inHTML='<div ondblclick="QuickEdit._destroyUploadBox(this.parentNode)" class="uploadTitle" style="float: left; clear: both; width: 100%">' + titleText + '</div>';
+	var inHTML='<div class="uploadTitle" style="float: left; clear: both; width: 100%">';
+	inHTML+='<div class="uploadTitleText">' + titleText + '</div>';
+	inHTML+='<div class="uploadCloseButton" onclick="QuickEdit._destroyUploadBox(this.parentNode.parentNode)"><sup>x</sup></div>';
+	inHTML+='</div>';
 	
 	//add the necessary hidden iframe code
 	inHTML+='<iframe id="uploadIframe' + QuickEdit.uploadBoxCount + '" name="uploadIframe' + QuickEdit.uploadBoxCount + '" style="display:none" src="about:blank" onload="' + onloadFunc + '"></iframe>';
@@ -142,7 +145,7 @@ QuickEdit._destroyUploadBox=function(uploadBox)
 	if (!uploadBox) return false;
 	if (uploadBox.callerElement)
 	{
-		uploadBox.callerElement.editing=false;
+		uploadBox.callerElement.quickEdit.active=false;
 		if (uploadBox.callerElement.onmouseout) uploadBox.callerElement.onmouseout({type: "mouseout", target: uploadBox.callerElement});
 	}
 	document.body.removeChild(uploadBox);
@@ -173,13 +176,13 @@ QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
 		imgElement=document.getElementById(imgElement);
 	*/
 	
-	if (imgElement.editing) //if there is already an uploadBox, return false
+	if (imgElement.quickEdit.active) //if there is already an uploadBox, return false
 		return false;
 				
 	if (!title) //if no spesific title is defined, use the default one
 		title=QuickEdit.config["imgUploadTitle"];
 	var uplBox=QuickEdit.createUploadBox(title, uploadAddress, params, QuickEdit._imgLoaded); //create an upload box, just as we want :)
-	imgElement.editing=true; //set the image's editing mode to true, to indicate it now has an uploadBox
+	imgElement.quickEdit.active=true; //set the image's quickEdit.active mode to true, to indicate it now has an uploadBox
 	uplBox.callerElement=imgElement; //set the uploadBox's callerElement as our image, for further use
 	uplBox.style.width="200px";
 	//position the upload box, in the middle of the image
@@ -271,7 +274,7 @@ QuickEdit._editableElementMouseOut=function(event)
 	if (!element.quickEdit)
 		return;
 	
-	if(!element.editing) //if the element is not clicked (or being edited)
+	if(!element.quickEdit.active) //if the element is not clicked (or being edited)
 	{
 		if (element.quickEdit.fade!=null) //if fading assigned, return to opaque mode
 			Visual.fade(element, 1, true);
@@ -324,7 +327,7 @@ QuickEdit._setEditedValue=function(nameContainer)
 			labelObject.appendChild(document.createTextNode(newName));
 			labelObject.innerHTML=labelObject.innerHTML.LBtoBR();
 
-			labelObject.editing=false;
+			labelObject.quickEdit.active=false;
 			labelObject.onmouseout({type: "mouseout", target: labelObject});
 		}
 		else
@@ -370,33 +373,69 @@ QuickEdit._setEditedValue=function(nameContainer)
  */
 QuickEdit._editLabel=function(labelObject)
 {
-	if (labelObject.editing || labelObject.getElementsByTagName("INPUT").length>0)
+	if (labelObject.quickEdit.active)
 		return;
 	
 	var editBox;
 	
-	if (labelObject.quickEdit.type=="textarea")
-		editBox=document.createElement("TEXTAREA");
-	else
-		editBox=document.createElement("INPUT");
+	switch(labelObject.quickEdit.type)
+	{
+		case 'select':
+			if (typeof labelObject.quickEdit.selectValues == 'string') 
+			{
+				try 
+				{
+					eval('labelObject.quickEdit.selectValues=' + labelObject.quickEdit.selectValues + ';');
+				} 
+				catch (error) 
+				{
+					labelObject.quickEdit.selectValues = labelObject.quickEdit.selectValues;
+				};
+			}
+			else if (typeof labelObject.quickEdit.selectValues=='undefined')
+				return false;
+			editBox=document.createElement("SELECT");			
+			for (var i=0; i<labelObject.quickEdit.selectValues.length; i++)
+				editBox.add(new Option(labelObject.quickEdit.selectValues[i], labelObject.quickEdit.selectValues[i]), undefined);
+			break;
+		case 'textarea':
+			editBox=document.createElement("TEXTAREA");
+			editBox.style.width=(labelObject.clientWidth>79)?(labelObject.clientWidth - 4) + "px":'auto';
+			editBox.style.height=(labelObject.scrollHeight - 4) + "px";
+			break;
+		default: 
+			editBox=document.createElement("INPUT");
+	};
 
-	editBox.style.width=(labelObject.clientWidth>79)?(labelObject.clientWidth - 4) + "px":'auto';
-	editBox.style.height=(labelObject.scrollHeight - 4) + "px";
-
-	labelObject.oldHTML=labelObject.innerHTML;
-	labelObject.innerHTML=labelObject.innerHTML.BRtoLB();
-
-	editBox.value=(labelObject.firstChild)?labelObject.firstChild.nodeValue:labelObject.innerText;
-	editBox.originalValue=editBox.value;
-
-	labelObject.innerHTML="";
-
+	if (labelObject.quickEdit.type!='select')
+	{
+		editBox.onkeydown=function(e)
+		{
+			var key = e ? e.which : window.event.keyCode;
+			if (key==27)
+			{
+				this.value=this.originalValue;
+				this.onblur();
+			}
+			else if (this.tagName=='INPUT' && key==13)
+			{
+				this.onblur();
+			}
+			else if (this.tagName=='TEXTAREA' && parseInt(this.style.height)<this.scrollHeight)
+			{
+				this.style.height=Math.max(this.scrollHeight - 2, 20) + "px";
+			}
+			
+			return true;
+		};
+	}
+	
 	editBox.onblur=function() 
 	{
 		if (this.value==this.originalValue)
 		{			
 			labelObject.innerHTML=labelObject.oldHTML;
-			labelObject.editing=false;
+			labelObject.quickEdit.active=false;
 			labelObject.onmouseout({type: "mouseout", target: labelObject});
 		}
 		
@@ -408,32 +447,21 @@ QuickEdit._editLabel=function(labelObject)
 		
 	};
 	
-	editBox.onkeydown=function(e)
-	{
-		var key = e ? e.which : window.event.keyCode;
-		if (key==27)
-		{
-			this.value=this.originalValue;
-			this.onblur();
-		}
-		else if (this.tagName=='INPUT' && key==13)
-		{
-			this.onblur();
-		}
-		else if (this.tagName=='TEXTAREA' && parseInt(this.style.height)<this.scrollHeight)
-		{
-			this.style.height=Math.max(this.scrollHeight - 2, 20) + "px";
-		}
-		
-		return true;
-	};
-	
+	labelObject.oldHTML=labelObject.innerHTML;
+	labelObject.innerHTML=labelObject.innerHTML.BRtoLB();
+
+	editBox.value=(labelObject.firstChild)?labelObject.firstChild.nodeValue:labelObject.innerText;
+	editBox.originalValue=editBox.value;
+
+	labelObject.innerHTML="";
+
 	labelObject.appendChild(editBox);
-	labelObject.editing=true;
+	labelObject.quickEdit.active=true;
 	
-	editBox.className="editLabel";
+//	editBox.className="editLabel";
 	editBox.focus();
-	editBox.select();
+	if (editBox.select)
+		editBox.select();
 };
 
 /**

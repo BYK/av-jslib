@@ -1,8 +1,13 @@
-#idInfo>li>div
+#idInfo>li>div, #idInfo>li>span
 {
 	action: 'change.php',
 	params: 'var=' + element.id + '&val',
 	condition: 1
+}
+#idGender
+{
+	type: 'select',
+	selectValues: ['Unisex', 'Male', 'Female']
 }
 #idExtraInfo
 {

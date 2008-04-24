@@ -1,4 +1,4 @@
-body, input
+body, input, select, textarea
 {
 	font-family: Tahoma, Sans;
 	font-size: 10pt;
@@ -7,7 +7,7 @@ body, input
 {
 	border: 2px dashed #ff9000;
 	width: 350px;
-	height: 138px;
+	min-height: 140px;
 	padding: 5px;
 	overflow: hidden;
 	margin-left: auto;
@@ -20,12 +20,13 @@ body, input
 	height: 128px;
 	border: 2px solid #ffffff;
 	border-right: 2px solid #bbbbbb;
+	border-bottom: 2px solid #bbbbbb;
 }
 #idInfo
 {
 	float: left;
 	width: 190px;
-	height: 100px;
+	min-height: 100px;
 	margin: 12px 0px 12px 10px;
 	padding: 0px;
 }
@@ -33,44 +34,60 @@ body, input
 {
 	font-weight: bold;
 	list-style: none;
-	height: 2.5em;
 }
 #idInfo li div
 {
 	font-weight: normal;
 	display: block;
-	height: 1.5em;
+	height: 2em;
+}
+#idInfo li span
+{
+	font-weight: normal;
 }
 #idExtraInfo
 {
-	height: 2.5em;
+	min-height: 4.5em;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
-span.editable, div.editable
+div.editable, span.editable
 {
 	text-decoration: underline;
 	cursor: pointer;
+}
+span.editable
+{
+	background: #ffffaa;
+	text-decoration: none;
 }
 img.editable
 {
 	border: 2px solid #dddddd;
 	cursor: pointer;
 }
-.editable input
+.editable input, .editable select
 {
-	border: none;
+	border: 1px solid #cccccc;
 	padding: 0px;
 	margin: 0px;
 	display: inline;
 	width: 98%;
-	height: 1em;
+}
+span.editable input
+{
+	border: none;
+	border-bottom: 1px solid #bbbbbb;
+	width: 120px;
+	background: none;
 }
 .editable textarea
 {
 	border: none;
-	max-height: 2.5em!important;
 	margin: 0px;
 	padding: 1px;
 	width: 98%;
+	max-height: 4.5em;
 }
 .uploadContainer
 {
@@ -98,4 +115,20 @@ img.editable
 	cursor:default;
 	margin:0px;
 	padding:2px;
+	float: left;
+	clear: both;
+	width: 100%;
+}
+.uploadTitleText
+{
+	float: left;
+	clear: left;
+}
+.uploadCloseButton
+{
+	cursor: pointer;
+	float: right;
+	clear: right;
+	margin-right: 5px;
+	font-size: 9pt;
 }

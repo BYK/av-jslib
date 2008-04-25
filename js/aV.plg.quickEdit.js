@@ -339,6 +339,7 @@ QuickEdit._setEditedValue=function(nameContainer)
 			nameContainer.disabled=false;
 		}
 	};
+	
 	var loadFunction=function()
 	{
 		nameContainer.disabled=true;
@@ -432,7 +433,7 @@ QuickEdit._editLabel=function(labelObject)
 	
 	editBox.onblur=function() 
 	{
-		if (this.value==this.originalValue)
+		if (this.value==this.originalValue || !this.value)
 		{			
 			labelObject.innerHTML=labelObject.oldHTML;
 			labelObject.quickEdit.active=false;
@@ -450,7 +451,13 @@ QuickEdit._editLabel=function(labelObject)
 	labelObject.oldHTML=labelObject.innerHTML;
 	labelObject.innerHTML=labelObject.innerHTML.BRtoLB();
 
-	editBox.value=(labelObject.firstChild)?labelObject.firstChild.nodeValue:labelObject.innerText;
+	if (labelObject.firstChild && labelObject.firstChild.nodeValue)
+		editBox.value=labelObject.firstChild.nodeValue;
+	else if (labelObject.innerText)
+		editBox.value=labelObject.innerText;
+	else
+		editBox.value='';
+
 	editBox.originalValue=editBox.value;
 
 	labelObject.innerHTML="";

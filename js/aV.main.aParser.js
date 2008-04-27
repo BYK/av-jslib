@@ -107,8 +107,8 @@ aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attrib
 aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, afterSet)
 {
 	ruleText+="\n*[" + propertyName + "]{*}";
-	ruleText=ruleText.replace(/\/\*.+\*\//ig, '');
-	var matcher=/([^\{]+)\s*\{\s*([^\}]+)\s*\}/ig;
+	ruleText=ruleText.replace(/\/\*.*\*\//g, '');
+	var matcher=/([^\{]+)\s*\{\s*([^\}]+)\s*\}/g;
 	
 	var result, queryStr, attributeStr;
 	while (result=matcher.exec(ruleText))

@@ -1,0 +1,20 @@
+ul.aCListBox
+{
+	display: block;
+	border: 1px solid #cccccc;
+	background: #ffffff;
+	margin: 0px;
+	padding: 1px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	max-height: 100px;
+}
+ul.aCListBox li
+{
+	list-style: none;
+	cursor: pointer;
+}
+ul.aCListBox li.selected
+{
+	background: #ccccff;
+}

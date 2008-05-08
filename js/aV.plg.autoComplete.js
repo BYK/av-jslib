@@ -47,7 +47,7 @@ AutoComplete.config=
 	ruleFile: 'autoCompleteRules.txt',
 	listBoxOffset: 3,
 	minChars: 2,
-	delay: 200,
+	delay: 150,
 	retryOnError: false,
 	allowedTags: ["INPUT"]
 };
@@ -161,7 +161,7 @@ AutoComplete._onKeyUpHandler=function(event)
 	if (event.target.autoComplete.keyUpTimer)
 		clearTimeout(event.target.autoComplete.keyUpTimer);
 	var key=(event.which)?event.which:event.keyCode;
-	var minChars=(event.target.autoComplete.minChars)?event.target.autoComplete.minChars:AutoComplete.config.minChars;
+	var minChars=(event.target.autoComplete.minChars!=undefined)?event.target.autoComplete.minChars:AutoComplete.config.minChars;
 	
 	if (event.target.value.length < minChars || key==27) 
 	{
@@ -171,8 +171,13 @@ AutoComplete._onKeyUpHandler=function(event)
 	
 	if (key != 13 && (key > 40 || key < 37)) 
 	{
-		var delay = (event.target.autoComplete.delay) ? event.target.autoComplete.delay : AutoComplete.config.delay;
-		event.target.autoComplete.keyUpTimer = setTimeout('AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
+		if (event.target.autoComplete.listBox)
+			AutoComplete._doKeyUp(event.target);
+		else
+		{
+			var delay = (event.target.autoComplete.delay) ? event.target.autoComplete.delay : AutoComplete.config.delay;
+			event.target.autoComplete.keyUpTimer = setTimeout('AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
+		}
 	}
 };
 

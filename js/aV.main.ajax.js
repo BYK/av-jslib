@@ -1,9 +1,9 @@
 /**
- * @fileOverview	A function-based AJAX library which also comes with useful XML functions such as <a href="#AJAX.XML.getValue">AJAX.XML.getValue</a> and <a href="#AJAX.XML.setValue">AJAX.XML.setValue</a>.
- * @name	AJAX&XML Library
+ * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#AJAX.XML.getValue">AJAX.XML.getValue</a> and <a href="#AJAX.XML.setValue">AJAX.XML.setValue</a>.
+ * @name AJAX&XML Library
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.4
+ * @author Burak Yiğit KAYA	byk@amplio-vita.net
+ * @version 1.4
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
@@ -14,12 +14,12 @@ if (typeof AJAX!="undefined")
  * Represents a namespace, AJAX, for the new functions and global parameters of those functions.
  *
  * @namespace
- * @config	{String}	[noAjax]	The error message which user will see if his/her browser does not support AJAX.
+ * @config {String} [noAjax] The error message which user will see if his/her browser does not support AJAX.
  * If you want to disable this warning, just set this to false.
- * @config	{String}	[loadImgPath]	The "loading" gif's path, which might be used in various places.
- * @config {String}	[loadingText]	The "loading" message which will be placed into a dynamically filled container while the content is being loaded.
+ * @config {String} [loadImgPath] The "loading" gif's path, which might be used in various places.
+ * @config {String} [loadingText] The "loading" message which will be placed into a dynamically filled container while the content is being loaded.
  * If you want to disable this text, just set this to false.
- * @config	{String}	[pageLeaveWarning]	The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
+ * @config {String} [pageLeaveWarning] The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
  * If you want to disable this warning, just set this to false.
  */
 AJAX = {};
@@ -317,6 +317,11 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 	}
 	newNode[attr]=theURL;
 	return head.appendChild(newNode);
+};
+
+AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
+{
+	
 };
 
 /**

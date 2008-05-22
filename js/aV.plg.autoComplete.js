@@ -14,19 +14,19 @@
  */
 
 if (typeof Events=="undefined")
-	throw new Error("Event functions cannot be found!", "aV.module.autoComplete.js@" + window.location.href, 17);
+	throw new Error("Event functions cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 17);
 
 if (typeof AJAX=="undefined")
-	throw new Error("AJAX functions library cannot be found!", "aV.module.autoComplete.js@" + window.location.href, 20);
+	throw new Error("AJAX functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 20);
 
 if (typeof aParser=="undefined")
-	throw new Error("aParser functions library cannot be found!", "aV.module.autoComplete.js@" + window.location.href, 23);
+	throw new Error("aParser functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 23);
 
 if (typeof Visual=="undefined")
-	throw new Error("Visual functions library cannot be found!", "aV.module.autoComplete.js@" + window.location.href, 26);
+	throw new Error("Visual functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 26);
 
 if (typeof AutoComplete!="undefined")
-	throw new Error('"AutoComplete" namespace had already been taken!', "aV.module.autoComplete.js@" + window.location.href, 29);
+	throw new Error('"AutoComplete" namespace had already been taken!', "aV.plg.autoComplete.js@" + window.location.href, 29);
 	
 /**
  * Represents the namespace for AutoComplete functions.
@@ -112,7 +112,7 @@ AutoComplete._showListBox=function(element)
 
 AutoComplete._doKeyUp=function(element)
 {
-	if (!element.autoComplete.list || !element.value.match(new RegExp('^' + element.autoComplete.filter.escapeRegExp(), 'i')))
+	if (element.autoComplete.list==undefined || !element.value.match(new RegExp('^' + element.autoComplete.filter.escapeRegExp(), 'i')))
 	{
 		element.autoComplete.filter=element.value;
 		
@@ -126,13 +126,15 @@ AutoComplete._doKeyUp=function(element)
 			params = element.autoComplete.params;
 		}
 
-		AJAX.makeRequest(
+		AJAX.destroyRequestObject(element.autoComplete.request);
+		element.className+=' aCLoading';
+		element.autoComplete.request=AJAX.makeRequest(
 			"GET",
 			element.autoComplete.source,
 			params + '=' + encodeURIComponent(element.value),
 			function (requestObject)
 			{
-				if (requestObject.status == 200 && requestObject.responseText) 
+				if (requestObject.status == 200) 
 				{
 					element.autoComplete.list = requestObject.responseText.split("\n");
 					AutoComplete._showListBox(element);
@@ -147,6 +149,7 @@ AutoComplete._doKeyUp=function(element)
 					else
 						AutoComplete._removeListBox(element);
 				}
+				element.className=element.className.replace(/\s*aCLoading/, "");
 			}
 		);
 	}
@@ -185,7 +188,7 @@ AutoComplete._onKeyDownHandler=function(event, newIndex)
 {
 	var key=(event.which)?event.which:event.keyCode;
 	
-	if (!event.target.autoComplete.list || !event.target.autoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
+	if (event.target.autoComplete.list==undefined || !event.target.autoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
 		return;
 	
 	if (event.target.autoComplete.list.selectedIndex>-1 && event.target.autoComplete.listBox)

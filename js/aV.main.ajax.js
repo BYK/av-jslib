@@ -3,7 +3,7 @@
  * @name AJAX&XML Library
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
- * @version 1.4
+ * @version 1.4.1
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
@@ -102,6 +102,15 @@ AJAX.checkActiveRequests=function()
 {
 	if (AJAX.config["pageLeaveWarning"] && AJAX.activeRequestCount>0)
 		return AJAX.config["pageLeaveWarning"];
+};
+
+AJAX.serializeParameters=function(parameters)
+{
+	var paramsTemp=parameters;
+	parameters='';
+	for (var paramName in paramsTemp)
+		parameters+='&' + paramName + '=' + encodeURIComponent(paramsTemp[paramName]);
+	return parameters.substr(1);
 };
 
 /**
@@ -224,15 +233,7 @@ AJAX.makeRequest=function(method, adress, parameters, completedFunction, loading
 	}; //finished defining the custom changeFunction
 	//checking parameters
 	if (typeof parameters=='object')
-	{
-		var paramsTemp=parameters;
-		parameters='';
-		for (var paramName in paramsTemp)
-			parameters+='&' + paramName + '=' + encodeURIComponent(paramsTemp[paramName]);
-			delete paramsTemp;
-			paramsTemp=undefined;
-			parameters=parameters.substr(1);
-	}
+		parameters=AJAX.serializeParameters(parameters);
 	
 	if (method.toUpperCase()=="GET") //if requested method is GET, then call the makeGetRequest function
 		return this.makeGetRequest(adress + ((parameters)?'?' + parameters:''), triggerFunction);

@@ -5,7 +5,7 @@
  * @name DBGrid class
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.4.1
+ * @version	1.4.2
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string</a>
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
@@ -15,7 +15,7 @@
  */
 
 /**
- * @classDescription A dynamic filled DBGrid class
+ * @classDescription A dynamically filled DBGrid class
  * @constructor
  * @param	 {String} dataAddress The address to the data XML
  * @param {String | Object} parameters Parameters for the POST call to the *dataAddress*
@@ -57,9 +57,13 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	 * Would be boolean false if no column is set.
 	 * @type {integer}
 	 */
-	this.sortBy=false;
+	this.sortBy=[];
 	
-	this.sortDirection=false;
+	this.sortDirection=[];
+	
+	this._activeCompareFunction=[];
+	
+	this.maxSortAccumulation=4;
 	this.error=false;
 	
 	/* event definitions */
@@ -116,6 +120,16 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		);
 	};
 	
+	this.getExportLink=function(type)
+	{
+		var params=this.parameters || {};
+		if (typeof params=='object')
+			params=AJAX.serializeParameters(params);
+		params+='&type=' + encodeURIComponent(type);
+		
+		return this.dataAddress + '?' + params;
+	};
+	
 	this.parseData=function(fullRefresh)
 	{
 		fullRefresh=(fullRefresh || !this.tableElement);
@@ -125,8 +139,8 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			delete this.columns;
 			delete this.colCount;
 			
-			this.sortBy=false;
-			this.sortDirection=false;
+			this.sortBy=[];
+			this.sortDirection=[];
 		}
 		
 		delete this.rows;
@@ -166,6 +180,10 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 						default:
 							this.columnProperties[i].filterFunction=this._alphaNumericFilter;
 					}
+					
+					this.exportTypes=AJAX.XML.getValue(this.data, "exportTypes");
+					if (this.exportTypes!='')
+						this.exportTypes=this.exportTypes.split(',');
 				}
 			}
 			
@@ -259,6 +277,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.columnsButton.onclick=function()
 		{
 			var columnList=this.parentNode.parentNode.columnList;
+//			columnList.style.left=(Visual.getElementPositionX(this) + this.offsetWidth - columnList.offsetWidth) + "px";
 			if (columnList.style.height=="0px")
 				Visual.fadeNSlide(columnList, columnList.scrollHeight, 1, false, true);
 			else
@@ -279,6 +298,31 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.expandButton.onclick=function() {this.parentNode.parentNode.creator.expandAllRows();};
 		this.tableElement.expandButton.disabled=true;
 		tableCaption.appendChild(this.tableElement.expandButton);
+		
+		if (this.exportTypes.length) 
+		{
+			this.exportLinksHTML='<div style="min-width: 25px;">';
+			for (var i=0; i<this.exportTypes.length; i++)
+				this.exportLinksHTML+='<a href="' + this.getExportLink(this.exportTypes[i]) + '" target="_blank">' + this.exportTypes[i] + '</a><br/>';
+			this.exportLinksHTML+='</div>';
+			this.tableElement.excelButton = document.createElement("input");
+			this.tableElement.excelButton.type = "button";
+			this.tableElement.excelButton.value = '^';
+			Events.add(
+				this.tableElement.excelButton,
+				'click',
+				function(event)
+				{
+					var creator=event.target.parentNode.parentNode.creator;
+					Visual.customHint.pop(
+						creator.exportLinksHTML,
+						event.clientX + Visual.scrollLeft(),
+						event.clientY + Visual.scrollTop()
+					);
+				}
+			);
+			tableCaption.appendChild(this.tableElement.excelButton);
+		}
 
 		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ')'));
 		
@@ -331,7 +375,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			if (this.columnProperties[i].width!='')
 				newCell.style.width=this.columnProperties[i].width;
 			
-			if (this.sortBy===i)
+			if (this.sortBy[0]===i)
 				newCell.className="sorted";
 			
 			newCell.filterBox=document.body.appendChild(document.createElement("input"));
@@ -364,9 +408,9 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 				columnIndex=0;
 			
 			if (typeof direction!='number')
-				direction=(this.sortBy===columnIndex)?-this.sortDirection:1;
+				direction=(this.sortBy[0]===columnIndex)?-this.sortDirection[0]:1;
 			
-			if (!this.columns || !this.rows || (this.sortBy===columnIndex && this.sortDirection===direction))
+			if (!this.columns || !this.rows || (this.sortBy[0]===columnIndex && this.sortDirection[0]===direction))
 				return false;
 			
 			if (this.onSortBegin)
@@ -384,19 +428,25 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			delete this._sortCache;
 		}
 		
-		this.sortBy=columnIndex;
-		this.sortDirection=direction;
+		if (columnIndex != this.sortBy[0]) 
+		{
+			this.sortBy.unshift(columnIndex);
+			this.sortDirection.unshift(direction);
+			
+			switch (this.columnProperties[this.sortBy[0]].dataType)
+			{
+				case 'int':
+				case 'real':
+					this._activeCompareFunction.unshift(this._numericCompare);
+					break;
+				default:
+					this._activeCompareFunction.unshift(this._alphaNumericCompare);
+			}
+		}
+		else
+			this.sortDirection[0]=direction;
 		
 		var currentObject=this;
-		switch (this.columnProperties[this.sortBy].dataType)
-		{
-			case 'int':
-			case 'real':
-				this._activeCompareFunction=this._numericCompare;
-				break;
-			default:
-				this._activeCompareFunction=this._alphaNumericCompare;
-		}
 		
 		this._sortRows();
 
@@ -455,20 +505,35 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	
 	this._sortRows=function()
 	{
+		if (this._activeCompareFunction.length<=0)
+			return;
 		var currentObject=this;
 		this.rows.sort(
 			function(row1, row2)
 			{
-				row1=currentObject._extractCellValue(row1, currentObject.sortBy);
-				row2=currentObject._extractCellValue(row2, currentObject.sortBy);
-				return currentObject._activeCompareFunction(row1, row2)*currentObject.sortDirection;
+				var result=0;
+				var val1, val2;
+				for (var i = 0; i < currentObject.maxSortAccumulation && !result; i++) 
+				{
+					val1=currentObject._extractCellValue(row1, currentObject.sortBy[i]);
+					val2=currentObject._extractCellValue(row2, currentObject.sortBy[i]);
+					result = currentObject._activeCompareFunction[i](val1, val2) * currentObject.sortDirection[i];
+				}
+				return result;
 			}
 		);
 	}
 	
 	this._extractCellValue=function(row, colIndex)
 	{
-		return row.childNodes[colIndex].firstChild.nodeValue;
+		try
+		{
+			return row.childNodes[colIndex].firstChild.nodeValue;
+		}
+		catch(error)
+		{
+			return false;
+		}
 	};
 	
 	this._printRows=function(clear, i, count, insertBefore)
@@ -500,7 +565,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			newRow.index=i;
 			newRow.onclick=this._onRowClick;
 
-			if (this.sortBy!==false)
+			if (this.sortBy.length>0)
 			{
 				newRow.ondblclick=this._rowGrouper;			
 				currentKeyData=this._extractCellValue(this.rows[i], this.sortBy);
@@ -613,8 +678,8 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		while (table.tagName!="TABLE" && table.tagName!="HTML")
 			table=table.parentNode;
 
-		if (typeof table.creator.sortBy=='number')
-			this.parentNode.childNodes[table.creator.sortBy].className='';
+		if (typeof table.creator.sortBy[0]=='number')
+			this.parentNode.childNodes[table.creator.sortBy[0]].className='';
 		
 		this.className='sorted';
 		
@@ -784,7 +849,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		{
 			for (var i=0; i<this.colCount; i++)
 			{
-				if (i==this.sortBy || this.columnProperties[i].hidden)
+				if (i==this.sortBy[0] || this.columnProperties[i].hidden)
 					continue;
 				dataType=(this.columnProperties[i].dontSum)?"string":this.columnProperties[i].dataType;
 				switch(dataType)

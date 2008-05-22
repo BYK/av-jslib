@@ -18,3 +18,9 @@ ul.aCListBox li.selected
 {
 	background: #ccccff;
 }
+.aCLoading
+{
+	background-image: url('http://amplio-vita.net/images/loading.gif');
+	background-position: right;
+	background-repeat: no-repeat;
+}

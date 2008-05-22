@@ -88,7 +88,7 @@ QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
 	containerDiv.callBackFunc=callBackFunc; //define a new property for the containerDiv for storing the *callBackFunc*
 	
 	//start defining the onload function of the upcoming iframe in text format for compatibility with IE
-	var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;responseText=responseText.replace(/<\S[^><]*>/g, '');if(!responseText)return;var destroyContainer=true;if(this.parentNode.callBackFunc)destroyContainer=this.parentNode.callBackFunc(this.parentNode,responseText);if(destroyContainer)QuickEdit._destroyUploadBox(this.parentNode);";
+	var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;if(!responseText)return;var destroyContainer=true;if(this.parentNode.callBackFunc)destroyContainer=this.parentNode.callBackFunc(this.parentNode,responseText);if(destroyContainer)setTimeout('QuickEdit._destroyUploadBox(document.getElementById(\\'" + containerDiv.id + "\\'));', 0);";
 	
 	//prepare the inner visual structure of the uploadBox container div - this part might be customized
 	var inHTML='<div class="uploadTitle" style="float: left; clear: both; width: 100%">';
@@ -202,6 +202,7 @@ QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
 
 QuickEdit._imgLoaded=function(container, responseText)
 {
+	responseText=responseText.stripHTML().trim();
 	if (responseText && responseText.substr(0, 5)=="path=")
 	{
 		//if there *is* a response text and it starts with "path=" prefix,
@@ -211,8 +212,7 @@ QuickEdit._imgLoaded=function(container, responseText)
 		//the cache. To prevent this, we add a dummy get parameter which is actually the current
 		//time, which forces a refresh.
 		var now=new Date();
-		container.callerElement.src=responseText.replace(/\s+$/,"").substring(5) + '?' + now.getTime();
-		delete now;
+		container.callerElement.src=responseText.substring(5) + '?' + now.getTime();
 		return true;
 	}
 	else

@@ -1,6 +1,6 @@
 /**
  * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#AJAX.XML.getValue">AJAX.XML.getValue</a> and <a href="#AJAX.XML.setValue">AJAX.XML.setValue</a>.
- * @name AJAX&XML Library
+ * @name Core AJAX and XML Library
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
  * @version 1.4.1
@@ -11,19 +11,22 @@ if (typeof AJAX!="undefined")
 	throw new Error('"AJAX" namespace had already been taken!', "aV.main.ajax.js@" + window.location.href, 11);
 	
 /**
- * Represents a namespace, AJAX, for the new functions and global parameters of those functions.
+ * Represents the namespace, AJAX, for the core AJAX functions and global parameters of those functions.
  *
  * @namespace
- * @config {String} [noAjax] The error message which user will see if his/her browser does not support AJAX.
+ * @param {String} [config.noAjax="You need an AJAX supported browser to use this page."] The error message which user will see if his/her browser does not support AJAX.
  * If you want to disable this warning, just set this to false.
- * @config {String} [loadImgPath] The "loading" gif's path, which might be used in various places.
- * @config {String} [loadingText] The "loading" message which will be placed into a dynamically filled container while the content is being loaded.
+ * @param {String} [config.loadImgPath="images/loading_img.gif"] The "loading" gif's path, which might be used in various places. 
+ * @param {String} [config.loadingText] The "loading" message which will be placed into a dynamically filled container while the content is being loaded.
  * If you want to disable this text, just set this to false.
- * @config {String} [pageLeaveWarning] The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
+ * @param {String} [config.pageLeaveWarning="There are one or more requests in progress. If you exit, there might be data loss."] The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
  * If you want to disable this warning, just set this to false.
  */
 AJAX = {};
 
+/**
+ * Holds the configuration parameters.
+ */
 AJAX.config=
 {
 	noAjax: "You need an AJAX supported browser to use this page.",
@@ -34,9 +37,9 @@ AJAX.config=
 
 /**
  * Tries to get an XMLHttpRequest object, returns false if the browser does not support AJAX.
- *
- * @deprecated You should not need to use this function directly, use <a href="#AJAX.makeRequest">makeRequest</a> to make AJAX calls.
- * @return	{XMLHttpRequestObject | false} A new XMLHttpRequest object or false
+ * 
+ * @deprecated You should not need to use this function directly, use {@link AJAX.makeRequest} to make AJAX calls.
+ * @return {XMLHttpRequestObject | false} A new XMLHttpRequest object or false
  */
 AJAX.createRequestObject=function()
 {
@@ -75,10 +78,9 @@ AJAX.createRequestObject=function()
 
 /**
  * Destroys the given XMLHttpRequest object safely.
- * <br />Aborts the request if it is active.
+ * Aborts the request if it is active.
  *
- * @method
- * @param	{XMLHttpRequestObject}	requestObject	The requestObject-to-be-destroyed
+ * @param {XMLHttpRequestObject} requestObject The requestObject which will be destroyed
  */
 AJAX.destroyRequestObject=function(requestObject)
 {
@@ -93,23 +95,35 @@ AJAX.destroyRequestObject=function(requestObject)
 
 /**
  * This function is assigned to the page's onbeforeunload event for pageLeaveWarning feature.
- * <br />See <a href="#AJAX">config.pageLeaveWarning</a>
+ * See {@link AJAX}.config.pageLeaveWarning
  *
  * @deprecated Should not be called directly, it is for the page's onbeforeunload event.
  * @return {String | null} pageLeaveWarning config variable or null
  */
 AJAX.checkActiveRequests=function()
 {
-	if (AJAX.config["pageLeaveWarning"] && AJAX.activeRequestCount>0)
-		return AJAX.config["pageLeaveWarning"];
+	if (AJAX.config.pageLeaveWarning && AJAX.activeRequestCount>0)
+		return AJAX.config.pageLeaveWarning;
 };
 
+/**
+ * This function serializes the parameters object to a standart URI query string.
+ * 
+ * @return {String} The URI query string.
+ * @param {Object} parameters
+ */
 AJAX.serializeParameters=function(parameters)
 {
 	var paramsTemp=parameters;
 	parameters='';
 	for (var paramName in paramsTemp)
-		parameters+='&' + paramName + '=' + encodeURIComponent(paramsTemp[paramName]);
+		if (paramsTemp[paramName] instanceof Array)
+		{
+			for (var i=paramsTemp[paramName].length-1; i>=0; i--)
+				parameters+='&' + paramName + '[]=' + encodeURIComponent(paramsTemp[paramName][i]);
+		}
+		else
+			parameters+='&' + paramName + '=' + encodeURIComponent(paramsTemp[paramName]);
 	return parameters.substr(1);
 };
 
@@ -118,10 +132,10 @@ AJAX.serializeParameters=function(parameters)
  * Assignes changeFunction to the newly created XMLHttpRequest object's onreadystatechange event.
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
- * @deprecated	Generally used internally from other high-level functions. Not very suitable for end-developers.
+ * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
  * @return {XMLHttpRequestObject}
- * @param	{String}	adress	The adress of the page which will be connected. Should include the URI encoded GET parameters.
- * @param	{Function(XMLHttpRequestObject)}	[changeFunction]	The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
+ * @param {String} adress The adress of the page which will be connected. Should include the URI encoded GET parameters.
+ * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
 AJAX.makeGetRequest=function(adress, changeFunction)
 {
@@ -160,15 +174,15 @@ AJAX.makeGetRequest=function(adress, changeFunction)
 };
 
 /**
- * Creates a new XMLHttpRequest object which connects to the adress, which includes the URI encoded and merged POST parameters.
+ * Creates a new XMLHttpRequest object which posts the given URI query string to the given adress.
  * Assignes changeFunction to the newly created XMLHttpRequest object's onreadystatechange event.
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
- * @deprecated	Generally used internally from other high-level functions. Not very suitable for end-developers.
+ * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
  * @return {XMLHttpRequestObject}
- * @param	{String}	adress	The adress of the page which will be connected. Should  NOT include any parameters.
- * @param	{String}	parameters	The URI encoded and merged POST parameters for the HTTP request.
- * @param	{Function(XMLHttpRequestObject)}	[changeFunction]	The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
+ * @param {String} adress The adress of the page which will be connected. Should  NOT include any parameters.
+ * @param {String} parameters The URI encoded and merged POST parameters for the HTTP request.
+ * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
 AJAX.makePostRequest=function(adress, parameters, changeFunction)
 {
@@ -213,14 +227,14 @@ AJAX.makePostRequest=function(adress, parameters, changeFunction)
 /**
  * Takes "GET" or "POST" as method parameter and then according to this, creates a SELF-MANAGED
  * XMLHttpRequest object using internal makeGetRequest or makePostRequest according to the method parameter.
- * Developers are strongly adviced to use THIS function instead of the above POST and GET specific functions.
+ * Developers are strongly recommended to use THIS function instead of the above POST and GET specific functions.
  *
- * @return	{XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
- * @param	{String}	method	Should be either POST or GET according to the type of the HTTP request.
- * @param	{String}	adress	The adress of the page which will be connected. Should  NOT include any parameters.
- * @param	{String | Object}	parameters	The parameters which are either URI encoded and merged or given in the JSON format
- * @param	{Function(XMLHttpRequestObject)}	[completedFunction]	The function which will be called when the HTTP call is completed. (readyState==4)
- * @param	{Function(XMLHttpRequestObject)}	[loadingFunction]	The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
+ * @return {XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
+ * @param {String} method Should be either POST or GET according to the type of the HTTP request.
+ * @param {String} adress The adress of the page which will be connected. Should  NOT include any parameters.
+ * @param {String | Object} parameters The parameters which are either URI encoded and merged or given in the JSON format
+ * @param {Function(XMLHttpRequestObject)} [completedFunction] The function which will be called when the HTTP call is completed. (readyState==4)
+ * @param {Function(XMLHttpRequestObject)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
  */
 AJAX.makeRequest=function(method, adress, parameters, completedFunction, loadingFunction)
 {
@@ -244,14 +258,14 @@ AJAX.makeRequest=function(method, adress, parameters, completedFunction, loading
 };
 
 /**
- * Loads a dynamic content to the given container element.
- * If the config["loadingText"] is defined, target container element's innerHTML is filled with global variable config["loadingText"] while the content is loading.
+ * Loads content to the given container element using an asynchronous HTTP GET call.
+ * If the config.loadingText is defined, target container element's innerHTML is filled with its valye while the content is loading.
  *
- * @result	{XMLHttpRequestObject}
- * @param	{String}	theURL	The URL of the content which will be loaded dynamically into the given container.
- * @param	{String|Object}	element	The container element itself or its id, which the dynamic content will be loaded into.
- * @param	{Function(Object, String)}	[completedFunction]	The function which will be called when the loading of the content is finished. It is called with the target container element and the URL as parameters.
- * @param	{Function(Object, String)}	[loadingFunction]	The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
+ * @result {XMLHttpRequestObject}
+ * @param {String} theURL The URL of the content which will be loaded dynamically into the given container.
+ * @param {String|Object} element The container element itself or its id, which the dynamic content will be loaded into.
+ * @param {Function(Object, String)} [completedFunction] The function which will be called when the loading of the content is finished. It is called with the target container element and the URL as parameters.
+ * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  */
 AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
 {
@@ -280,13 +294,13 @@ AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
  * Loads an external style-sheet or Javascript file on-demand.
  * Removes the old node if a resourceId is given.
  * 
- * @return	{HTMLElementObject}	The newly added script or link DOM node.
- * @param	{String}	theURL	The address of the resource-to-be-loaded.
- * @param	{String}	[type]	The type of the resource.
- * Should be either js or css. The default value is js.
- * @param	{String}	[resourceId]	The id which will be assigned to newly created DOM node.
+ * @return {HTMLElementObject} The newly added script or link DOM node.
+ * @param {String} theURL The address of the resource-to-be-loaded.
+ * @param {String} [type="js"] The type of the resource.
+ * Should be either js or css.
+ * @param {String} [resourceId]	The id which will be assigned to newly created DOM node.
  * If not given, no id is assigned to the created node.
- * @param	{Boolean}	[forceRefresh]	Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
+ * @param {Boolean} [forceRefresh] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
  */
 AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 {
@@ -320,6 +334,15 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 	return head.appendChild(newNode);
 };
 
+/**
+ * @ignore
+ * @param {Object} theURL
+ * @param {Object} parameters
+ * @param {Object} element
+ * @param {Object} incremental
+ * @param {Object} completedFunction
+ * @param {Object} loadingFunction
+ */
 AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
 {
 	
@@ -327,9 +350,9 @@ AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, comple
 
 /**
  * The current active requests number.
- * Changing this value is discouraged.
+ * Changing this value is highly discouraged.
  *
- * @type	integer
+ * @type integer
  */
 AJAX.activeRequestCount=0;
 
@@ -341,10 +364,10 @@ AJAX.XML = {};
 /**
  * Tries to extract the node value whose name is given with nodeName and is contained by mainItem node. Returns the defaultVal if any error occurs.
  *
- * @return	{String}	The value of the node whose name is given with nodeName and which is contained by mainItem node.
- * @param	{Object}	mainItem	The main node item which holds the sub nodes and their values.
- * @param	{String}	nodeName	Name of the sub node whose value will be extracted from the mainItem.
- * @param	{String}	[defaultVal]	The default value which will be returned if the sub node whose name is given in nodeName is not found.
+ * @return {String} The value of the node whose name is given with nodeName and which is contained by mainItem node.
+ * @param {Object} mainItem The main node item which holds the sub nodes and their values.
+ * @param {String} nodeName Name of the sub node whose value will be extracted from the mainItem.
+ * @param {String} [defaultVal] The default value which will be returned if the sub node whose name is given in nodeName is not found.
  */
 AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 {
@@ -368,11 +391,10 @@ AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 /**
  * Tries to set the node value whose name is given with nodeName and is contained by mainItem node. Returns false if any error occurs.
  *
- * @method
- * @return	{String}	The value set by the function is returned. If an error occures, the function returns false.
- * @param	{Object}	mainItem	The main node item which holds the sub nodes and their values.
- * @param	{String}	nodeName Name of the sub node whose value will be set.
- * @param	{String}	val	The new value of the sub node whose name is given in nodeName.
+ * @return {String} The value set by the function is returned. If an error occures, the function returns false.
+ * @param {Object} mainItem The main node item which holds the sub nodes and their values.
+ * @param {String} nodeName Name of the sub node whose value will be set.
+ * @param {String} val The new value of the sub node whose name is given in nodeName.
  */
 AJAX.XML.setValue=function(mainItem, nodeName, val)
 {
@@ -390,8 +412,8 @@ AJAX.XML.setValue=function(mainItem, nodeName, val)
 /**
  * Converts an element/node collection, which acts as an array usually, to an actual array and returns it, which allows developers to use array-spesific functions.
  *
- * @return	{HTMLElementObject[]} The array version of the given collection.
- * @param	{HTMLCollectionObject}	collection	The collection which will be converted to array.
+ * @return {HTMLElementObject[]} The array version of the given collection.
+ * @param {HTMLCollectionObject} collection The collection which will be converted to array.
  */
 AJAX.XML.toArray=function(collection)
 {

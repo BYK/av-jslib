@@ -1,22 +1,22 @@
 /**
- * @fileOverview	Introduces the DBGrid class which fetches and parses XML data
+ * @fileOverview Introduces the DBGrid class which fetches and parses XML data
  * and creates a table from the data collected.
  * <br />The generated tables have native sort, filter and grouping support.
- * @name DBGrid class
+ * @name DBGrid
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.4.2
- *
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.visual.js">aV.main.visual.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.plg.customHint.js">aV.plg.customHint.js</a>
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @version 1.4.3
  */
 
 /**
  * @classDescription A dynamically filled DBGrid class
- * @constructor
+ * @constructor * 
+ * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link Events} (aV.main.events.js)
+ * @requires {@link AJAX} (aV.main.ajax.js)
+ * @requires {@link Visual} (aV.main.visual.js)
+ * @requires {@link Visual.customHint} (aV.plg.customHint.js)
+ * 
  * @param	 {String} dataAddress The address to the data XML
  * @param {String | Object} parameters Parameters for the POST call to the *dataAddress*
  * @param {HTMLObject} printElement The HTML container element where the created table will be placed
@@ -25,9 +25,6 @@
  */
 function DBGrid(dataAddress, parameters, printElement, fetch, print)
 {
-	if (typeof AJAX=='undefined')
-		throw new Error("AJAX functions library cannot be found!", "DBGrid.js", 16);
-		
 	/**
 	 * Holds the unique identifier and index of the DBGrid object.
 	 * @type	{integer}
@@ -279,9 +276,9 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			var columnList=this.parentNode.parentNode.columnList;
 //			columnList.style.left=(Visual.getElementPositionX(this) + this.offsetWidth - columnList.offsetWidth) + "px";
 			if (columnList.style.height=="0px")
-				Visual.fadeNSlide(columnList, columnList.scrollHeight, 1, false, true);
+				Visual.fadeNSlide(columnList, columnList.scrollHeight, 1);
 			else
-				Visual.fadeNSlide(columnList, 0, -1, false, true);
+				Visual.fadeNSlide(columnList, 0, -1);
 		};
 		tableCaption.appendChild(this.tableElement.columnsButton);
 		
@@ -433,6 +430,11 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			this.sortBy.unshift(columnIndex);
 			this.sortDirection.unshift(direction);
 			
+			if (this.sortBy.length > this.maxSortAccumulation)
+				this.sortBy=this.sortBy.slice(0, this.maxSortAccumulation - 1);
+			if (this.sortDirection.length > this.maxSortAccumulation)
+				this.sortDirection=this.sortDirection.slice(0, this.maxSortAccumulation - 1);
+			
 			switch (this.columnProperties[this.sortBy[0]].dataType)
 			{
 				case 'int':
@@ -513,7 +515,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			{
 				var result=0;
 				var val1, val2;
-				for (var i = 0; i < currentObject.maxSortAccumulation && !result; i++) 
+				for (var i = 0; i < currentObject.sortBy.length && !result; i++) 
 				{
 					val1=currentObject._extractCellValue(row1, currentObject.sortBy[i]);
 					val2=currentObject._extractCellValue(row2, currentObject.sortBy[i]);
@@ -568,7 +570,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			if (this.sortBy.length>0)
 			{
 				newRow.ondblclick=this._rowGrouper;			
-				currentKeyData=this._extractCellValue(this.rows[i], this.sortBy);
+				currentKeyData=this._extractCellValue(this.rows[i], this.sortBy[0]);
 				if (currentKeyData==lastKeyData)
 					newRow.parentRow=lastKeyRow;
 				else
@@ -740,7 +742,6 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			this.tableElement.filterBoxes[index].columnHeader.offsetWidth - 5,
 			1,
 			true,
-			true,
 			function(obj)
 			{
 				obj.focus();
@@ -755,7 +756,6 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			this.tableElement.filterBoxes[index],
 			0,
 			-1,
-			true,
 			true,
 			function(obj) {obj.style.display="none"}
 		);

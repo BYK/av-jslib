@@ -121,7 +121,6 @@ Visual.sliders._collapseContainer=function(event)
 		0,
 		-1,
 		true,
-		true,
 		function(o)
 		{
 			Visual.setOpacity(o, 1);
@@ -130,8 +129,7 @@ Visual.sliders._collapseContainer=function(event)
 				totalWidth,
 				1,
 				true,
-				true,
-				function (o)
+				function(o)
 				{
 					if (obj.getAttribute("onSlideEnd"))
 						eval(obj.getAttribute("onSlideEnd") + '(obj);');

@@ -73,8 +73,8 @@ Visual.initFunctions.push(
 			this.style.width=widthVar + 'px';
 			var heightVar=Math.min(this.scrollHeight, Visual.clientHeight()/3);
 			this.style.height=heightVar + 'px';
-			this.style.left=((Visual.customHint.config["offsetX"] + xPos + widthVar) < (Visual.clientWidth() + Visual.scrollLeft())) ? (Visual.customHint.config["offsetX"] + xPos + 'px') : (Visual.customHint.config["offsetX"] + xPos - widthVar + 'px');
-			this.style.top=((Visual.customHint.config["offsetY"] + yPos + heightVar) < (Visual.clientHeight() + Visual.scrollTop())) ? (Visual.customHint.config["offsetY"] + yPos + 'px') : (Visual.customHint.config["offsetY"] + yPos - heightVar + 'px');
+			this.style.left=((Visual.customHint.config.offsetX + xPos + widthVar) < (Visual.clientWidth() + Visual.scrollLeft())) ? (Visual.customHint.config.offsetX + xPos + 'px') : (Visual.customHint.config.offsetX + xPos - widthVar + 'px');
+			this.style.top=((Visual.customHint.config.offsetY + yPos + heightVar) < (Visual.clientHeight() + Visual.scrollTop())) ? (Visual.customHint.config.offsetY + yPos + 'px') : (Visual.customHint.config.offsetY + yPos - heightVar + 'px');
 			
 			this.lastXPos=xPos;
 			this.lastYPos=yPos;
@@ -99,7 +99,7 @@ Visual.initFunctions.push(
 			this.style.visibility="visible";		
 			this.adjustSizeNPosition(xPos, yPos);
 			
-			Visual.fade(this, 1, true/*, function()
+			Visual.fade(this, 1/*, function()
 			{
 				if (Visual.customHint.config["timeout"])
 					this.hideTimer=setTimeout('Visual.customHint.hide();', Visual.customHint.config["timeout"]);
@@ -116,7 +116,7 @@ Visual.initFunctions.push(
 		{
 			this.clearTimer();
 			this.innerHTML='';
-			Visual.fade(this, 0, true, function() {this.style.visibility='hidden';});
+			Visual.fade(this, 0, function() {this.style.visibility='hidden';});
 		};
 		
 		/**

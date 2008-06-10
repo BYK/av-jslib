@@ -27,7 +27,6 @@ Visual.initFunctions.push(
 		Visual.infoBox.setAttribute("xOffset", "0");	
 		Visual.infoBox.setAttribute("yOffset", "0");
 		document.body.appendChild(Visual.infoBox);
-		//Visual.infoBoxstyle.width=f_clientWidth() + "px";
 		
 		Visual.infoBox.config=
 		{
@@ -71,7 +70,7 @@ Visual.initFunctions.push(
 			if (!timeout)
 				timeout=Visual.infoBox.config["timeout"];
 
-			Visual.fade(this, 1, true, function()
+			Visual.fade(this, 1, function()
 			{
 				if (Visual.infoBox.config["timeout"])
 					this.hideTimer=setTimeout('Visual.infoBox.hide();', timeout);
@@ -87,7 +86,7 @@ Visual.initFunctions.push(
 		Visual.infoBox.hide=function()
 		{
 			this.clearTimer();
-			Visual.fade(this, 0, true, function() {this.style.visibility='hidden';});
+			Visual.fade(this, 0, function() {this.style.visibility='hidden';});
 		};
 		
 		/**

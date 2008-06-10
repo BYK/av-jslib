@@ -1,11 +1,10 @@
 /**
- * @fileOverview	A parser library which assignes elements some properties from a CSS-like external file or a set HTML attribute.
- * @name	aParser
+ * @fileOverview A parser library which assignes elements some properties from a CSS-like external file, from a special style tag or from an inline HTML attribute.
+ * @name aParser
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
  * @version	1.2
  * 
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
@@ -16,9 +15,12 @@ if (typeof aParser!="undefined")
 	throw new Error('"aParser" namespace had already been taken!', "aV.main.aParser.js@" + window.location.href, 25);
 
 /**
- * Represents a name space for aParser's functions and methods.
+ * Represents the name space for aParser's functions and methods.
  * 
  * @namespace
+ * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link AJAX} (aV.main.ajax.js)
+ * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.cssQuery.js)
  */
 aParser = {};
 
@@ -35,24 +37,22 @@ aParser = {};
  */
 aParser.setElementAttributes=function(element, propertyName, attributeStr)
 {
-	var attributes;
-	
 	try 
 	{
-		eval("attributes={" + attributeStr + "};");
+		var attributes=eval("({" + attributeStr + "})");
 	} 
 	catch(error) 
 	{
 		return false;
 	}
 	
-	if (!element[propertyName])
-		element[propertyName]=attributes;
-	else
+	if (propertyName in element)
 	{
 		for (var attrName in attributes)
 			element[propertyName][attrName]=attributes[attrName];
 	}
+	else
+		element[propertyName]=attributes;
 	
 	return element;
 };
@@ -63,7 +63,6 @@ aParser.setElementAttributes=function(element, propertyName, attributeStr)
  * is *, then it uses the elements' inline attribute whose name is given in
  * propertyName to gather the element spesific attributeStr.
  * 
- * @method
  * @deprecated Used internally, in most cases you shouldn't be in a need for calling this function.
  * @param {String} queryStr The CSS query string for determination of the proper elements.
  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
@@ -79,9 +78,12 @@ aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attrib
 {
 	var elements=cssQuery(queryStr);
 	
+	if (!beforeSet)
+		beforeSet=function(){return true;};
+	
 	for (var i=elements.length-1; i>=0; i--)
 	{
-		if (beforeSet && beforeSet(elements[i])===false)
+		if (beforeSet(elements[i])===false)
 			continue;
 		
 		if (
@@ -99,9 +101,8 @@ aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attrib
 
 /**
  * Assigns the elements' attributes rules from the ruleText
- * See <a href="#aParser.retrieveElementsAndSetAttributes">retrieveElementsAndSetAttributes</a> for other parameters.
+ * See {@link aParser.retrieveElementsAndSetAttributes} for other parameters.
  * 
- * @method
  * @param {String} ruleText The text which contains the rules in an external CSS file like structure.
  */
 aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, afterSet)
@@ -124,12 +125,11 @@ aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, aft
  * Assigns the elements' attributes using the rules from the given text file.
  * Loads the file and then calls the assignAttributesFromText to
  * parse its text content.
- * See <a href="#aParser.retrieveElementsAndSetAttributes">retrieveElementsAndSetAttributes</a> for other parameters.
+ * See {@link aParser.retrieveElementsAndSetAttributes} for other parameters.
  * 
  * @method
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
- * @param {Boolean} [includeStyleTags] Tells the function that whether it should use the inline style tags for additional rules.
- * Defaul value is TRUE.
+ * @param {Boolean} [includeStyleTags=true] Tells the function that whether it should use the inline style tags for additional rules.
  */
 aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags)
 {
@@ -144,7 +144,7 @@ aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, 
 				ruleText=requestObject.responseText;
 			
 			aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
-			if (includeStyleTags || typeof(includeStyleTags)=='undefined')
+			if (includeStyleTags || includeStyleTags===undefined)
 				aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
 		}
 	);
@@ -154,7 +154,7 @@ aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, 
  * Assigns the element's attributes using the inline style elements defined in the document.
  * The style elements' types should be "text/propertyName" for aParser to recognize them.
  * propertyName in "text/propertyName" refers to the given parameter's value.
- * See <a href="#aParser.retrieveElementsAndSetAttributes">retrieveElementsAndSetAttributes</a> for parameters.
+ * See {@link aParser.retrieveElementsAndSetAttributes} for parameters.
  */
 aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterSet)
 {

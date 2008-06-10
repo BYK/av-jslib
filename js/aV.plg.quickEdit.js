@@ -255,7 +255,7 @@ QuickEdit._editableElementHover=function(event)
 	{//evaluate the given editing condition and if it is true, continue the operation.
 		element.className='editable'; //set the class to the general "editable" class
 		if (element.quickEdit.fade!=null) //if there is a "fade" variable, fade the element
-			Visual.fade(element, element.quickEdit.fade, true);
+			Visual.fade(element, element.quickEdit.fade);
 	}	
 };
 
@@ -277,7 +277,7 @@ QuickEdit._editableElementMouseOut=function(event)
 	if(!element.quickEdit.active) //if the element is not clicked (or being edited)
 	{
 		if (element.quickEdit.fade!=null) //if fading assigned, return to opaque mode
-			Visual.fade(element, 1, true);
+			Visual.fade(element, 1);
 		element.className=element.baseClass; //revert the class name to its original
 	}
 };

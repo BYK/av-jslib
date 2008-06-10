@@ -1,47 +1,38 @@
 /**
- * @fileOverview	Allows non obtrusive auto complete functionality for text inputs.
+ * @fileOverview Allows non obtrusive auto complete functionality for text inputs.
  * @name Auto Complete
  * 
- * @author Burak Yiğit KAYA (byk@amplio-vita.net)
- * @version 1.0
- * 
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.aParser.js">aV.main.aParser.js</a> 	
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.visual.js">aV.main.visual.js</a>
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @version 1.2
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
-if (typeof Events=="undefined")
-	throw new Error("Event functions cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 17);
-
-if (typeof AJAX=="undefined")
-	throw new Error("AJAX functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 20);
-
-if (typeof aParser=="undefined")
-	throw new Error("aParser functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 23);
-
-if (typeof Visual=="undefined")
-	throw new Error("Visual functions library cannot be found!", "aV.plg.autoComplete.js@" + window.location.href, 26);
-
 if (typeof AutoComplete!="undefined")
-	throw new Error('"AutoComplete" namespace had already been taken!', "aV.plg.autoComplete.js@" + window.location.href, 29);
+	throw new Error('"AutoComplete" namespace had already been taken!', "aV.plg.autoComplete.js@" + window.location.href, 11);
 	
 /**
  * Represents the namespace for AutoComplete functions.
  * 
  * @namespace
+ * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link Events} (aV.main.events.js)
+ * @requires {@link AJAX} (aV.main.ajax.js)
+ * @requires {@link Visual} (aV.main.visual.js)
+ * @requires {@link aParser} (aV.main.aParser.js)
  * 
- * @config {String} ruleFile Path to the external file which contains the rule definitons for editable items.
- * @config {integer} listBoxOfset The vertical offset from the input boxes for the list boxes which will be displayed.
- * @config {integer} minChars The minimum number of characters to start the auto complete.
- * @config {integer} delay The delay before showing the auto complete list in milliseconds.
- * @config {Boolean} retryOnError Set true to force the system to retry when an AJAX call fails to retrieve the list.
- * @config {String[]} allowedTags The allowed tag names in uppercase for auto complete system.
+ * @param {String} [config.ruleFile='autoCompleteRules.txt'] Path to the external file which contains the rule definitons for editable items.
+ * @param {integer} [config.listBoxOfset=3] The vertical offset from the input boxes for the list boxes which will be displayed.
+ * @param {integer} [config.minChars=2] The minimum number of characters to start the auto complete.
+ * @param {integer} [config.delay=150] The delay before showing the auto complete list in milliseconds.
+ * @param {Boolean} [config.retryOnError=false] Set true to force the system to retry when an AJAX call fails to retrieve the list.
+ * @param {String}	[config.regExpPattern="'\\\\b' + filter"] The default RegExp pattern for checking the list.
+ * @param {String[]} [config.allowedTags=["INOUT"]] The allowed tag names in uppercase for auto complete system.
  */
 AutoComplete = {};
 
+/**
+ * Holds the configuration parameters.
+ */
 AutoComplete.config=
 {
 	ruleFile: 'autoCompleteRules.txt',
@@ -49,10 +40,18 @@ AutoComplete.config=
 	minChars: 2,
 	delay: 150,
 	retryOnError: false,
+	regExpPattern: "'\\\\b' + filter",
 	allowedTags: ["INPUT"]
 };
 
 AutoComplete.listBoxCounter=0;
+
+AutoComplete._getRegExp=function(element)
+{
+	var filter='(' + element.value.escapeRegExp() + ')';
+	var regExpPattern=eval(element.autoComplete.regExpPattern || AutoComplete.config.regExpPattern);
+	return new RegExp(regExpPattern, 'i');
+}
 
 AutoComplete._removeListBox=function(element)
 {
@@ -62,7 +61,6 @@ AutoComplete._removeListBox=function(element)
 	Visual.fade(
 		element.autoComplete.listBox,
 		0,
-		true,
 		function(listBox)
 		{
 			listBox.parentNode.removeChild(listBox);
@@ -87,13 +85,20 @@ AutoComplete._showListBox=function(element)
 	element.autoComplete.listBox.style.left=Visual.getElementPositionX(element) + "px";
 	element.autoComplete.listBox.style.top=(Visual.getElementPositionY(element) + element.offsetHeight + AutoComplete.config.listBoxOffset) + "px";
 	
+	var seeker=AutoComplete._getRegExp(element);
 	for (var i = 0, itemCounter=0, count = element.autoComplete.list.length; i < count; i++) 
 	{
-		if (element.autoComplete.list[i].match(new RegExp('^' + element.value.escapeRegExp(), 'i'))) 
+		var theValue=element.autoComplete.list[i].split(seeker, 3);
+		if (theValue.length==3) 
 		{
 			var newLi = document.createElement('LI');
 			newLi.itemIndex=itemCounter++;
-			newLi.appendChild(document.createTextNode(element.autoComplete.list[i]));
+			newLi.origValue=element.autoComplete.list[i];
+			newLi.appendChild(document.createTextNode(theValue[0]));
+			var matchedPart=newLi.appendChild(document.createElement('SPAN'));
+			matchedPart.className='aCMatchedPart';
+			matchedPart.appendChild(document.createTextNode(theValue[1]));
+			newLi.appendChild(document.createTextNode(theValue[2]));
 			Events.add(newLi, 'mouseover', function(){AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
 			Events.add(newLi, 'click', function(){AutoComplete._onKeyDownHandler({target: element, which: 13})});
 			element.autoComplete.listBox.appendChild(newLi);
@@ -102,6 +107,8 @@ AutoComplete._showListBox=function(element)
 	
 	if (element.autoComplete.listBox.innerHTML!='')
 	{
+		if (AutoComplete.onShowListBox)
+			AutoComplete.onShowListBox(element.autoComplete.listBox);
 		Visual.fade(element.autoComplete.listBox, 1, true);
 		element.autoComplete.list.selectedIndex=0;
 		element.autoComplete.listBox.childNodes[0].className='selected';
@@ -112,18 +119,17 @@ AutoComplete._showListBox=function(element)
 
 AutoComplete._doKeyUp=function(element)
 {
-	if (element.autoComplete.list==undefined || !element.value.match(new RegExp('^' + element.autoComplete.filter.escapeRegExp(), 'i')))
+	if (element.autoComplete.list==undefined || !(element.autoComplete.dataChecker && element.autoComplete.dataChecker.test(element.value)))
 	{
-		element.autoComplete.filter=element.value;
+		element.autoComplete.dataChecker=AutoComplete._getRegExp(element);
 		
-		var params;
 		try 
 		{
-			eval('params=' + element.autoComplete.params + ';');
+			var params=eval(element.autoComplete.params);
 		} 
 		catch(error) 
 		{
-			params = element.autoComplete.params;
+			var params = element.autoComplete.params;
 		}
 
 		AJAX.destroyRequestObject(element.autoComplete.request);
@@ -161,9 +167,13 @@ AutoComplete._doKeyUp=function(element)
 
 AutoComplete._onKeyUpHandler=function(event)
 {
-	if (event.target.autoComplete.keyUpTimer)
+	if (event.target.autoComplete.keyUpTimer) 
+	{
 		clearTimeout(event.target.autoComplete.keyUpTimer);
-	var key=(event.which)?event.which:event.keyCode;
+		delete event.target.autoComplete.keyUpTimer;
+	}
+	
+	var key=event.keyCode || event.which;
 	var minChars=(event.target.autoComplete.minChars!=undefined)?event.target.autoComplete.minChars:AutoComplete.config.minChars;
 	
 	if (event.target.value.length < minChars || key==27) 
@@ -178,7 +188,7 @@ AutoComplete._onKeyUpHandler=function(event)
 			AutoComplete._doKeyUp(event.target);
 		else
 		{
-			var delay = (event.target.autoComplete.delay) ? event.target.autoComplete.delay : AutoComplete.config.delay;
+			var delay=event.target.autoComplete.delay || AutoComplete.config.delay;
 			event.target.autoComplete.keyUpTimer = setTimeout('AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
 		}
 	}
@@ -186,8 +196,8 @@ AutoComplete._onKeyUpHandler=function(event)
 
 AutoComplete._onKeyDownHandler=function(event, newIndex)
 {
-	var key=(event.which)?event.which:event.keyCode;
-	
+	var key=event.keyCode || event.which;
+
 	if (event.target.autoComplete.list==undefined || !event.target.autoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
 		return;
 	
@@ -205,7 +215,7 @@ AutoComplete._onKeyDownHandler=function(event, newIndex)
 		event.target.autoComplete.list.selectedIndex++;
 	else if (key == 13 && event.target.autoComplete.list.selectedIndex > -1) 
 	{
-		event.target.value = event.target.autoComplete.listBox.childNodes[event.target.autoComplete.list.selectedIndex].firstChild.nodeValue;
+		event.target.value = event.target.autoComplete.listBox.childNodes[event.target.autoComplete.list.selectedIndex].origValue;
 		delete event.target.autoComplete.list.selectedIndex;
 		AutoComplete._removeListBox(event.target);
 		return false;
@@ -234,6 +244,7 @@ AutoComplete._checkElement=function(element)
 
 AutoComplete._setAutoCompleteElement=function(element)
 {
+	element.setAttribute("autocomplete", "off");
 	Events.add(element, 'keyup', AutoComplete._onKeyUpHandler);
 	Events.add(element, 'keydown', AutoComplete._onKeyDownHandler);
 	Events.add(element, 'blur', function(){AutoComplete._removeListBox(this)});

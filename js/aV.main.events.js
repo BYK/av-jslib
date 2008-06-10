@@ -1,19 +1,20 @@
 /**
- * @fileOverview	A good, cross-browser event management library
- * @name	Event Management Library
+ * @fileOverview A cross-browser event management library
+ * @name Core Event Management Library
  *
- * @author Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini
- * @version 1.0
- * @copyright &copy;2005
- * @original <a href="http://dean.edwards.name/weblog/2005/10/add-event/" target="_blank">http://dean.edwards.name/weblog/2005/10/add-event/</a>
- * @extra ScripDoc documentation, namespace adaptation and implementation of the new <b>onwheel</b> event by BYK, byk@amplio-vita.net (2008)
+ * @author 
+ * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
+ * <br />Adomas Paltanavičius adomas.paltanavicius@gmail.com
+ * <br />Burak Yiğit Kaya byk@amplio-vita.net
+ * @version 1.1
+ * @copyright &copy;2005 - 2008
  */
 
 if (typeof Events!="undefined")
-	throw new Error('"Events" namespace had already been taken!', "events.js@" + window.location.href, 13);
+	throw new Error('"Events" namespace had already been taken!', "events.js@" + window.location.href, 14);
 
 /**
- * Represents a namespace, Events, for creating and managing an event handler queue for any element.
+ * Represents the namespace, Events, for creating and managing event handler queues for any element.
  *
  * @namespace
  */
@@ -30,7 +31,7 @@ Events.guid=1;
 /**
  * Adds the given event handler to element's the on-type event's event handler queue.
  *
- * @method
+ * @return {Function(EventObject)} The assigned function
  * @param {Object} element The element which the event handler will be added
  * @param {String} type The name of the event without the "on" prefix
  * @param {Function(EventObject)} handler The event handler function
@@ -61,12 +62,12 @@ Events.add=function(element, type, handler)
 	handlers[handler.$$guid] = handler;
 	// assign a global event handler to do all the work
 	element["on" + type] = Events._handle;
+	return handler;
 };
 
 /**
  * Removes the given event handler from element's the on-type event's event handler queue.
  *
- * @method
  * @param {Object} element The element which the event handler will be removed
  * @param {String} type The name of the event without the "on" prefix
  * @param {Function(EventObject)} handler The event handler function
@@ -110,15 +111,14 @@ Events._handle=function(event)
 };
 
 /**
- * Adds W3C standard event methods to an IE non-standard event object
+ * Adds W3C standard event methods and properties to an IE non-standard event object
  *
  * @param {EventObject} event The IE non-standard event object
  * @return {EventObject} The event object which supports W3C standard event methods
  */
 Events.fix=function(event)
 {
-	if (event.srcElement)
-		event.target=event.srcElement;
+	event.target=event.srcElement;
 	event.preventDefault = function() {this.returnValue=false;};
 	event.stopPropagation = function() {this.cancelBubble=true;};
 	return event;
@@ -127,11 +127,8 @@ Events.fix=function(event)
 /**
  * Handles the mouse wheel event and iterprets it for a browser independent usage.
  * <br />Adds support for the new event <b>onwheel</b> for all applicable elements.
- *	<br /><br /><i>Main handling code from	<a href="http://adomas.org/javascript-mouse-wheel/" target="_blank">http://adomas.org/javascript-mouse-wheel/</a>
- * <br />Implemantation and adaptation by BYK</i>
  *
  * @private
- * @deprecated
  * @return {Boolean}
  */
 Events._handleMouseWheelEvent=function(event)

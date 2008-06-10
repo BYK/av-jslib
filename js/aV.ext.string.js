@@ -1,9 +1,9 @@
 /**
- * @fileOverview	A library which extens the String class with some useful functions.
- * @name String Extensions Library
+ * @fileOverview A library which extens the String class with some useful functions.
+ * @name String Extensions
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.1
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @version 1.1
  *
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
@@ -11,7 +11,7 @@
 /**
  * Escapes the special characters for a regular expression in the string.
  *
- * @return	{String}
+ * @return {String}
  */
 String.prototype.escapeRegExp=function()
 {
@@ -33,11 +33,11 @@ String.prototype.escapeRegExp=function()
 /**
  * Replaces the occurences of the strings given in the fromArray with the toArray respectively.
  *
- * @return	{String}
- * @param	{String[]}	fromArray	The string array which holds the strings-to-be-replaced
- * @param	{String[]}	toArray	The string array which holds the strings-to-be-replaces-with.
+ * @return {String}
+ * @param {String[]} fromArray	The string array which holds the strings-to-be-replaced
+ * @param {String[]} toArray	The string array which holds the strings-to-be-replaces-with.
  * If the length of this array is smaller than the fromArray, then the last item of this array is used for undefined indexes.
- * @param	{Boolean}	[dontEscape]	If given false the strings in the fromArray are used directly as regular expressions.
+ * @param {Boolean} [dontEscape] If given false the strings in the fromArray are used directly as regular expressions.
  *
  * @example
  * var myText="I love Visual Basic, CGI-Script and Ruby very much!";
@@ -78,8 +78,8 @@ String.prototype.arrayReplace=function(fromArray, toArray, dontEscape)
  * Counts and returns the given string's occurances.
  *
  * @return {integer}
- * @param	{String}	searchStr	The string whose occurenses will be counted.
- * @param	{Boolean}	[dontEscape]	If given false, the searchStr is used directly as a regular expression.
+ * @param {String} searchStr The string whose occurenses will be counted.
+ * @param {Boolean} [dontEscape] If given false, the searchStr is used directly as a regular expression.
  */
 String.prototype.strCount=function(searchStr, dontEscape)
 {
@@ -95,7 +95,7 @@ String.prototype.strCount=function(searchStr, dontEscape)
 /**
  * Replaces any line breaks (\n, \r, \r\n) with &lt;br&gt; tags.
  *
- * @return	{String}
+ * @return {String}
  */
 String.prototype.LBtoBR=function()
 {
@@ -106,7 +106,7 @@ String.prototype.LBtoBR=function()
 /**
  * Replaces any &lt;br&gt; or &lt;br /&gt; tags with line breaks(\n). 
  *
- * @return	{String}
+ * @return {String}
  */
 String.prototype.BRtoLB=function()
 {
@@ -117,8 +117,8 @@ String.prototype.BRtoLB=function()
 /**
  * Trims the string to the given length and puts "..." in the end of the string.
  *
- * @return	{String}
- * @param	{integer} length	The desired maximum length of the string.
+ * @return {String}
+ * @param {integer} length The desired maximum length of the string.
  */
 String.prototype.trimToLength=function(length)
 {

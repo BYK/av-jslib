@@ -1,28 +1,33 @@
 /**
- * @fileOverview	A visual effects function library incloding some positioning functions.
- * @name Visual Effects&Functions Library
+ * @fileOverview A visual effects function library incloding some positioning functions.
+ * @name Visual Effects and Functions Library
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.5.1
+ * @author Burak Yiğit KAYA	byk@amplio-vita.net
+ * @version 1.5.1
  *
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
+if (typeof Events=="undefined")
+	throw new Error("Event functions cannot be found!", "aV.main.visual.js@" + window.location.href, 12);
 if (typeof Visual!="undefined")
-	throw new Error('"Visual" namespace had already been taken!', "aV.main.visual.js@" + window.location.href, 13);
+	throw new Error('"Visual" namespace had already been taken!', "aV.main.visual.js@" + window.location.href, 14);
 
 /**
  * Represents a namespace, Visual, for the new functions and global parameters of those functions.
  *
  * @namespace
- * @config	{Integer}	slideTreshold	The maximum dimension difference between the current dimension and the target dimension to stop the sliding.
- * @config	{Float}	slideDivisor	The slide functions divide the remaining dimension difference to this number and add the result to the current dimension. The bigger this number gets the slower the slide gets.
- * @config	{Float [0,1]}	fadeTreshold	The maximum opacity difference between the current opacity and the target opacity to stop the fade.
- * @config	{Float}	fadeDivisor	The fade functions divide the remaining opacity difference to this number and add the result to the current opacity. The bigger this number gets the slower the fade gets.
+ * @requires {@link Events} (aV.main.events.js)
+ * @param	{Integer} config.slideTreshold The maximum dimension difference between the current dimension and the target dimension to stop the sliding.
+ * @param	{Float} config.slideDivisor The slide functions divide the remaining dimension difference to this number and add the result to the current dimension. The bigger this number gets the slower the slide gets.
+ * @param	{Float [0,1]} config.fadeTreshold The maximum opacity difference between the current opacity and the target opacity to stop the fade.
+ * @param	{Float} config.fadeDivisor The fade functions divide the remaining opacity difference to this number and add the result to the current opacity. The bigger this number gets the slower the fade gets.
  */
 Visual = {};
 
+/**
+ * Holds the configuration parameters.
+ */
 Visual.config=
 {
 	slideTreshold: 2,
@@ -33,7 +38,7 @@ Visual.config=
 
 /**
  * Holds the fixed elements recognized by the initEditables function.
- * Changing this property is discouraged.
+ * Changing this properties value is not recommended.
  *
  * @type HTMLElementObject[]
  */
@@ -63,9 +68,8 @@ Visual.initFunctions = [];
 /**
  * Sets the given element's opacity to the given opacity value.
  * 
- * @method
- * @param	{HTMLElementObject}	obj	The HTML element ITSELF whose opacity will be changed.
- * @param	{Float [0,1]}	opacity	The opacity value which the object's opacity will be set to.
+ * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will be changed.
+ * @param {Float [0,1]} opacity The opacity value which the object's opacity will be set to.
  */
 Visual.setOpacity=function(obj, opacity)
 {
@@ -78,8 +82,8 @@ Visual.setOpacity=function(obj, opacity)
 /**
  * Tries to get the given element's opacity value.
  * <br /><b>IMPORTANT:</b> At the moment it can only get the opacity values defined in the object's style property.
- * @return	{Float [0,1]}	If a valid opacity value cannot be gathered, the default return value is 1.
- * @param	{HTMLElementObject}	obj	The HTML element ITSELF whose opacity will tried to be gathered.
+ * @return {Float [0,1]} If a valid opacity value cannot be gathered, the default return value is 1.
+ * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will tried to be gathered.
  */
 Visual.getOpacity=function(obj)
 {
@@ -103,64 +107,63 @@ Visual.getOpacity=function(obj)
 /**
  * Fades the given HTML element, to the given opacity value with a slowing fade effect.
  *
- * @method
- * @param	{HTMLElementObject}	obj	The HTML element ITSELF which will be faded. It <b>must</b> have an ID.
- * @param	{Float [0,1]}	opacity	The desired/target opacity to be faded to.
- * @param	{Boolean}	init	Indicates the user is calling the function, not itself. MUST SET TO BE TRUE ALWAYS.
- * @param	{Function(HTMLElementObject)}	[callbackFunc]	The function which will be called immediately after the fade operation is finished.
+ * @param {HTMLElementObject} obj The HTML element ITSELF which will be faded. It <b>must</b> have an ID.
+ * @param {Float [0,1]} opacity The desired/target opacity to be faded to.
+ * @param {Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the fade operation is finished.
  */
-Visual.fade=function(obj, opacity, init, callbackFunc)
+Visual.fade=function(obj, opacity, callback)
 {
 	if (obj.fadeTimer) //if there is an ongoing fade operation
-		clearTimeout(obj.fadeTimer); //cancel it
-	obj.fadeTimer=false;
-		
-	if (init) //if it is a start function, called by USER
 	{
-		obj.fadeCallbackFunc=callbackFunc; //assign the callbackFunc to the object
-		//obj.style.display="block";
+		clearTimeout(obj.fadeTimer); //cancel it
+		obj.fadeTimer=undefined;
+	}
+
+	if (callback)
+	{
+		obj.fadeCallback=callback; //assign the callbackFunc to the object
 	}
 	
 	var theOpacity=Visual.getOpacity(obj); //get the object's current opacity
-	if (Math.abs(theOpacity-opacity)>Visual.config["fadeTreshold"]) //check if the difference between the current opacity and the desired opacity is above the defined treshold limit
+	if (Math.abs(theOpacity-opacity)>Visual.config.fadeTreshold) //check if the difference between the current opacity and the desired opacity is above the defined treshold limit
 	{
-		Visual.setOpacity(obj, theOpacity + (opacity - theOpacity)/Visual.config["fadeDivisor"]); //calculate and set the new opacity
+		Visual.setOpacity(obj, theOpacity + (opacity - theOpacity)/Visual.config.fadeDivisor); //calculate and set the new opacity
 		obj.fadeTimer=setTimeout("Visual.fade(document.getElementById('" + obj.id + "'), " + opacity + ")", 25); //set new instance to be called after 25ms
 	}
 	else //if the difference is smaller or equal to the defined treshold
 	{
 		Visual.setOpacity(obj, opacity); //set the opacity to the desired value for an exact match
-		if (obj.fadeCallbackFunc) //if a callbackFunction is assigned
-			obj.fadeCallbackFunc(obj); //call it
+		if (obj.fadeCallback) //if a callbackFunction is assigned
+		{
+			obj.fadeCallback(obj); //call it
+			obj.fadeCallback=undefined;
+		}
 	}
 };
 
 /**
  * Fades the first element to invisiblity and then fades the second element to full opacity.
  *
- * @method
  * @param	{HTMLElementObject}	fromObj	The HTML element which will be FADED OUT.
  * @param	{HTMLElementObject}	toObj	The HTML element which will be FADED IN.
- * @param	{Function(HTMLElementObject, HTMLElementObject)}	[callbackFunc]	The function which will be called immediately after the whole fade operation is finished. The first parameter passed to the function is fromObj and the second parameter is toObj.
+ * @param	{Function(HTMLElementObject, HTMLElementObject)}	[callback]	The function which will be called immediately after the whole fade operation is finished. The first parameter passed to the function is fromObj and the second parameter is toObj.
  */
-Visual.fadeFromOneToOne=function(fromObj, toObj, callbackFunc)
+Visual.fadeFromOneToOne=function(fromObj, toObj, callback)
 {
 	Visual.fade(fromObj, //fade the fromObj
 				0, //to 0 opacity(invisible)
-				true,
 				function(obj)
 				{
-					obj.style.display="none"; //and when it becomes invisible, maket its display none to consume no visual space
-					toObj.style.display="block"; //and make the toObj contain space in case of its display set to none
+					obj.style.display="none"; //and when it becomes invisible, make its display none to consume no visual space
+					toObj.style.display=""; //and make the toObj's display property "" to force it to the default value
 					Visual.fade(toObj, //then fade the toObj
 								1, //to full opacity(fully visible)
-								true,
 								function(obj)
 								{
 									if (window.onresize)
 										window.onresize({type: "resize"}); //there might be window size change so if a function is assigned to window.onresize and on scroll, call them.
-									if (callbackFunc) //if a callbackFunc assigned
-										callbackFunc(fromObj, toObj) //call it with giving the fromObj and toObj as its parameters
+									if (callback) //if a callbackFunc assigned
+										callback(fromObj, toObj) //call it with giving the fromObj and toObj as its parameters
 								}
 								);
 				}
@@ -170,31 +173,32 @@ Visual.fadeFromOneToOne=function(fromObj, toObj, callbackFunc)
 /**
  * Slides the given HTML element to the given dimension with a combined fade efect. The effects slow down non-linearly.
  *
- * @method
  * @param	{HTMLElementObject}	obj	The HTML element ITSELF which will be slided. It *MUST* have an ID.
  * @param	{Integer}	newDimension	The desired/target height/width to be slided to.
  * @param	{Integer [-1,1]}	opcDirection	The opacity change direction identifier. If it is positive the opacity INCREASES with the continuing slide operation and vice versa.
  * @param	{Boolean}	horizontalSlide	Defines if the newDimension is a height value or a width value. (Width if true)
- * @param	{Boolean}	init	Indicates the user is calling the function, not itself. MUST SET TO BE TRUE ALWAYS.
- * @param	{Function(HTMLElementObject)}	[callbackFunc]	The function which will be called immediately after the slide operation is finished.
+ * @param	{Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the slide operation is finished.
  */
-Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, init, callbackFunc)
+Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, callback)
 {
 	var propertyName=(horizontalSlide)?"Width":"Height";
 	
 	if (obj.slideTimer) //if there is an ongoing slide
-		clearTimeout(obj.slideTimer); //cancel it
-		
-	if (init) //if it is a start function, called by USER
 	{
-		obj["old" + propertyName]=(obj.style[propertyName.toLowerCase()])?parseInt(obj.style[propertyName.toLowerCase()]):obj["offset" + propertyName]; //set the old height if available forum CSS, and if not from the offsetHeight property.
-		obj.slideCallback=callbackFunc; //assign the callbackFunc to object's slideCallback property
+		clearTimeout(obj.slideTimer); //cancel it
+		obj.slideTimer=undefined;
 	}
+		
+	if (!(("old" + propertyName) in obj))
+		obj["old" + propertyName]=(obj.style[propertyName.toLowerCase()])?parseInt(obj.style[propertyName.toLowerCase()]):obj["offset" + propertyName]; //set the old height if available forum CSS, and if not from the offsetHeight property.
+
+	if (callback)
+		obj.slideCallback=callback; //assign the callbackFunc to object's slideCallback property
 
 	var currentDimension=(obj.style[propertyName.toLowerCase()])?parseInt(obj.style[propertyName.toLowerCase()]):obj["offset" + propertyName]; //get the current height, seperate from the above *oldHeight*. This is needed for the iteration.
-  if (Math.abs(Math.round(currentDimension-newDimension))>Visual.config["slideTreshold"]) //check if the difference between the *currentDimension* and the desired height is above the the defined treshold value
+  if (Math.abs(Math.round(currentDimension-newDimension))>Visual.config.slideTreshold) //check if the difference between the *currentDimension* and the desired height is above the the defined treshold value
 	{
-		obj.style[propertyName.toLowerCase()]=Math.round(currentDimension + (newDimension - currentDimension)/Visual.config["slideDivisor"]) + "px"; //decrease the difference by difference/4 for a non-linear and a smooth slide
+		obj.style[propertyName.toLowerCase()]=Math.round(currentDimension + (newDimension - currentDimension)/Visual.config.slideDivisor) + "px"; //decrease the difference by difference/4 for a non-linear and a smooth slide
 		var opacity=(parseInt(obj.style[propertyName.toLowerCase()])-obj["old" + propertyName])/(newDimension-obj["old" + propertyName]); //calculate the opacity by getting the ratio of the *currentDimension* and the desired height
 		if (opcDirection<0) //if direction is negative, substitude the opacity from 1, since 1 is the maximum opacity
 			opacity=1-opacity;
@@ -205,7 +209,12 @@ Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, ini
 	{
 		obj.style[propertyName.toLowerCase()]=newDimension + "px"; //set the height to the desired height for an exact match
 		Visual.setOpacity(obj, (newDimension<obj["old" + propertyName])?0:1); //set opacity
-		if (obj.slideCallback) obj.slideCallback(obj); //call the callbackFunc if it is defined
+		obj["old" + propertyName]=undefined;
+		if (obj.slideCallback) 
+		{
+			obj.slideCallback(obj); //call the callbackFunc if it is defined
+			obj.slideCallback=undefined;
+		}
 	}
 	if (window.onscroll)
 		window.onscroll({type: "scroll"}); //there might be a scroll change so if a function is assigned to window.onscroll, call it.
@@ -214,33 +223,28 @@ Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, ini
 /**
  * Moves the given object to the given postion with a slowing move effect.
  *
- * @method
  * @param	{HTMLElementObject}	obj	The HTML element which will be moved.
  * @param	{Integer | false}	[xPos]	The target X coordinate of the given HTML element. If it is given as false, the X coordinate is not changed.
  * @param	{Integer | false}	[yPos]	The target Y coordinate of the given HTML element. If it is given as false, the Y coordinate is not changed.
- * @param	{Boolean}	init	Indicates the user is calling the function, not itself. MUST SET TO BE TRUE ALWAYS.
- * @param	{Function(HTMLElementObject)}	[callbackFunc]	The function which will be called immediately after the moving operation is finished.
+ * @param	{Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the moving operation is finished.
  */
-Visual.move=function(obj, xPos, yPos, init, callbackFunc)
+Visual.move=function(obj, xPos, yPos, callback)
 {
 	var timerNeeded=false; //this variable actually defines that if there is way to go to the position or not :)
 	if (obj.moveTimer) //if there is an ongoing move operation
 	{
 		clearTimeout(obj.moveTimer); //cancel it
-		if (init && obj.moveCallbackFunc) //if a callBackFunction is assigned
-			obj.moveCallbackFunc(obj); //call it		
+		obj.moveTimer=undefined;
+		if (callback && obj.moveCallback) //if a callBackFunction is assigned
+			obj.moveCallback(obj); //call it
 	}
 		
-	if (init) //if it is a start function, called by USER
-		obj.moveCallbackFunc=callbackFunc; //assign the callBackFunc to the object
+	if (callback)
+		obj.moveCallback=callback; //assign the callBackFunc to the object
 	
 	 //get the object's current position
-	var currentXPos=parseInt(obj.style.left);
-	var currentYPos=parseInt(obj.style.top);
-	if (isNaN(currentXPos))
-		currentXPos=0;
-	if (isNaN(currentYPos))
-		currentYPos=0;
+	var currentXPos=parseInt(obj.style.left) | 0;
+	var currentYPos=parseInt(obj.style.top) | 0;
 	
 	if (xPos===false) //a forced type+value check is need to prevent this statement become true if xPos is equal to 0
 		xPos=currentXPos;
@@ -249,16 +253,16 @@ Visual.move=function(obj, xPos, yPos, init, callbackFunc)
 		yPos=currentYPos;
 		
 	//for x-position
-	if (Math.abs(Math.round(currentXPos-xPos))>Visual.config["slideTreshold"]) //check if the difference between the current x-position and the desired *xPos* is above the defined treshold limit
+	if (Math.abs(Math.round(currentXPos-xPos))>Visual.config.slideTreshold) //check if the difference between the current x-position and the desired *xPos* is above the defined treshold limit
 	{
-		obj.style.left=Math.round(currentXPos + (xPos - currentXPos)/Visual.config["slideDivisor"]) + "px"; //calculate and set the new x-position
+		obj.style.left=Math.round(currentXPos + (xPos - currentXPos)/Visual.config.slideDivisor) + "px"; //calculate and set the new x-position
 		timerNeeded=true;
 	}
 	else //if the difference is smaller or equal to the defined treshold
 		obj.style.left=xPos + "px"; //set the x-position to the desired value for an exact match
 	
 	//for y-position
-	if (Math.abs(currentYPos-yPos)>Visual.config["slideTreshold"]) //check if the difference between the current y-position and the desired *yPos* is above the defined treshold limit
+	if (Math.abs(currentYPos-yPos)>Visual.config.slideTreshold) //check if the difference between the current y-position and the desired *yPos* is above the defined treshold limit
 	{
 		obj.style.top=Math.round(currentYPos + (yPos - currentYPos)/Visual.config["slideDivisor"]) + "px"; //calculate and set the new y-position
 		timerNeeded=true;
@@ -268,18 +272,16 @@ Visual.move=function(obj, xPos, yPos, init, callbackFunc)
 
 	if (timerNeeded)
 		obj.moveTimer=setTimeout("Visual.move(document.getElementById('" + obj.id + "'), " + xPos + ", " + yPos + ")", 25); //set new instance to be called after 25ms
-	else if (obj.moveCallbackFunc) //if a callBackFunction is assigned
+	else if (obj.moveCallback) //if a callBackFunction is assigned
 	{
-		obj.moveCallbackFunc(obj); //call it
-		obj.moveCallbackFunc=false;
+		obj.moveCallback(obj); //call it
+		obj.moveCallback=undefined;
 	}
 };
 
 /**
  * This function is called whenever a scroll or resize event is occured. It determines the fixed elements' appropriate new positions and calls "moveElement" to set them.
  * <br />Can be called manually to ensure all the fixed elements are in correct place.
- *
- * @method
  */
 Visual.setFixedElementPositions=function()
 {
@@ -307,7 +309,7 @@ Visual.setFixedElementPositions=function()
 		else
 			yPosTemp=false;
 			
-		Visual.move(Visual.fixedElements[i], xPosTemp, yPosTemp, true); //move them to the appropriate positions
+		Visual.move(Visual.fixedElements[i], xPosTemp, yPosTemp); //move them to the appropriate positions
 	}
 };
 
@@ -319,7 +321,6 @@ Visual.setFixedElementPositions=function()
  * <br />The so called "fixed positioned elements" are the ones which has an <b>xOffset</b> or a <b>yOffset</b> property(or both of them).
  * <br />These properties define the elements' distance from the page's edges. A negative offset means the offset is measured from the opposite edge. (i.e. xOffset="-10" means 10 pixels from right side)
  *
- * @method
  * @example
  * &lt;div id="cart" xOffset="-10" yOffset="-10"&gt;<br />I'm your shopping cart and I stay always at the top right corner of your window with a 10px padding<br />&lt;/div&gt;
  */
@@ -412,7 +413,6 @@ Visual.scrollTop=function()
  * Filters the given values for a cross-browser compatibility.
  *
  * @private
- * @deprecated Do not use directly.
  * @return	{Integer}
  */
 Visual._filterResults=function(n_win, n_docel, n_body)
@@ -478,7 +478,7 @@ Visual.getCSSRule=function(ruleName, deleteFlag)
  * Gathers the REAL position of the given HTML element.
  *
  * @private
- * @deprecated Use getElementPositionX and getElementPositionY instead.
+ * @deprecated Use {@link Visual.getElementPositionX} and {@link Visual.getElementPositionY} instead.
  * @return	{Integer}
  * @param	{HTMLElementObject}	element	The HTML element whose position to be gathered.
  * @param	{Boolean}	[xPosition]	Set true to get the X coordinate, false for Y coordinate.
@@ -529,11 +529,9 @@ Visual.getElementPositionY=function(element)
  */
 Visual.init=function()
 {
-	if (typeof Events=="undefined")
-		throw new Error("Event functions cannot be found!", "aV.main.visual.js@" + window.location.href, 467);
+	Visual.initFunctions.push(Visual.initFixedElements);
 	for (var i=0, max=Visual.initFunctions.length; i<max; i++)
 		Visual.initFunctions[i]();
-	Visual.initFixedElements();
 };
 
 Events.add(window, 'load', Visual.init);

@@ -3,7 +3,7 @@
  * @name Auto Complete
  * 
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.2
+ * @version 1.2.1
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
@@ -88,17 +88,17 @@ AutoComplete._showListBox=function(element)
 	var seeker=AutoComplete._getRegExp(element);
 	for (var i = 0, itemCounter=0, count = element.autoComplete.list.length; i < count; i++) 
 	{
-		var theValue=element.autoComplete.list[i].split(seeker, 3);
-		if (theValue.length==3) 
+		var matchInfo=seeker.exec(element.autoComplete.list[i]);
+		if (matchInfo)
 		{
 			var newLi = document.createElement('LI');
 			newLi.itemIndex=itemCounter++;
 			newLi.origValue=element.autoComplete.list[i];
-			newLi.appendChild(document.createTextNode(theValue[0]));
+			newLi.appendChild(document.createTextNode(element.autoComplete.list[i].substring(0, matchInfo.index)));
 			var matchedPart=newLi.appendChild(document.createElement('SPAN'));
 			matchedPart.className='aCMatchedPart';
-			matchedPart.appendChild(document.createTextNode(theValue[1]));
-			newLi.appendChild(document.createTextNode(theValue[2]));
+			matchedPart.appendChild(document.createTextNode(matchInfo[0]));
+			newLi.appendChild(document.createTextNode(element.autoComplete.list[i].substring(matchInfo.index+matchInfo[0].length)));
 			Events.add(newLi, 'mouseover', function(){AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
 			Events.add(newLi, 'click', function(){AutoComplete._onKeyDownHandler({target: element, which: 13})});
 			element.autoComplete.listBox.appendChild(newLi);
@@ -109,7 +109,7 @@ AutoComplete._showListBox=function(element)
 	{
 		if (AutoComplete.onShowListBox)
 			AutoComplete.onShowListBox(element.autoComplete.listBox);
-		Visual.fade(element.autoComplete.listBox, 1, true);
+		Visual.fade(element.autoComplete.listBox, 1);
 		element.autoComplete.list.selectedIndex=0;
 		element.autoComplete.listBox.childNodes[0].className='selected';
 	}

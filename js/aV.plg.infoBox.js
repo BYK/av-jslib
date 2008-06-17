@@ -3,7 +3,7 @@
  * @name Visual Effects - infoBox Extension
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	1.2
+ * @version	1.2.1
  *
  * @requires	<a href="http://amplio-vita.net/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
@@ -45,8 +45,8 @@ Visual.initFunctions.push(
 		 */
 		Visual.infoBox.clearTimer=function()
 		{
-			if (this.hideTimer)
-					clearTimeout(this.hideTimer);	
+			if (Visual.infoBox.hideTimer)
+					clearTimeout(Visual.infoBox.hideTimer);	
 		}
 		
 		/**
@@ -61,19 +61,19 @@ Visual.initFunctions.push(
 		 */
 		Visual.infoBox.show=function(message, showImmediately, timeout)
 		{
-			this.clearTimer();
+			Visual.infoBox.clearTimer();
 			if (message)
-				this.innerHTML=message;
-			Visual.setOpacity(this, (showImmediately)?1:0);
-			this.style.visibility="visible";
+				Visual.infoBox.innerHTML=message;
+			Visual.setOpacity(Visual.infoBox, (showImmediately)?1:0);
+			Visual.infoBox.style.visibility="visible";
 			
 			if (!timeout)
 				timeout=Visual.infoBox.config["timeout"];
 
-			Visual.fade(this, 1, function()
+			Visual.fade(Visual.infoBox, 1, function()
 			{
 				if (Visual.infoBox.config["timeout"])
-					this.hideTimer=setTimeout('Visual.infoBox.hide();', timeout);
+					Visual.infoBox.hideTimer=setTimeout('Visual.infoBox.hide();', timeout);
 			}
 			);
 		};
@@ -85,8 +85,8 @@ Visual.initFunctions.push(
 		 */
 		Visual.infoBox.hide=function()
 		{
-			this.clearTimer();
-			Visual.fade(this, 0, function() {this.style.visibility='hidden';});
+			Visual.infoBox.clearTimer();
+			Visual.fade(Visual.infoBox, 0, function() {Visual.infoBox.style.visibility='hidden';});
 		};
 		
 		/**

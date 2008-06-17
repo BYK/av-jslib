@@ -5,7 +5,7 @@
  * @name DBGrid
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.4.3
+ * @version 1.4.4
  */
 
 /**
@@ -619,6 +619,8 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	
 	this._alphaNumericCompare=function(str1, str2)
 	{
+		str1=str1.toLowerCase();
+		str2=str2.toLowerCase();
 		if (str1<str2)
 			return -1;
 		else if (str1>str2)
@@ -905,4 +907,4 @@ DBGrid.clearAll=function()
 		window.DBGrids[guid].destroy();
 };
 
-window.DBGrids=new Object();
+window.DBGrids={};

@@ -4,23 +4,29 @@ ul.aCListBox
 	border: 1px solid #cccccc;
 	background: #ffffff;
 	margin: 0px;
-	padding: 1px;
+	padding: 0px;
 	overflow-x: hidden;
 	overflow-y: auto;
 	max-height: 100px;
+	font-size: 10pt;
 }
-ul.aCListBox li
+ul.aCListBox>li
 {
 	list-style: none;
 	cursor: pointer;
 }
 ul.aCListBox li.selected
 {
-	background: #ccccff;
+	background: #bbddff;
 }
 .aCLoading
 {
-	background-image: url('http://amplio-vita.net/images/loading.gif');
+	background-image: url('/dynamic/code/JSLib/images/loading.gif')!important;
 	background-position: right;
 	background-repeat: no-repeat;
+}
+.aCMatchedPart
+{
+	font-weight: bold;
+	text-decoration: underline;
 }

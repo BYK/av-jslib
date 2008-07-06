@@ -3,7 +3,7 @@
  * @name Auto Complete
  * 
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.2.1
+ * @version 1.2.2
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
@@ -36,9 +36,9 @@ AutoComplete = {};
 AutoComplete.config=
 {
 	ruleFile: 'autoCompleteRules.txt',
-	listBoxOffset: 3,
+	listBoxOffset: 1,
 	minChars: 2,
-	delay: 150,
+	delay: 200,
 	retryOnError: false,
 	regExpPattern: "'\\\\b' + filter",
 	allowedTags: ["INPUT"]
@@ -182,7 +182,7 @@ AutoComplete._onKeyUpHandler=function(event)
 		return;
 	}
 	
-	if (key != 13 && (key > 40 || key < 37)) 
+	if (key != 13 && (key > 40 || key < 37 || key == undefined)) 
 	{
 		if (event.target.autoComplete.listBox)
 			AutoComplete._doKeyUp(event.target);
@@ -231,6 +231,11 @@ AutoComplete._onKeyDownHandler=function(event, newIndex)
 		event.target.autoComplete.listBox.scrollTop=selectedItem.offsetTop - event.target.autoComplete.listBox.clientHeight + selectedItem.offsetHeight + 2;
 };
 
+AutoComplete._onBlurHandler=function(event)
+{
+	AutoComplete._removeListBox(event.target);
+};
+
 AutoComplete._checkElement=function(element)
 {
 	if (!element.id)
@@ -246,8 +251,9 @@ AutoComplete._setAutoCompleteElement=function(element)
 {
 	element.setAttribute("autocomplete", "off");
 	Events.add(element, 'keyup', AutoComplete._onKeyUpHandler);
+	Events.add(element, 'focus', AutoComplete._onKeyUpHandler);
 	Events.add(element, 'keydown', AutoComplete._onKeyDownHandler);
-	Events.add(element, 'blur', function(){AutoComplete._removeListBox(this)});
+	Events.add(element, 'blur', AutoComplete._onBlurHandler);
 };
 
 AutoComplete.init=function()

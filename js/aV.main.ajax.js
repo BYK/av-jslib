@@ -112,18 +112,21 @@ AJAX.checkActiveRequests=function()
  * @return {String} The URI query string.
  * @param {Object} parameters
  */
-AJAX.serializeParameters=function(parameters)
+AJAX.serializeParameters=function(parameters, format)
 {
+	if (format==undefined)
+		format='%s';
 	var paramsTemp=parameters;
 	parameters='';
-	for (var paramName in paramsTemp)
-		if (paramsTemp[paramName] instanceof Array)
+	for (var paramName in paramsTemp) 
+	{
+		if ((paramsTemp[paramName] instanceof Object) || paramsTemp[paramName] instanceof Array)
 		{
-			for (var i=paramsTemp[paramName].length-1; i>=0; i--)
-				parameters+='&' + paramName + '[]=' + encodeURIComponent(paramsTemp[paramName][i]);
+			parameters += '&' + AJAX.serializeParameters(paramsTemp[paramName], format.replace(/%s/g, paramName) + '[%s]');
 		}
-		else
-			parameters+='&' + paramName + '=' + encodeURIComponent(paramsTemp[paramName]);
+		else 
+			parameters += '&' + format.replace(/%s/g, paramName) + '=' + encodeURIComponent(paramsTemp[paramName]);
+	}
 	return parameters.substr(1);
 };
 
@@ -336,6 +339,7 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 
 /**
  * @ignore
+ * @beta This function/event handler is under construction and may not work properly.
  * @param {Object} theURL
  * @param {Object} parameters
  * @param {Object} element
@@ -346,6 +350,42 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
 {
 	
+};
+
+/**
+ * Sends the form data using AJAX when the form's onSubmit event is triggered.
+ * @beta This function/event handler is under construction and may not work properly.
+ * @return {Boolean} Returns always false to prevent "real" submission.
+ * @param {Object} event
+ */
+AJAX.sendForm=function(event)
+{
+	var form=event.target;
+/*
+	if (checkRequiredFormElements)
+		if (!checkRequiredFormElements(form))
+		return false;
+*/	
+	var params={};
+	for (var i = 0; i < form.elements.length; i++) 
+	{
+		if (form.elements[i].type=='submit' || form.elements[i].value=='' || ((form.elements[i].type=='checkbox' || form.elements[i].type=='radio') && form.elements[i].checked==false))
+			continue;
+		params[form.elements[i].name] = form.elements[i].value;
+		form.elements[i].oldDisabled=form.elements[i].disabled;
+		form.elements[i].disabled=true;
+	}
+	
+	var completedFunction=function(requestObject)
+	{
+		for (var i = 0; i < form.elements.length; i++) 
+			form.elements[i].disabled=form.elements[i].oldDisabled;
+		if (form.callback)
+			form.callback(requestObject);
+	};
+	
+	AJAX.makeRequest(form.method, form.action, params, completedFunction);
+	return false;
 };
 
 /**

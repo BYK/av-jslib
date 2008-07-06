@@ -5,7 +5,7 @@
  * @name DBGrid
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.4.4
+ * @version 1.4.5
  */
 
 /**
@@ -135,6 +135,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			delete this.columnProperties;
 			delete this.columns;
 			delete this.colCount;
+			delete this.exportTypes;
 			
 			this.sortBy=[];
 			this.sortDirection=[];
@@ -178,12 +179,11 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 							this.columnProperties[i].filterFunction=this._alphaNumericFilter;
 					}
 					
-					this.exportTypes=AJAX.XML.getValue(this.data, "exportTypes");
+					this.exportTypes=AJAX.XML.getValue(this.data, "exportTypes", '');
 					if (this.exportTypes!='')
 						this.exportTypes=this.exportTypes.split(',');
 				}
 			}
-			
 			this.rows=AJAX.XML.toArray(this.data.getElementsByTagName("row"));
 			this.rowCount=this.rows.length;
 		}
@@ -241,8 +241,12 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			delete this._printCache;
 		}
 		
-		if (clear)
-			element.innerHTML='';
+		if (clear) 
+		{
+			element.innerHTML = '';
+			if (this.tableElement)
+				delete this.tableElement;
+		}
 		
 		if (this.tableElement) 
 		{
@@ -252,9 +256,9 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		
 		if (this.error)
 		{
-			throw new Error("Parse Error: Bad or empty data.", 'DBGrid.js@' + this.dataAddress + '?' + this.parameters.toSource(), 150);
+			throw new Error("Parse Error: Bad or empty data.", 'DBGrid.js@' + this.dataAddress + '?' + AJAX.serializeParameters(this.parameters), 259);
 		}
-		
+
 		this.tableElement=document.createElement("table");
 		this.tableElement.creator=this;
 		this.tableElement.className="DBGrid";
@@ -302,11 +306,11 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			for (var i=0; i<this.exportTypes.length; i++)
 				this.exportLinksHTML+='<a href="' + this.getExportLink(this.exportTypes[i]) + '" target="_blank">' + this.exportTypes[i] + '</a><br/>';
 			this.exportLinksHTML+='</div>';
-			this.tableElement.excelButton = document.createElement("input");
-			this.tableElement.excelButton.type = "button";
-			this.tableElement.excelButton.value = '^';
+			this.tableElement.exportButton = document.createElement("input");
+			this.tableElement.exportButton.type = "button";
+			this.tableElement.exportButton.value = '^';
 			Events.add(
-				this.tableElement.excelButton,
+				this.tableElement.exportButton,
 				'click',
 				function(event)
 				{
@@ -318,7 +322,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 					);
 				}
 			);
-			tableCaption.appendChild(this.tableElement.excelButton);
+			tableCaption.appendChild(this.tableElement.exportButton);
 		}
 
 		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ')'));
@@ -779,7 +783,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	
 	this._removeFilterBoxes=function()
 	{
-		for (var i=0; i<this.colCount; i++)
+		for (var i=0; i<this.tableElement.filterBoxes.length; i++)
 			document.body.removeChild(this.tableElement.filterBoxes[i]);
 	};
 	
@@ -907,4 +911,4 @@ DBGrid.clearAll=function()
 		window.DBGrids[guid].destroy();
 };
 
-window.DBGrids={};
+window.DBGrids=new Object();

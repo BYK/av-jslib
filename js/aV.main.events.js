@@ -6,7 +6,7 @@
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
  * <br />Adomas Paltanavičius adomas.paltanavicius@gmail.com
  * <br />Burak Yiğit Kaya byk@amplio-vita.net
- * @version 1.1
+ * @version 1.2
  * @copyright &copy;2005 - 2008
  */
 
@@ -82,6 +82,26 @@ Events.remove=function(element, type, handler)
 		delete element.events[type][handler.$$guid];
 	}
 };
+
+/**
+ * Clears all the events associated to an element.
+ * Good for resetting an element's state.
+ * 
+ * @param {Object} element The element whose events will be cleared
+ */
+Events.clear=function(element)
+{
+	if (!element.events)
+		return;
+	for (var event in element.events)
+	{
+		for (var guid in element.events[event])
+			delete element.events[event][guid];
+		delete element.events[event];
+		element["on" + event]=undefined;
+	}
+	delete element.events;
+}
 
 /**
  * The generic event handler which manages the event queue

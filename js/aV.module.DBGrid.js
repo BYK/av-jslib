@@ -1,21 +1,22 @@
 /**
- * @fileOverview Introduces the DBGrid class which fetches and parses XML data
+ * @fileOverview Introduces the aV.DBGrid class which fetches and parses XML data
  * and creates a table from the data collected.
- * <br />The generated tables have native sort, filter and grouping support.
- * @name DBGrid
+ * The generated tables have native sort, filter and grouping support.
+ * @name aV.DBGrid
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.4.5
+ * @version 1.7
  */
 
 /**
  * @classDescription A dynamically filled DBGrid class
  * @constructor * 
  * @requires {@link String} (aV.ext.string.js)
- * @requires {@link Events} (aV.main.events.js)
- * @requires {@link AJAX} (aV.main.ajax.js)
- * @requires {@link Visual} (aV.main.visual.js)
- * @requires {@link Visual.customHint} (aV.plg.customHint.js)
+ * @requires {@link aV.Events} (aV.main.events.js)
+ * @requires {@link aV.AJAX} (aV.main.ajax.js)
+ * @requires {@link aV.Visual} (aV.main.visual.js)
+ * @requires {@link aV.Visual.customHint} (aV.plg.customHint.js)
+ * @requires {@link aV.Visual.infoBox} (aV.plg.infoBox.js)
  * 
  * @param	 {String} dataAddress The address to the data XML
  * @param {String | Object} parameters Parameters for the POST call to the *dataAddress*
@@ -23,15 +24,15 @@
  * @param {Boolean} fetch Set true to fetch immediately when the object is created
  * @param {Boolean} print Set true to print the table immediately after the data is fetched.
  */
-function DBGrid(dataAddress, parameters, printElement, fetch, print)
+aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 {
 	/**
 	 * Holds the unique identifier and index of the DBGrid object.
 	 * @type	{integer}
 	 */
-	this.guid=DBGrid._lastGuid++;
+	this.guid=aV.DBGrid._lastGuid++;
 	
-	window.DBGrids[this.guid]=this;
+	aV.DBGrid.list[this.guid]=this;
 	
 	/**
 	 * Holds the address of the XML table data.
@@ -60,18 +61,18 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	
 	this._activeCompareFunction=[];
 	
-	this.maxSortAccumulation=4;
+	this.maxSortAccumulation=aV.config.DBGrid.maxSortAccumulation;
 	this.error=false;
 	
 	/* event definitions */
 	this.onRowClick=false;
-	this.onFetchBegin=false;
-	this.onFetchError=false;
+	this.onFetchBegin=aV.config.DBGrid.defaultEventHandlers.onFetchBegin;
+	this.onFetchError=aV.config.DBGrid.defaultEventHandlers.onFetchError;
 	this.onFetchEnd=false;
-	this.onPrintBegin=false;
-	this.onPrintEnd=false;
-	this.onSortBegin=false;
-	this.onSortEnd=false;
+	this.onPrintBegin=aV.config.DBGrid.defaultEventHandlers.onPrintBegin;
+	this.onPrintEnd=aV.config.DBGrid.defaultEventHandlers.onReady;
+	this.onSortBegin=aV.config.DBGrid.defaultEventHandlers.onSortBegin;
+	this.onSortEnd=aV.config.DBGrid.defaultEventHandlers.onReady;
 	
 	/**
 	 * Fetches the data from the address given in dataAddress
@@ -89,7 +90,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		if (this.onFetchBegin)
 			this.onFetchBegin();
 		 
-		this.fetcher=AJAX.makeRequest(
+		this.fetcher=aV.AJAX.makeRequest(
 			"POST",
 			this.dataAddress,
 			this.parameters,
@@ -97,7 +98,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			{
 
 				currentObject.loadingData=false;				
-				if ((requestObject.status!=0 && requestObject.status!=200) || !requestObject.responseXML)
+				if ((requestObject.status && requestObject.status!=200) || !requestObject.responseXML)
 				{
 					if (currentObject.onFetchError)
 						currentObject.onFetchError(requestObject);
@@ -121,7 +122,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	{
 		var params=this.parameters || {};
 		if (typeof params=='object')
-			params=AJAX.serializeParameters(params);
+			params=aV.AJAX.serializeParameters(params);
 		params+='&type=' + encodeURIComponent(type);
 		
 		return this.dataAddress + '?' + params;
@@ -153,7 +154,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		{
 			if (fullRefresh) 
 			{
-				this.columns = AJAX.XML.toArray(this.data.getElementsByTagName("columns")[0].childNodes);
+				this.columns = aV.AJAX.XML.toArray(this.data.getElementsByTagName("columns")[0].childNodes);
 				this.columnProperties = new Array(this.columns.length);
 				this.colCount = this.columns.length;
 				
@@ -161,30 +162,22 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 				{
 					this.columnProperties[i]=
 					{
-						dataType: AJAX.XML.getValue(this.columns[i], "data_type"),
-						hidden: (AJAX.XML.getValue(this.columns[i], "visible")==="0"),
-						dontSum: (AJAX.XML.getValue(this.columns[i], "dontSum")==="1"),
-						parseHTML: (AJAX.XML.getValue(this.columns[i], "parseHTML")==="1"),
-						width: AJAX.XML.getValue(this.columns[i], "width", ''),
+						dataType: aV.AJAX.XML.getValue(this.columns[i], "data_type"),
+						hidden: (aV.AJAX.XML.getValue(this.columns[i], "visible")==="0"),
+						dontSum: (aV.AJAX.XML.getValue(this.columns[i], "dontSum")==="1"),
+						parseHTML: (aV.AJAX.XML.getValue(this.columns[i], "parseHTML")==="1"),
+						width: aV.AJAX.XML.getValue(this.columns[i], "width", ''),
 						filter: ''
 					};
 					
-					switch(this.columnProperties[i].dataType)
-					{
-						case 'int':
-						case 'real':
-							this.columnProperties[i].filterFunction=this._numericFilter;
-							break;
-						default:
-							this.columnProperties[i].filterFunction=this._alphaNumericFilter;
-					}
+					this.columnProperties[i].filterFunction = aV.config.DBGrid.filterFunctions["dt_" + this.columnProperties[i].dataType] || aV.config.DBGrid.filterFunctions.dt_default;
 					
-					this.exportTypes=AJAX.XML.getValue(this.data, "exportTypes", '');
+					this.exportTypes=aV.AJAX.XML.getValue(this.data, "exportTypes", '');
 					if (this.exportTypes!='')
 						this.exportTypes=this.exportTypes.split(',');
 				}
 			}
-			this.rows=AJAX.XML.toArray(this.data.getElementsByTagName("row"));
+			this.rows=aV.AJAX.XML.toArray(this.data.getElementsByTagName("row"));
 			this.rowCount=this.rows.length;
 		}
 		
@@ -231,7 +224,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 				this.onPrintBegin(element);
 			
 			this._printCache=[clear, element];
-			window.setTimeout("window.DBGrids[" + this.guid + "]._print();", 0);
+			window.setTimeout("aV.DBGrid.list[" + this.guid + "]._print();", 0);
 			return;
 		}
 		else
@@ -241,6 +234,9 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			delete this._printCache;
 		}
 		
+		if (this.tableElement) 
+			this.tableElement.parentNode.removeChild(this.tableElement);
+
 		if (clear) 
 		{
 			element.innerHTML = '';
@@ -248,157 +244,185 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 				delete this.tableElement;
 		}
 		
-		if (this.tableElement) 
-		{
-			this._removeFilterBoxes();
-			this.tableElement.parentNode.removeChild(this.tableElement);
-		}
-		
 		if (this.error)
-		{
-			throw new Error("Parse Error: Bad or empty data.", 'DBGrid.js@' + this.dataAddress + '?' + AJAX.serializeParameters(this.parameters), 259);
-		}
+			throw new Error("Parse Error: Bad or empty data.", 'aV.module.DBGrid.js@' + this.dataAddress + '?' + aV.AJAX.serializeParameters(this.parameters));
 
 		this.tableElement=document.createElement("table");
 		this.tableElement.creator=this;
-		this.tableElement.className="DBGrid";
-		this.tableElement.filterBoxes=[];
+		this.tableElement.className=aV.config.DBGrid.classNames.general;
 		
 		var tableCaption=this.tableElement.appendChild(document.createElement("caption"));
 		
-		this.tableElement.columnList=tableCaption.appendChild(document.createElement("div"));
-		this.tableElement.columnList.id="DBGrid" + this.guid + "_columnList";
-		this.tableElement.columnList.className="columnList";
+		this.tableElement.columnList=document.body.appendChild(document.createElement("div"));
+		this.tableElement.columnList.owner=this;
+		this.tableElement.columnList.id=aV.config.DBGrid.classNames.general + this.guid + "_columnList";
+		this.tableElement.columnList.className=aV.config.DBGrid.classNames.columnList;
 		this.tableElement.columnList.style.height="0px";
-		Visual.setOpacity(this.tableElement.columnList, 0);
+		aV.Visual.setOpacity(this.tableElement.columnList, 0);
 
-		this.tableElement.columnsButton=document.createElement("input");
-		this.tableElement.columnsButton.type="button";
-		this.tableElement.columnsButton.value="*";
-		this.tableElement.columnsButton.onclick=function()
+		/* Start creating the buttons */
+		/* ColumnList button */
+		this.tableElement.buttonColumnList=document.createElement("a");
+		this.tableElement.buttonColumnList.href="javascript:void(0)";
+		this.tableElement.buttonColumnList.className=aV.config.DBGrid.classNames.buttonColumnList;
+		this.tableElement.buttonColumnList.appendChild(document.createTextNode(aV.config.DBGrid.texts.columnList));
+		this.tableElement.buttonColumnList.setAttribute("hint", aV.config.DBGrid.texts.columnListHint);
+		this.tableElement.buttonColumnList.onclick=function()
 		{
 			var columnList=this.parentNode.parentNode.columnList;
-//			columnList.style.left=(Visual.getElementPositionX(this) + this.offsetWidth - columnList.offsetWidth) + "px";
+			columnList.style.left=aV.Visual.getElementPositionX(this) + "px";
+			columnList.style.top=aV.Visual.getElementPositionY(this) + "px";
 			if (columnList.style.height=="0px")
-				Visual.fadeNSlide(columnList, columnList.scrollHeight, 1);
+				aV.Visual.fadeNSlide(columnList, columnList.scrollHeight, 1);
 			else
-				Visual.fadeNSlide(columnList, 0, -1);
+				aV.Visual.fadeNSlide(columnList, 0, -1);
 		};
-		tableCaption.appendChild(this.tableElement.columnsButton);
+		tableCaption.appendChild(this.tableElement.buttonColumnList);
 		
-		this.tableElement.collapseButton=document.createElement("input");
-		this.tableElement.collapseButton.type="button";
-		this.tableElement.collapseButton.value="-";
-		this.tableElement.collapseButton.onclick=function() {this.parentNode.parentNode.creator.collapseAllRows();};
-		this.tableElement.collapseButton.disabled=true;
-		tableCaption.appendChild(this.tableElement.collapseButton);
-		
-		this.tableElement.expandButton=document.createElement("input");
-		this.tableElement.expandButton.type="button";
-		this.tableElement.expandButton.value="+";
-		this.tableElement.expandButton.onclick=function() {this.parentNode.parentNode.creator.expandAllRows();};
-		this.tableElement.expandButton.disabled=true;
-		tableCaption.appendChild(this.tableElement.expandButton);
-		
+		/* Export/Save button */
 		if (this.exportTypes.length) 
 		{
 			this.exportLinksHTML='<div style="min-width: 25px;">';
 			for (var i=0; i<this.exportTypes.length; i++)
 				this.exportLinksHTML+='<a href="' + this.getExportLink(this.exportTypes[i]) + '" target="_blank">' + this.exportTypes[i] + '</a><br/>';
 			this.exportLinksHTML+='</div>';
-			this.tableElement.exportButton = document.createElement("input");
-			this.tableElement.exportButton.type = "button";
-			this.tableElement.exportButton.value = '^';
-			Events.add(
-				this.tableElement.exportButton,
+			this.tableElement.buttonExport = document.createElement("a");
+			this.tableElement.buttonExport.href = "javascript:void(0)";
+			this.tableElement.buttonExport.className = aV.config.DBGrid.classNames.buttonExport;
+			this.tableElement.buttonExport.appendChild(document.createTextNode(aV.config.DBGrid.texts["export"]));
+			aV.Events.add(
+				this.tableElement.buttonExport,
 				'click',
 				function(event)
 				{
 					var creator=event.target.parentNode.parentNode.creator;
-					Visual.customHint.pop(
+					aV.Visual.customHint.pop(
 						creator.exportLinksHTML,
-						event.clientX + Visual.scrollLeft(),
-						event.clientY + Visual.scrollTop()
+						event.clientX + aV.Visual.scrollLeft(),
+						event.clientY + aV.Visual.scrollTop()
 					);
 				}
 			);
-			tableCaption.appendChild(this.tableElement.exportButton);
+			tableCaption.appendChild(this.tableElement.buttonExport);
 		}
 
-		tableCaption.appendChild(document.createTextNode(AJAX.XML.getValue(this.data, "caption") + ' (' + this.rowCount + ')'));
+		/* Show/Hide Filters Button */
+		this.tableElement.buttonFilter=document.createElement("a");
+		this.tableElement.buttonFilter.href="javascript:void(0)";
+		this.tableElement.buttonFilter.className=aV.config.DBGrid.classNames.buttonFilter;
+		this.tableElement.buttonFilter.appendChild(document.createTextNode(aV.config.DBGrid.texts.filter));
+		this.tableElement.buttonFilter.onclick=function() {this.parentNode.parentNode.tHead.filterRow.style.display=(this.parentNode.parentNode.tHead.filterRow.style.display)?'':'none'; return false;};
+		this.tableElement.buttonFilter.setAttribute("hint", aV.config.DBGrid.texts.filterHint);
+		tableCaption.appendChild(this.tableElement.buttonFilter);
+
+		/* UngroupAll Button */
+		this.tableElement.buttonUngroupAll=document.createElement("a");
+		this.tableElement.buttonUngroupAll.href="javascript:void(0)";
+		this.tableElement.buttonUngroupAll.className=aV.config.DBGrid.classNames.buttonUngroupAll;
+		this.tableElement.buttonUngroupAll.appendChild(document.createTextNode(aV.config.DBGrid.texts.ungroupAll));
+		this.tableElement.buttonUngroupAll.onclick=function() {this.parentNode.parentNode.creator.ungroupAllRows();return false;};
+		this.tableElement.buttonUngroupAll.setAttribute('hint', aV.config.DBGrid.texts.ungroupAllHint);
+		tableCaption.appendChild(this.tableElement.buttonUngroupAll);
+
+		/* GroupAll button */
+		this.tableElement.buttonGroupAll=document.createElement("a");
+		this.tableElement.buttonGroupAll.href="javascript:void(0)";
+		this.tableElement.buttonGroupAll.className=aV.config.DBGrid.classNames.buttonGroupAll;
+		this.tableElement.buttonGroupAll.appendChild(document.createTextNode(aV.config.DBGrid.texts.groupAll));
+		this.tableElement.buttonGroupAll.onclick=function() {this.parentNode.parentNode.creator.groupAllRows();return false;};
+		this.tableElement.buttonGroupAll.setAttribute('hint', aV.config.DBGrid.texts.groupAllHint);
+		tableCaption.appendChild(this.tableElement.buttonGroupAll);
+		
+		/* End of button definitions */
+		
+		var captionTitle=tableCaption.appendChild(document.createElement("div"));
+		captionTitle.className=aV.config.DBGrid.classNames.captionTitle;
+		captionTitle.appendChild(document.createTextNode(aV.AJAX.XML.getValue(this.data, "caption", aV.config.DBGrid.texts.defaultTableTitle)));
 		
 		this.tableElement.setColumnVisibility=function(colIndex, visible)
 		{
 			var displayState=(visible)?'':'none';
 			var rows=this.getElementsByTagName("tr");
-			for (var i=rows.length-1; i>=0; i--)
-				rows[i].getElementsByTagName("td")[colIndex].style.display=displayState;
+			for (var i = rows.length - 1; i >= 0; i--) 
+			{
+				if (rows[i].parentNode != this.tFoot)
+					rows[i].cells[colIndex].style.display = displayState;
+				else
+					rows[i].cells[0].colSpan+=(visible)?1:-1;
+			}
 			this.creator.columnProperties[colIndex].hidden=!visible;
 		};
 		
 		var tableHeader=this.tableElement.appendChild(document.createElement("thead"));
+		this.tableElement.tHead.filterRow=tableHeader.insertRow(-1);
+		this.tableElement.tHead.filterRow.className=aV.config.DBGrid.classNames.filterRow;
+		this.tableElement.tHead.filterRow.style.display='none';
 		var newRow=tableHeader.insertRow(-1);
 		var columnTitle, newCell, newLabel, newCheckbox;
+		var visibleColCount=this.colCount;
 		
 		for (var i=0; i<this.colCount; i++)
 		{
-			columnTitle=AJAX.XML.getValue(this.columns[i], "title");
+			columnTitle=aV.AJAX.XML.getValue(this.columns[i], "title");
 			
 			newLabel=document.createElement("label");
-			newLabel.setAttribute("for", "DBGrid" + this.guid + "_columnControl" + i);
+			newLabel.setAttribute("for", "aV.DBGrid" + this.guid + "_columnControl" + i);
 			newLabel.appendChild(document.createTextNode(columnTitle));
-			this.tableElement.columnList.appendChild(newLabel);
+
 			newCheckbox=document.createElement("input");
 			newCheckbox.type="checkbox";
 			newCheckbox.colIndex=i;
 			newCheckbox.id=newLabel.getAttribute("for");
 			newCheckbox.onclick=function()
 			{
-				this.parentNode.parentNode.parentNode.setColumnVisibility(this.colIndex, this.checked);
+				this.parentNode.owner.tableElement.setColumnVisibility(this.colIndex, this.checked);
 			};
+
 			this.tableElement.columnList.appendChild(newCheckbox);
+			this.tableElement.columnList.appendChild(newLabel);
+			
 			newCheckbox.checked=!this.columnProperties[i].hidden;
 			this.tableElement.columnList.appendChild(document.createElement("br"));
 			
 			newCell=newRow.insertCell(-1);
+
 			newCell.appendChild(document.createTextNode(columnTitle));
 			newCell.setAttribute("alias", this.columns[i].tagName);
-			newCell.setAttribute("hint", "%self%");
+			newCell.title=columnTitle;
 			newCell.colIndex=i;
-			Events.add(newCell, "click", this._titleClickHandler);
-			Events.add(newCell, "wheel", this._titleWheelHandler);
-			Events.add(newCell, "mouseover", this._titleMouseOverHandler);
-			Events.add(newCell, "mouseout", this._titleMouseOutHandler);
-			
-			if (this.columnProperties[i].hidden)
-				newCell.style.display='none';
+			aV.Events.add(newCell, "click", aV.DBGrid._titleClickHandler);
+			aV.Events.add(newCell, "mousemove", aV.DBGrid._titleMouseMoveHandler);
+			aV.Events.add(newCell, "mousedown", aV.DBGrid._lockResize);
 			
 			if (this.columnProperties[i].width!='')
 				newCell.style.width=this.columnProperties[i].width;
 			
-			if (this.sortBy[0]===i)
-				newCell.className="sorted";
-			
-			newCell.filterBox=document.body.appendChild(document.createElement("input"));
-			this.tableElement.filterBoxes.push(newCell.filterBox);
+			newCell.filterBox=this.tableElement.tHead.filterRow.insertCell(-1).appendChild(document.createElement("input"));
 			newCell.filterBox.creator=this;
 			newCell.filterBox.columnHeader=newCell;
-			newCell.filterBox.id="DBGrid" + this.guid + "_" + this.columns[i].tagName + '_filter';
-			newCell.filterBox.className="filterBox";
-			newCell.filterBox.style.position="absolute";
-			newCell.filterBox.style.display="none";
-			newCell.filterBox.style.width="0px";
-			Events.add(newCell.filterBox, "focus", this._filterBoxFocusHandler);
-			Events.add(newCell.filterBox, "blur", this._filterBoxBlurHandler);
-			Events.add(newCell.filterBox, "keydown", this._filterBoxKeyDownHandler);
+			
+			if (this.columnProperties[i].hidden) 
+			{
+				newCell.style.display = 'none';
+				newCell.filterBox.parentNode.style.display = 'none';
+				visibleColCount--;
+			}
+			
+			aV.Events.add(newCell.filterBox, "keydown", aV.DBGrid._filterBoxKeyDownHandler);
 		}
 			
+		var tableFooter=this.tableElement.appendChild(document.createElement("tfoot"));
+		var newRow=tableFooter.insertRow(-1);
+		var newCell=newRow.insertCell(-1);
+		newCell.colSpan=visibleColCount;
+		tableFooter.rowCount=document.createElement("span");
+		newCell.appendChild(tableFooter.rowCount);
+		newCell.appendChild(document.createTextNode(aV.config.DBGrid.texts.rows));
+		
 		this.tableElement.appendChild(document.createElement("tbody"));
 		this._printRows();
+		
 		element.appendChild(this.tableElement);
-
-		if (this.onPrintEnd)
-			this.onPrintEnd(element);
 	};
 	
 	this.sortData=function(columnIndex, direction, print)
@@ -417,8 +441,12 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			if (this.onSortBegin)
 				this.onSortBegin(columnIndex, direction);
 			
+			if (typeof this.sortBy[0]=='number')
+				this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells[this.sortBy[0]].className='';
+			this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells[columnIndex].className=(direction==1)?aV.config.DBGrid.classNames.sortedAsc:aV.config.DBGrid.classNames.sortedDesc;
+
 			this._sortCache=[columnIndex, direction, print];
-			window.setTimeout("window.DBGrids[" + this.guid + "].sortData()", 0);
+			window.setTimeout("aV.DBGrid.list[" + this.guid + "].sortData()", 0);
 			return;
 		}
 		else
@@ -439,15 +467,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			if (this.sortDirection.length > this.maxSortAccumulation)
 				this.sortDirection=this.sortDirection.slice(0, this.maxSortAccumulation - 1);
 			
-			switch (this.columnProperties[this.sortBy[0]].dataType)
-			{
-				case 'int':
-				case 'real':
-					this._activeCompareFunction.unshift(this._numericCompare);
-					break;
-				default:
-					this._activeCompareFunction.unshift(this._alphaNumericCompare);
-			}
+			this._activeCompareFunction.unshift(aV.config.DBGrid.compareFunctions["dt_" + this.columnProperties[this.sortBy[0]].dataType] || aV.config.DBGrid.compareFunctions.dt_default);
 		}
 		else
 			this.sortDirection[0]=direction;
@@ -464,13 +484,10 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 				this._printRows();
 			else
 				this._print();
-				
-			this.tableElement.collapseButton.disabled=false;
-			this.tableElement.expandButton.disabled=false;
 		}
 	};
 	
-	this.collapseAllRows=function()
+	this.groupAllRows=function()
 	{
 		if (!this.tableElement)
 			return false;
@@ -478,12 +495,12 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		while (currentRow)
 		{
 			if (!currentRow.groupCount)
-				this._collapseRowGroup(currentRow, this.tableElement);
+				this._groupRows(currentRow, this.tableElement);
 			currentRow=currentRow.nextSibling;
 		}
 	};
 	
-	this.expandAllRows=function()
+	this.ungroupAllRows=function()
 	{
 		if (!this.tableElement)
 			return false;
@@ -491,7 +508,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		while (currentRow)
 		{
 			if (currentRow.groupCount)
-				currentRow=this._expandRowGroup(currentRow, this.tableElement);
+				currentRow=this._ungroupRows(currentRow, this.tableElement);
 			currentRow=currentRow.nextSibling;
 		}
 	};
@@ -500,13 +517,10 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 	{
 		if (this.tableElement)
 		{
-			this._removeFilterBoxes();
+			document.body.removeChild(this.tableElement.columnList);
 			this.tableElement.parentNode.removeChild(this.tableElement);
-			
-			delete this.tableElement;
 		}
-		delete window.DBGrids[this.guid];
-		//delete this;
+		delete aV.DBGrid.list[this.guid];
 	};
 	
 	this._sortRows=function()
@@ -556,24 +570,26 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		if (typeof count!='number')
 			count=this.rowCount;
 
-		count=count + i;
+		var addedRows=0;
 		var tableBody=this.tableElement.getElementsByTagName('tbody')[0];
 		var filtered=false;
 		var cellValue;
 		
 		if (clear)
-			removeChildren(tableBody);
+			while (tableBody.firstChild)
+				tableBody.removeChild(tableBody.firstChild);
 
+		tableBody.style.height=aV.config.DBGrid.maxBodyHeight + 'px';
 		var newRow, newCell, lastKeyRow, lastKeyData, currentKeyData, rowContent;
-		for (i; i<count; i++)
+		for (i; (addedRows<count && i<this.rowCount); i++)
 		{
 			newRow=document.createElement("tr");
 			newRow.index=i;
-			newRow.onclick=this._onRowClick;
+			newRow.onclick=aV.DBGrid._rowClickHandler;
 
 			if (this.sortBy.length>0)
 			{
-				newRow.ondblclick=this._rowGrouper;			
+				newRow.ondblclick=aV.DBGrid._rowGrouper;			
 				currentKeyData=this._extractCellValue(this.rows[i], this.sortBy[0]);
 				if (currentKeyData==lastKeyData)
 					newRow.parentRow=lastKeyRow;
@@ -608,29 +624,22 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			if (filtered)
 				continue;
 			
+			addedRows++;
 			if (insertBefore)
 				tableBody.insertBefore(newRow, insertBefore);
 			else
 				tableBody.appendChild(newRow);
 		}
+
+		if (!aV.config.DBGrid.maxBodyHeight || tableBody.scrollHeight<=tableBody.offsetHeight)
+			tableBody.style.height='auto';
+
+		this.tableElement.tFoot.rowCount.innerHTML=tableBody.rows.length;
+		
+		if (this.onPrintEnd)
+			this.onPrintEnd(this.tableElement);
+
 		return newRow;
-	};
-	
-	this._numericCompare=function(num1, num2)
-	{
-		return (parseFloat(num1) - parseFloat(num2));
-	};
-	
-	this._alphaNumericCompare=function(str1, str2)
-	{
-		str1=str1.toLowerCase();
-		str2=str2.toLowerCase();
-		if (str1<str2)
-			return -1;
-		else if (str1>str2)
-			return 1;
-		else
-			return 0;
 	};
 	
 	this._applyFilter=function(row, colIndex)
@@ -654,200 +663,7 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 		return result;
 	};
 	
-	this._alphaNumericFilter=function(value, filter)
-	{
-		value=value.toLowerCase();
-		var expression=(filter.charAt(0)=='*');
-		
-		if (expression || (filter.charAt(0)==' '))
-			filter=filter.substr(1);
-		
-		filter=new RegExp((expression)?filter:filter.escapeRegExp(), "gi");
-
-		return !value.match(filter);
-	};
-	
-	this._numericFilter=function(value, filter)
-	{
-		if (!isNaN(filter))
-			filter='==' + filter;
-		else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
-			filter='=' + filter;
-
-		if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
-			return !eval('(' + value + filter + ')');
-		else
-			return false;
-	};
-	
-	this._titleClickHandler=function(event)
-	{
-		var table=this;
-		while (table.tagName!="TABLE" && table.tagName!="HTML")
-			table=table.parentNode;
-
-		if (typeof table.creator.sortBy[0]=='number')
-			this.parentNode.childNodes[table.creator.sortBy[0]].className='';
-		
-		this.className='sorted';
-		
-		table.creator.sortData(this.colIndex, false, true);
-	};
-
-	this._rowGrouper=function(event)
-	{
-		var table=this;
-		while (table.tagName!="TABLE" && table.tagName!="HTML")
-			table=table.parentNode;
-		var groupHeader=this.parentRow;
-		if (!groupHeader)
-			return false;
-			
-		if (groupHeader.groupCount)
-			table.creator._expandRowGroup(groupHeader);
-		else
-			table.creator._collapseRowGroup(groupHeader);
-	};
-	
-	this._onRowClick=function(event)
-	{
-		var table=this;
-		while (table.tagName!="TABLE" && table.tagName!="HTML")
-			table=table.parentNode;
-		var selectable=true;
-		
-		if (table.creator.onRowClick)
-		{
-			var rowData={};
-			for (var i=0; i<table.creator.colCount; i++)
-				rowData[table.creator.columns[i].tagName]=this.cells[i].innerHTML.BRtoLB();
-			
-			if (table.creator.onRowClick(this, rowData)===false)
-				selectable=false; 
-		}
-		
-		if (selectable)
-		{
-			if (table.selectedIndex>=0 && table.rows[table.selectedIndex])
-				table.rows[table.selectedIndex].className='';
-			
-			table.selectedIndex=this.rowIndex;
-			this.className='selected';
-		}
-	};
-	
-	this._showFilterBox = function(index)
-	{
-		this._cancelFilterBoxTimers(index);
-		this.tableElement.filterBoxes[index].style.left=Visual.getElementPositionX(this.tableElement.filterBoxes[index].columnHeader) + "px";
-		this.tableElement.filterBoxes[index].value=this.columnProperties[index].filter;
-		this.tableElement.filterBoxes[index].style.display="";
-		this.tableElement.filterBoxes[index].style.top=(Visual.getElementPositionY(this.tableElement.filterBoxes[index].columnHeader) - this.tableElement.filterBoxes[index].offsetHeight) + "px";		
-		Visual.fadeNSlide(
-			this.tableElement.filterBoxes[index],
-			this.tableElement.filterBoxes[index].columnHeader.offsetWidth - 5,
-			1,
-			true,
-			function(obj)
-			{
-				obj.focus();
-			}
-		);
-	};
-	
-	this._hideFilterBox=function(index)
-	{
-		this._cancelFilterBoxTimers(index);
-		Visual.fadeNSlide(
-			this.tableElement.filterBoxes[index],
-			0,
-			-1,
-			true,
-			function(obj) {obj.style.display="none"}
-		);
-	};
-	
-	this._cancelFilterBoxTimers=function(index)
-	{
-		if (this.tableElement.filterBoxes[index].hideTimer)
-		{
-			window.clearTimeout(this.tableElement.filterBoxes[index].hideTimer);
-			this.tableElement.filterBoxes[index].hideTimer=undefined;
-		}
-		if (this.tableElement.filterBoxes[index].showTimer)
-		{
-			window.clearTimeout(this.tableElement.filterBoxes[index].showTimer);
-			this.tableElement.filterBoxes[index].showTimer=undefined;
-		}
-	};
-	
-	this._removeFilterBoxes=function()
-	{
-		for (var i=0; i<this.tableElement.filterBoxes.length; i++)
-			document.body.removeChild(this.tableElement.filterBoxes[i]);
-	};
-	
-	this._titleWheelHandler=function(event)
-	{
-		var newWidth=parseInt(this.style.width) || this.offsetWidth;
-		newWidth-=5*event.delta;
-		this.style.width=newWidth + "px";
-		event.preventDefault();
-	};
-	
-	this._titleMouseOverHandler=function(event)
-	{
-		var table=this;
-		while (table.tagName!="TABLE" && table.tagName!="HTML")
-			table=table.parentNode;
-
-		table.creator._cancelFilterBoxTimers(this.colIndex);
-		this.filterBox.showTimer=window.setTimeout("window.DBGrids[" + table.creator.guid + "]._showFilterBox(" + this.colIndex + ");", 750);
-	};
-
-	this._titleMouseOutHandler=function(event)
-	{
-		var table=this;
-		while (table.tagName!="TABLE" && table.tagName!="HTML")
-			table=table.parentNode;
-
-		table.creator._cancelFilterBoxTimers(this.colIndex);
-	};
-
-	this._filterBoxBlurHandler=function(event)
-	{
-		this.hideTimer=window.setTimeout("window.DBGrids[" + this.creator.guid + "]._hideFilterBox(" + this.columnHeader.colIndex + ");", 500);
-	};
-	
-	this._filterBoxFocusHandler=function(event)
-	{
-		if (this.hideTimer)
-		{
-			window.clearTimeout(this.hideTimer);
-			this.hideTimer=undefined;
-		}
-	};
-	
-	this._filterBoxKeyDownHandler=function(event)
-	{
-		var keyCode=(event.which)?event.which:event.keyCode;
-		if (keyCode == 27)
-		{
-			this.value='';
-			keyCode=13;
-		}
-		
-		if (keyCode==13)
-		{
-			this.creator.columnProperties[this.columnHeader.colIndex].filter=this.value;
-			this.creator._printRows();
-			this.blur();
-			if (this.value)
-				this.focus();
-		}
-	};
-	
-	this._collapseRowGroup=function(groupHeader)
+	this._groupRows=function(groupHeader)
 	{
 		var currentRow=groupHeader.nextSibling;
 		groupHeader.groupCount=0;
@@ -877,27 +693,311 @@ function DBGrid(dataAddress, parameters, printElement, fetch, print)
 			groupHeader.parentNode.removeChild(currentRow);
 			currentRow=groupHeader.nextSibling;
 		}
-		this.tableElement.expandButton.disabled=false;
+		this.tableElement.tFoot.rowCount.innerHTML=groupHeader.parentNode.rows.length;
 	};
 	
-	this._expandRowGroup=function(groupHeader)
+	this._ungroupRows=function(groupHeader)
 	{
 		var lastAdded=this._printRows(false, groupHeader.index, (groupHeader.groupCount+1), groupHeader.nextSibling);
 		groupHeader.parentNode.removeChild(groupHeader);
-		this.tableElement.collapseButton.disabled=false;
+		this.tableElement.tFoot.rowCount.innerHTML=lastAdded.parentNode.rows.length;
 		return lastAdded;
+	};
+	
+	this._setColumnWidth=function(colIndex, newWidth)
+	{
+		for (var i=0; i<this.tableElement.tHead.rows.length; i++)
+			this.tableElement.tHead.rows[i].cells[colIndex].style.width=newWidth + "px";
 	};
 	
 	if (fetch)
 		this.refreshData();
 }
 
+aV.DBGrid._titleClickHandler=function(event)
+{
+	if (event.target.cancelClick) 
+	{
+		event.target.cancelClick=false;
+		return false;
+	}
+	var table=this;
+	while (table.tagName!="TABLE" && table.tagName!="HTML")
+		table=table.parentNode;
+
+	table.creator.sortData(this.colIndex, false, true);
+};
+
+aV.DBGrid._titleMouseMoveHandler=function(event)
+{
+	var obj=event.target;
+	if (aV.DBGrid._activeResizer==obj)
+		return;
+	var cellPosition=aV.Visual.getElementPositionX(obj);
+	obj.initialPos=event.clientX;
+	if ((cellPosition + obj.offsetWidth - event.clientX)<=aV.config.DBGrid.resizeLockOffset)
+		obj.style.cursor="e-resize";
+	else if ((event.clientX - cellPosition)<=aV.config.DBGrid.resizeLockOffset)
+		obj.style.cursor="w-resize";
+	else
+		obj.style.cursor="";
+};
+
+aV.DBGrid._lockResize=function(event)
+{
+	var obj=event.target;
+	var cellPosition=aV.Visual.getElementPositionX(obj);
+	if ((cellPosition + obj.offsetWidth - event.clientX)>aV.config.DBGrid.resizeLockOffset && (event.clientX - cellPosition)>aV.config.DBGrid.resizeLockOffset)
+		return;
+
+	obj.visiblePrevSibling=obj.previousSibling
+	while (obj.visiblePrevSibling && obj.visiblePrevSibling.style.display!='')
+		obj.visiblePrevSibling=obj.visiblePrevSibling.previousSibling;
+	if (obj.visiblePrevSibling)
+		obj.visiblePrevSibling.visibleNextSibling=obj;
+		
+	obj.visibleNextSibling=obj.nextSibling
+	while (obj.visibleNextSibling && obj.visibleNextSibling.style.display!='')
+		obj.visibleNextSibling=obj.visibleNextSibling.nextSibling;
+
+	aV.DBGrid._activeResizer=(event.clientX>(cellPosition+aV.config.DBGrid.resizeLockOffset))?obj:obj.visiblePrevSibling;
+
+	aV.DBGrid._activeResizer.initialWidth=(aV.DBGrid._activeResizer.style.width)?parseInt(aV.DBGrid._activeResizer.style.width):aV.DBGrid._activeResizer.offsetWidth;
+	if (aV.DBGrid._activeResizer.visibleNextSibling)
+		aV.DBGrid._activeResizer.visibleNextSibling.initialWidth=(aV.DBGrid._activeResizer.visibleNextSibling.style.width)?parseInt(aV.DBGrid._activeResizer.visibleNextSibling.style.width):aV.DBGrid._activeResizer.visibleNextSibling.offsetWidth;
+
+	aV.DBGrid._activeResizer.initialPos=event.clientX;
+	obj.cancelClick=true;
+	return false;
+};
+
+aV.DBGrid._unlockResize=function(event)
+{
+	var obj=aV.DBGrid._activeResizer;
+	if (!obj)
+		return true;
+	obj.initialPos=false;
+	aV.DBGrid._activeResizer=false;
+	return aV.DBGrid._activeResizer;
+};
+
+aV.DBGrid._doResize=function(event)
+{
+	var obj=aV.DBGrid._activeResizer;
+	if (!obj)
+		return false;
+	if (!obj.initialPos)
+		return false;
+
+	var change=event.clientX - obj.initialPos;
+	
+	if ((obj.initialWidth + change)<aV.config.DBGrid.minColWidth || (obj.visibleNextSibling && (obj.visibleNextSibling.initialWidth - change)<aV.config.DBGrid.minColWidth))
+		return false;
+
+	if (obj.visibleNextSibling)
+		obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.visibleNextSibling.cellIndex, obj.visibleNextSibling.initialWidth - change);
+	obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.cellIndex, obj.initialWidth + change);
+};
+
+aV.DBGrid._rowGrouper=function(event)
+{
+	var table=this;
+	while (table.tagName!="TABLE" && table.tagName!="HTML")
+		table=table.parentNode;
+	var groupHeader=this.parentRow;
+	if (!groupHeader)
+		return false;
+		
+	if (groupHeader.groupCount)
+		table.creator._ungroupRows(groupHeader);
+	else
+		table.creator._groupRows(groupHeader);
+};
+
+aV.DBGrid._rowClickHandler=function(event)
+{
+	var table=this;
+	while (table.tagName!="TABLE" && table.tagName!="HTML")
+		table=table.parentNode;
+	var selectable=true;
+	
+	if (table.creator.onRowClick)
+	{
+		var rowData={};
+		for (var i=0; i<table.creator.colCount; i++)
+			rowData[table.creator.columns[i].tagName]=this.cells[i].innerHTML.BRtoLB();
+		
+		if (table.creator.onRowClick(this, rowData)===false)
+			selectable=false; 
+	}
+	
+	if (selectable)
+	{
+		if (table.selectedIndex>=0 && table.rows[table.selectedIndex])
+			table.rows[table.selectedIndex].className='';
+		
+		table.selectedIndex=this.rowIndex;
+		this.className='selected';
+	}
+};
+
+aV.DBGrid._filterBoxKeyDownHandler=function(event)
+{
+	var keyCode=(event.which)?event.which:event.keyCode;
+	if (keyCode == 27)
+	{
+		this.value='';
+		keyCode=13;
+	}
+	
+	if (keyCode==13)
+	{
+		this.creator.columnProperties[this.columnHeader.colIndex].filter=this.value;
+		this.creator._printRows();
+		return false;
+	}
+};
+
+aV.config.DBGrid=
+{
+	maxSortAccumulation: 4,
+	resizeLockOffset: 10,
+	minColWidth: 20, //show be >= 2*resizeLockOffset
+	maxBodyHeight: 400,
+	texts:
+	{
+		defaultTableTitle: 'Untitled Table',
+		rows: ' row(s)',
+		error: 'An error occured while preparing the table. Details are below:<br />',
+		fetching: 'Gathering data...',
+		printing: 'Creating table...',
+		sorting: 'Sorting table...',
+		grouping: 'Groping rows...',
+		ungrouping: 'Ungrouping rows...',
+		ready: 'Table is ready to use.',
+		columnList: 'Column Manager',
+		columnListHint: 'You can set the visibility of the table columns from here',
+		groupAll: 'Group all',
+		groupAllHint: 'You can group all the rows <b>by the sorted column</b> which means you <u>should</u> sort the table first.<br />You can also group individual rows by double clicking on them.',
+		ungroupAll: 'Ungroup all',
+		ungroupAllHint: 'You can ungroup all the grouped rows by using this button.<br />You can also ungroup individual row groups by double clicking on them.',
+		'export': 'Export',
+		filter: 'Filter',
+		filterHint: 'You can filter the rows using the filter boxes above the columns. You may use "!" as the "not" operator. You may also use numerical comparators such as "<", ">" in numerical fields. Filters are cumulative.'
+	},
+	classNames:
+	{
+		general: 'aVDBGrid',
+		columnList: 'aVDBGridColumnList',
+		sortedAsc: 'sortedAsc',
+		sortedDesc: 'sortedDesc',
+		buttonColumnList: 'buttonColumnList',
+		buttonGroupAll: 'buttonGroupAll',
+		buttonUngroupAll: 'buttonUngroupAll',
+		buttonExport: 'buttonExport',
+		buttonFilter: 'buttonFilter',
+		captionTitle: 'title',
+		filterRow: 'filterRow',
+		slider: 'slider'
+	},
+	defaultEventHandlers:
+	{
+		onReady: function()
+		{
+			aV.Visual.infoBox.show(aV.config.DBGrid.texts.ready, aV.config.Visual.infoBox.images.info);
+		},
+		onFetchBegin: function()
+		{
+			aV.Visual.infoBox.show(aV.config.DBGrid.texts.fetching, aV.config.Visual.infoBox.images.loading, true, 60000);
+		},
+		onFetchError: function(requestObject)
+		{
+			aV.Visual.infoBox.show(aV.config.DBGrid.texts.error + '(' + requestObject.status + ') - ' + requestObject.responseText, aV.config.Visual.infoBox.images.error, false, 60000);
+		},
+		onPrintBegin: function()
+		{
+			aV.Visual.infoBox.show(aV.config.DBGrid.texts.printing, aV.config.Visual.infoBox.images.info, true);
+		},
+		onSortBegin: function()
+		{
+			aV.Visual.infoBox.show(aV.config.DBGrid.texts.sorting, aV.config.Visual.infoBox.images.info, true);
+		}
+	},
+	filterFunctions:
+	{
+		dt_default: function(value, filter)
+		{
+			value=value.toLowerCase();
+			var expression=(filter.charAt(0)=='*');
+			
+			if (expression || (filter.charAt(0)==' '))
+				filter=filter.substr(1);
+			
+			filter=new RegExp((expression)?filter:filter.escapeRegExp(), "gi");
+	
+			return !value.match(filter);
+		},	
+		dt_int: function(value, filter)
+		{
+			if (!isNaN(filter))
+				filter='==' + filter;
+			else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
+				filter='=' + filter;
+	
+			if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
+				return !eval('(' + value + filter + ')');
+			else
+				return false;
+		},
+		dt_real: function(value, filter)
+		{
+			if (!isNaN(filter))
+				filter='==' + filter;
+			else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
+				filter='=' + filter;
+	
+			if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
+				return !eval('(' + value + filter + ')');
+			else
+				return false;
+		}
+	},
+	compareFunctions:
+	{
+		dt_default: function(str1, str2)
+		{
+			str1=str1.toLowerCase();
+			str2=str2.toLowerCase();
+			if (str1<str2)
+				return -1;
+			else if (str1>str2)
+				return 1;
+			else
+				return 0;
+		},
+		dt_int: function(num1, num2)
+		{
+			num1=parseInt(num1);
+			num2=parseInt(num2);
+			return ((num1 - num2) || (isNaN(num1)?-1:1));
+		},
+		dt_real: function(num1, num2)
+		{
+			num1=parseFloat(num1);
+			num2=parseFloat(num2);
+			return ((num1 - num2) || (isNaN(num1)?-1:1));
+		}
+	}
+};
+
 /**
  * The guid counter for Window.DBGrids array, do not touch.
  *
  * @private
  */
-DBGrid._lastGuid=1;
+aV.DBGrid._lastGuid=1;
+
+aV.DBGrid._activeResizer=false;
 
 /**
  * Removes and destroys all the DBGrids on a page
@@ -905,10 +1005,16 @@ DBGrid._lastGuid=1;
  * @static
  * @method
  */
-DBGrid.clearAll=function()
+aV.DBGrid.clearAll=function()
 {
-	for (var guid in window.DBGrids)
-		window.DBGrids[guid].destroy();
+	for (var guid in aV.DBGrid.list)
+		aV.DBGrid.list[guid].destroy();
 };
 
-window.DBGrids=new Object();
+aV.DBGrid.list={};
+aV.Events.add(document, "mouseup", aV.DBGrid._unlockResize);
+aV.Events.add(document, "mousemove", aV.DBGrid._doResize);
+aV.Events.add(document, "selectstart", function() {return !aV.DBGrid._activeResizer});
+aV.Events.add(document, "dragstart", function() {return !aV.DBGrid._activeResizer});
+
+aV.AJAX.loadResource("/JSLib/css/aV.module.DBGrid-css.php", "css", "aVDBGridCSS");

@@ -21,7 +21,7 @@ ul.aCListBox li.selected
 }
 .aCLoading
 {
-	background-image: url('/dynamic/code/JSLib/images/loading.gif')!important;
+	background-image: url('../images/loading.gif')!important;
 	background-position: right;
 	background-repeat: no-repeat;
 }

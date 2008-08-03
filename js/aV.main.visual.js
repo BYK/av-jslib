@@ -3,32 +3,33 @@
  * @name Visual Effects and Functions Library
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
- * @version 1.5.1
+ * @version 1.6
  *
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (typeof Events=="undefined")
-	throw new Error("Event functions cannot be found!", "aV.main.visual.js@" + window.location.href, 12);
-if (typeof Visual!="undefined")
-	throw new Error('"Visual" namespace had already been taken!', "aV.main.visual.js@" + window.location.href, 14);
+if (!aV)
+	throw new Error("aV namespace cannot be found.", "aV.main.visual.js@" + window.location.href);
+
+if (!aV.Events)
+	throw new Error("aV event manager library is not loaded.", "aV.main.visual.js@" + window.location.href);
 
 /**
- * Represents a namespace, Visual, for the new functions and global parameters of those functions.
+ * Represents a namespace, aV.Visual, for the new functions and global parameters of those functions.
  *
  * @namespace
- * @requires {@link Events} (aV.main.events.js)
+ * @requires {@link aV.Events} (aV.main.events.js)
  * @param	{Integer} config.slideTreshold The maximum dimension difference between the current dimension and the target dimension to stop the sliding.
  * @param	{Float} config.slideDivisor The slide functions divide the remaining dimension difference to this number and add the result to the current dimension. The bigger this number gets the slower the slide gets.
  * @param	{Float [0,1]} config.fadeTreshold The maximum opacity difference between the current opacity and the target opacity to stop the fade.
  * @param	{Float} config.fadeDivisor The fade functions divide the remaining opacity difference to this number and add the result to the current opacity. The bigger this number gets the slower the fade gets.
  */
-Visual = {};
+aV.Visual = {};
 
 /**
  * Holds the configuration parameters.
  */
-Visual.config=
+aV.config.Visual=
 {
 	slideTreshold: 2,
 	slideDivisor: 4,
@@ -42,28 +43,28 @@ Visual.config=
  *
  * @type HTMLElementObject[]
  */
-Visual.fixedElements = [];
+aV.Visual.fixedElements = [];
 
 /**
  * Holds the user defined initialization functions.
- * Suitable for extending Visual library.
+ * Suitable for extending aV.Visual library.
  * <br />A developer can easly add his/her own function as in the example.	
  *
  * @type Function[]
  * @example
- * Visual.initFunctions.add(
+ * aV.Visual.initFunctions.add(
  * 	function()
  * 	{
- * 		Visual.myPlugin={}
- * 		Visual.myPlugin.version="1.0";
- * 		Visual.myPlugin.foo=function()
+ * 		aV.Visual.myPlugin={}
+ * 		aV.Visual.myPlugin.version="1.0";
+ * 		aV.Visual.myPlugin.foo=function()
  * 		{
- * 			alert("I'm a function of Visual.myPlugin!");
+ * 			alert("I'm a function of aV.Visual.myPlugin!");
  * 		}
  * 	}
  * );
  */
-Visual.initFunctions = [];
+aV.Visual.initFunctions = [];
 
 /**
  * Sets the given element's opacity to the given opacity value.
@@ -71,7 +72,7 @@ Visual.initFunctions = [];
  * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will be changed.
  * @param {Float [0,1]} opacity The opacity value which the object's opacity will be set to.
  */
-Visual.setOpacity=function(obj, opacity)
+aV.Visual.setOpacity=function(obj, opacity)
 {
 	if (document.all) //if IE
 		obj.style.filter="alpha(opacity=" + opacity*100 + ")"; //use filter-alpha
@@ -85,7 +86,7 @@ Visual.setOpacity=function(obj, opacity)
  * @return {Float [0,1]} If a valid opacity value cannot be gathered, the default return value is 1.
  * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will tried to be gathered.
  */
-Visual.getOpacity=function(obj)
+aV.Visual.getOpacity=function(obj)
 {
 	var opacity;
 	try
@@ -111,7 +112,7 @@ Visual.getOpacity=function(obj)
  * @param {Float [0,1]} opacity The desired/target opacity to be faded to.
  * @param {Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the fade operation is finished.
  */
-Visual.fade=function(obj, opacity, callback)
+aV.Visual.fade=function(obj, opacity, callback)
 {
 	if (obj.fadeTimer) //if there is an ongoing fade operation
 	{
@@ -124,15 +125,15 @@ Visual.fade=function(obj, opacity, callback)
 		obj.fadeCallback=callback; //assign the callbackFunc to the object
 	}
 	
-	var theOpacity=Visual.getOpacity(obj); //get the object's current opacity
-	if (Math.abs(theOpacity-opacity)>Visual.config.fadeTreshold) //check if the difference between the current opacity and the desired opacity is above the defined treshold limit
+	var theOpacity=aV.Visual.getOpacity(obj); //get the object's current opacity
+	if (Math.abs(theOpacity-opacity)>aV.config.Visual.fadeTreshold) //check if the difference between the current opacity and the desired opacity is above the defined treshold limit
 	{
-		Visual.setOpacity(obj, theOpacity + (opacity - theOpacity)/Visual.config.fadeDivisor); //calculate and set the new opacity
-		obj.fadeTimer=setTimeout("Visual.fade(document.getElementById('" + obj.id + "'), " + opacity + ")", 25); //set new instance to be called after 25ms
+		aV.Visual.setOpacity(obj, theOpacity + (opacity - theOpacity)/aV.config.Visual.fadeDivisor); //calculate and set the new opacity
+		obj.fadeTimer=setTimeout("aV.Visual.fade(document.getElementById('" + obj.id + "'), " + opacity + ")", 25); //set new instance to be called after 25ms
 	}
 	else //if the difference is smaller or equal to the defined treshold
 	{
-		Visual.setOpacity(obj, opacity); //set the opacity to the desired value for an exact match
+		aV.Visual.setOpacity(obj, opacity); //set the opacity to the desired value for an exact match
 		if (obj.fadeCallback) //if a callbackFunction is assigned
 		{
 			obj.fadeCallback(obj); //call it
@@ -148,15 +149,15 @@ Visual.fade=function(obj, opacity, callback)
  * @param	{HTMLElementObject}	toObj	The HTML element which will be FADED IN.
  * @param	{Function(HTMLElementObject, HTMLElementObject)}	[callback]	The function which will be called immediately after the whole fade operation is finished. The first parameter passed to the function is fromObj and the second parameter is toObj.
  */
-Visual.fadeFromOneToOne=function(fromObj, toObj, callback)
+aV.Visual.fadeFromOneToOne=function(fromObj, toObj, callback)
 {
-	Visual.fade(fromObj, //fade the fromObj
+	aV.Visual.fade(fromObj, //fade the fromObj
 				0, //to 0 opacity(invisible)
 				function(obj)
 				{
 					obj.style.display="none"; //and when it becomes invisible, make its display none to consume no visual space
 					toObj.style.display=""; //and make the toObj's display property "" to force it to the default value
-					Visual.fade(toObj, //then fade the toObj
+					aV.Visual.fade(toObj, //then fade the toObj
 								1, //to full opacity(fully visible)
 								function(obj)
 								{
@@ -179,7 +180,7 @@ Visual.fadeFromOneToOne=function(fromObj, toObj, callback)
  * @param	{Boolean}	horizontalSlide	Defines if the newDimension is a height value or a width value. (Width if true)
  * @param	{Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the slide operation is finished.
  */
-Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, callback)
+aV.Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, callback)
 {
 	var propertyName=(horizontalSlide)?"Width":"Height";
 	
@@ -189,26 +190,27 @@ Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, cal
 		obj.slideTimer=undefined;
 	}
 		
-	if (!(("old" + propertyName) in obj))
+	if (!obj["old" + propertyName])
 		obj["old" + propertyName]=(obj.style[propertyName.toLowerCase()])?parseInt(obj.style[propertyName.toLowerCase()]):obj["offset" + propertyName]; //set the old height if available forum CSS, and if not from the offsetHeight property.
 
 	if (callback)
 		obj.slideCallback=callback; //assign the callbackFunc to object's slideCallback property
 
 	var currentDimension=(obj.style[propertyName.toLowerCase()])?parseInt(obj.style[propertyName.toLowerCase()]):obj["offset" + propertyName]; //get the current height, seperate from the above *oldHeight*. This is needed for the iteration.
-  if (Math.abs(Math.round(currentDimension-newDimension))>Visual.config.slideTreshold) //check if the difference between the *currentDimension* and the desired height is above the the defined treshold value
+  if (Math.abs(Math.round(currentDimension-newDimension))>aV.config.Visual.slideTreshold) //check if the difference between the *currentDimension* and the desired height is above the the defined treshold value
 	{
-		obj.style[propertyName.toLowerCase()]=Math.round(currentDimension + (newDimension - currentDimension)/Visual.config.slideDivisor) + "px"; //decrease the difference by difference/4 for a non-linear and a smooth slide
+		obj.style[propertyName.toLowerCase()]=Math.round(currentDimension + (newDimension - currentDimension)/aV.config.Visual.slideDivisor) + "px"; //decrease the difference by difference/4 for a non-linear and a smooth slide
+		
 		var opacity=(parseInt(obj.style[propertyName.toLowerCase()])-obj["old" + propertyName])/(newDimension-obj["old" + propertyName]); //calculate the opacity by getting the ratio of the *currentDimension* and the desired height
 		if (opcDirection<0) //if direction is negative, substitude the opacity from 1, since 1 is the maximum opacity
 			opacity=1-opacity;
-		Visual.setOpacity(obj, opacity); //set the calculated opacity
-		obj.slideTimer=setTimeout("Visual.fadeNSlide(document.getElementById('" + obj.id + "'), " + newDimension + ", " + opcDirection + ", " + horizontalSlide + ");", 25); //set new instance, which will be called after 25ms
+		aV.Visual.setOpacity(obj, opacity); //set the calculated opacity
+		obj.slideTimer=setTimeout("aV.Visual.fadeNSlide(document.getElementById('" + obj.id + "'), " + newDimension + ", " + opcDirection + ", " + horizontalSlide + ");", 25); //set new instance, which will be called after 25ms
 	}
 	else //if the diffrence is below the defined treshold, time to stop :)
 	{
 		obj.style[propertyName.toLowerCase()]=newDimension + "px"; //set the height to the desired height for an exact match
-		Visual.setOpacity(obj, (newDimension<obj["old" + propertyName])?0:1); //set opacity
+		aV.Visual.setOpacity(obj, (newDimension<obj["old" + propertyName])?0:1); //set opacity
 		obj["old" + propertyName]=undefined;
 		if (obj.slideCallback) 
 		{
@@ -228,7 +230,7 @@ Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, cal
  * @param	{Integer | false}	[yPos]	The target Y coordinate of the given HTML element. If it is given as false, the Y coordinate is not changed.
  * @param	{Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the moving operation is finished.
  */
-Visual.move=function(obj, xPos, yPos, callback)
+aV.Visual.move=function(obj, xPos, yPos, callback)
 {
 	var timerNeeded=false; //this variable actually defines that if there is way to go to the position or not :)
 	if (obj.moveTimer) //if there is an ongoing move operation
@@ -253,25 +255,25 @@ Visual.move=function(obj, xPos, yPos, callback)
 		yPos=currentYPos;
 		
 	//for x-position
-	if (Math.abs(Math.round(currentXPos-xPos))>Visual.config.slideTreshold) //check if the difference between the current x-position and the desired *xPos* is above the defined treshold limit
+	if (Math.abs(Math.round(currentXPos-xPos))>aV.config.Visual.slideTreshold) //check if the difference between the current x-position and the desired *xPos* is above the defined treshold limit
 	{
-		obj.style.left=Math.round(currentXPos + (xPos - currentXPos)/Visual.config.slideDivisor) + "px"; //calculate and set the new x-position
+		obj.style.left=Math.round(currentXPos + (xPos - currentXPos)/aV.config.Visual.slideDivisor) + "px"; //calculate and set the new x-position
 		timerNeeded=true;
 	}
 	else //if the difference is smaller or equal to the defined treshold
 		obj.style.left=xPos + "px"; //set the x-position to the desired value for an exact match
 	
 	//for y-position
-	if (Math.abs(currentYPos-yPos)>Visual.config.slideTreshold) //check if the difference between the current y-position and the desired *yPos* is above the defined treshold limit
+	if (Math.abs(currentYPos-yPos)>aV.config.Visual.slideTreshold) //check if the difference between the current y-position and the desired *yPos* is above the defined treshold limit
 	{
-		obj.style.top=Math.round(currentYPos + (yPos - currentYPos)/Visual.config["slideDivisor"]) + "px"; //calculate and set the new y-position
+		obj.style.top=Math.round(currentYPos + (yPos - currentYPos)/aV.config.Visual["slideDivisor"]) + "px"; //calculate and set the new y-position
 		timerNeeded=true;
 	}
 	else //if the difference is smaller or equal to the defined treshold
 		obj.style.top=yPos + "px"; //set the y-position to the desired value for an exact match
 
 	if (timerNeeded)
-		obj.moveTimer=setTimeout("Visual.move(document.getElementById('" + obj.id + "'), " + xPos + ", " + yPos + ")", 25); //set new instance to be called after 25ms
+		obj.moveTimer=setTimeout("aV.Visual.move(document.getElementById('" + obj.id + "'), " + xPos + ", " + yPos + ")", 25); //set new instance to be called after 25ms
 	else if (obj.moveCallback) //if a callBackFunction is assigned
 	{
 		obj.moveCallback(obj); //call it
@@ -283,39 +285,39 @@ Visual.move=function(obj, xPos, yPos, callback)
  * This function is called whenever a scroll or resize event is occured. It determines the fixed elements' appropriate new positions and calls "moveElement" to set them.
  * <br />Can be called manually to ensure all the fixed elements are in correct place.
  */
-Visual.setFixedElementPositions=function()
+aV.Visual.setFixedElementPositions=function()
 {
 	//below variable definitons are only for not to call the functions repedeatly in the for loop
-	var visiblePageLeftPosition=Visual.scrollLeft();
-	var visiblePageTopPosition=Visual.scrollTop();
-	var visiblePageWidth=Visual.clientWidth();
-	var visiblePageHeight=Visual.clientHeight();	
+	var visiblePageLeftPosition=aV.Visual.scrollLeft();
+	var visiblePageTopPosition=aV.Visual.scrollTop();
+	var visiblePageWidth=aV.Visual.clientWidth();
+	var visiblePageHeight=aV.Visual.clientHeight();	
 	var xPosTemp, yPosTemp;
-	for (var i=Visual.fixedElements.length-1; i>=0; i--) //walk throught the fixed elements
+	for (var i=aV.Visual.fixedElements.length-1; i>=0; i--) //walk throught the fixed elements
 	{
-		if (typeof(Visual.fixedElements[i].xOffset)=="number")
-			if (Visual.fixedElements[i].xOffset>=0)
-				xPosTemp=visiblePageLeftPosition + Visual.fixedElements[i].xOffset;
+		if (typeof(aV.Visual.fixedElements[i].xOffset)=="number")
+			if (aV.Visual.fixedElements[i].xOffset>=0)
+				xPosTemp=visiblePageLeftPosition + aV.Visual.fixedElements[i].xOffset;
 			else
-				xPosTemp=visiblePageLeftPosition + visiblePageWidth + Visual.fixedElements[i].xOffset - Visual.fixedElements[i].offsetWidth;
+				xPosTemp=visiblePageLeftPosition + visiblePageWidth + aV.Visual.fixedElements[i].xOffset - aV.Visual.fixedElements[i].offsetWidth;
 		else
 			xPosTemp=false;
 		
-		if (typeof(Visual.fixedElements[i].yOffset)=="number")
-			if (Visual.fixedElements[i].yOffset>=0)
-				yPosTemp=visiblePageTopPosition + Visual.fixedElements[i].yOffset;
+		if (typeof(aV.Visual.fixedElements[i].yOffset)=="number")
+			if (aV.Visual.fixedElements[i].yOffset>=0)
+				yPosTemp=visiblePageTopPosition + aV.Visual.fixedElements[i].yOffset;
 			else
-				yPosTemp=visiblePageTopPosition + visiblePageHeight + Visual.fixedElements[i].yOffset - Visual.fixedElements[i].offsetHeight;
+				yPosTemp=visiblePageTopPosition + visiblePageHeight + aV.Visual.fixedElements[i].yOffset - aV.Visual.fixedElements[i].offsetHeight;
 		else
 			yPosTemp=false;
 			
-		Visual.move(Visual.fixedElements[i], xPosTemp, yPosTemp); //move them to the appropriate positions
+		aV.Visual.move(aV.Visual.fixedElements[i], xPosTemp, yPosTemp); //move them to the appropriate positions
 	}
 };
 
 /**
- * This function initialises the "fixed positioned elements" and adds them to the <a href="#Visual.fixedElements">fixedElements</a> array.
- * <br />It also adds the <a href="#Visual.setFixedElementPositions">setFixedElementPositions</a> function to window.onresize and window.onscroll event lists.
+ * This function initialises the "fixed positioned elements" and adds them to the <a href="#aV.Visual.fixedElements">fixedElements</a> array.
+ * <br />It also adds the <a href="#aV.Visual.setFixedElementPositions">setFixedElementPositions</a> function to window.onresize and window.onscroll event lists.
  * <br />The mentioned elements <b>must</b> have their ID properties set.
  * <br />
  * <br />The so called "fixed positioned elements" are the ones which has an <b>xOffset</b> or a <b>yOffset</b> property(or both of them).
@@ -324,10 +326,9 @@ Visual.setFixedElementPositions=function()
  * @example
  * &lt;div id="cart" xOffset="-10" yOffset="-10"&gt;<br />I'm your shopping cart and I stay always at the top right corner of your window with a 10px padding<br />&lt;/div&gt;
  */
-Visual.initFixedElements=function()
+aV.Visual.initFixedElements=function()
 {
-	delete Visual.fixedElements;
-	Visual.fixedElements=new Array();
+	aV.Visual.fixedElements=[];
 	var list=document.getElementsByTagName('*'); //get all the elements
 	for (var i=list.length-1; i>=0; i--) //walk all the elements
 	{
@@ -335,7 +336,7 @@ Visual.initFixedElements=function()
 		yOffsetTemp=list[i].getAttribute("yOffset");		
 		if (xOffsetTemp || yOffsetTemp) //if it is a "fixed-position" element
 		{
-			Visual.fixedElements.push(list[i]); //add the element to the list
+			aV.Visual.fixedElements.push(list[i]); //add the element to the list
 			//parse the string value into integer at the beginning to make the scroll events faster
 			if (xOffsetTemp)
 				list[i].xOffset=parseInt(xOffsetTemp);
@@ -345,10 +346,10 @@ Visual.initFixedElements=function()
 		}
 	}
 	//assign the watcher setFixedElementPositions function to the scroll and resize events
-	Events.add(window, "resize", Visual.setFixedElementPositions);
-	Events.add(window, "scroll", Visual.setFixedElementPositions);
+	aV.Events.add(window, "resize", aV.Visual.setFixedElementPositions);
+	aV.Events.add(window, "scroll", aV.Visual.setFixedElementPositions);
 	//call the setFixedElementPositions function to set the initial positions of the elements when the page is loaded
-	Visual.setFixedElementPositions();
+	aV.Visual.setFixedElementPositions();
 };
 
 /** <a href="http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html">External</a> page&scroll size functions */
@@ -358,9 +359,9 @@ Visual.initFixedElements=function()
  *
  * @return	{Integer}
  */
-Visual.clientWidth=function()
+aV.Visual.clientWidth=function()
 {
-	return Visual._filterResults (
+	return aV.Visual._filterResults (
 		window.innerWidth ? window.innerWidth : 0,
 		document.documentElement ? document.documentElement.clientWidth : 0,
 		document.body ? document.body.clientWidth : 0
@@ -372,9 +373,9 @@ Visual.clientWidth=function()
  *
  * @return	{Integer}
  */
-Visual.clientHeight=function()
+aV.Visual.clientHeight=function()
 {
-	return Visual._filterResults (
+	return aV.Visual._filterResults (
 		window.innerHeight ? window.innerHeight : 0,
 		document.documentElement ? document.documentElement.clientHeight : 0,
 		document.body ? document.body.clientHeight : 0
@@ -386,9 +387,9 @@ Visual.clientHeight=function()
  *
  * @return	{Integer}
  */
-Visual.scrollLeft=function()
+aV.Visual.scrollLeft=function()
 {
-	return Visual._filterResults (
+	return aV.Visual._filterResults (
 		window.pageXOffset ? window.pageXOffset : 0,
 		document.documentElement ? document.documentElement.scrollLeft : 0,
 		document.body ? document.body.scrollLeft : 0
@@ -400,9 +401,9 @@ Visual.scrollLeft=function()
  *
  * @return	{Integer}
  */
-Visual.scrollTop=function()
+aV.Visual.scrollTop=function()
 {
-	return Visual._filterResults (
+	return aV.Visual._filterResults (
 		window.pageYOffset ? window.pageYOffset : 0,
 		document.documentElement ? document.documentElement.scrollTop : 0,
 		document.body ? document.body.scrollTop : 0
@@ -415,7 +416,7 @@ Visual.scrollTop=function()
  * @private
  * @return	{Integer}
  */
-Visual._filterResults=function(n_win, n_docel, n_body)
+aV.Visual._filterResults=function(n_win, n_docel, n_body)
 {
 	var n_result = n_win ? n_win : 0;
 	if (n_docel && (!n_result || (n_result > n_docel)))
@@ -433,7 +434,7 @@ Visual._filterResults=function(n_win, n_docel, n_body)
  * @param	{String}	ruleName	The name of the CSS rule which will be returned.
  * @param	{Boolean}	[deleteFlag]	Set to true if you want to delete the CSS rule whose name is given in the ruleName parameter.
  */
-Visual.getCSSRule=function(ruleName, deleteFlag)
+aV.Visual.getCSSRule=function(ruleName, deleteFlag)
 {
 	if (document.styleSheets)
 	{
@@ -478,12 +479,12 @@ Visual.getCSSRule=function(ruleName, deleteFlag)
  * Gathers the REAL position of the given HTML element.
  *
  * @private
- * @deprecated Use {@link Visual.getElementPositionX} and {@link Visual.getElementPositionY} instead.
+ * @deprecated Use {@link aV.Visual.getElementPositionX} and {@link aV.Visual.getElementPositionY} instead.
  * @return	{Integer}
  * @param	{HTMLElementObject}	element	The HTML element whose position to be gathered.
  * @param	{Boolean}	[xPosition]	Set true to get the X coordinate, false for Y coordinate.
  */
-Visual._getElementPosition=function(element, xPosition)
+aV.Visual._getElementPosition=function(element, xPosition)
 {
 	if (!element)
 		return;
@@ -504,9 +505,9 @@ Visual._getElementPosition=function(element, xPosition)
  * @return	{Integer}
  * @param	{HTMLElementObject}	element	The HTML element whose x position to be gathered.
  */
-Visual.getElementPositionX=function(element)
+aV.Visual.getElementPositionX=function(element)
 {
-	return Visual._getElementPosition(element, true);
+	return aV.Visual._getElementPosition(element, true);
 };
 
 /**
@@ -514,24 +515,24 @@ Visual.getElementPositionX=function(element)
  * @return	{Integer}
  * @param	{HTMLElementObject}	element	The HTML element whose y position to be gathered.
  */
-Visual.getElementPositionY=function(element)
+aV.Visual.getElementPositionY=function(element)
 {
-	return Visual._getElementPosition(element, false);
+	return aV.Visual._getElementPosition(element, false);
 };
 
 /**
- * Initializes the Visual system.
+ * Initializes the aV.Visual system.
  * Loops through the initFunctions array and calls every function in the array.
- * After the loop is done, calls <a href="#Visual.initFixedElements">initFixedElements</a>.
+ * After the loop is done, calls <a href="#aV.Visual.initFixedElements">initFixedElements</a>.
  * Attached to the window.onload event automatically.
  *
  * @method
  */
-Visual.init=function()
+aV.Visual.init=function()
 {
-	Visual.initFunctions.push(Visual.initFixedElements);
-	for (var i=0, max=Visual.initFunctions.length; i<max; i++)
-		Visual.initFunctions[i]();
+	aV.Visual.initFunctions.push(aV.Visual.initFixedElements);
+	for (var i=0, max=aV.Visual.initFunctions.length; i<max; i++)
+		aV.Visual.initFunctions[i]();
 };
 
-Events.add(window, 'load', Visual.init);
+aV.Events.add(window, 'load', aV.Visual.init);

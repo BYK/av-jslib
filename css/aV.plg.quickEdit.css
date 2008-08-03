@@ -1,0 +1,81 @@
+div.editable, span.editable
+{
+	text-decoration: underline;
+	cursor: pointer;
+}
+span.editable
+{
+	background: #ffffaa;
+	text-decoration: none;
+}
+img.editable
+{
+	border: 2px solid #dddddd;
+	cursor: pointer;
+}
+.editable input, .editable select
+{
+	border: 1px solid #cccccc;
+	padding: 0px;
+	margin: 0px;
+	display: inline;
+	width: 98%;
+}
+span.editable input
+{
+	border: none;
+	border-bottom: 1px solid #bbbbbb;
+	width: 120px;
+	background: none;
+}
+.editable textarea
+{
+	border: none;
+	margin: 0px;
+	padding: 1px;
+	width: 98%;
+	max-height: 4.5em;
+}
+.uploadContainer
+{
+	background:#FFFFFF none repeat scroll 0%;
+	border:1px solid #FF9900;
+	font-family:Tahoma;
+	font-size:8pt;
+	margin:0px;
+	overflow:hidden;
+	padding:0px;
+	position:absolute;
+}
+.uploadContainer input
+{
+	font-family:Tahoma;
+	font-size:8pt;
+	margin:2px;
+	text-align:center;
+	width:100%;
+}
+.uploadTitle
+{
+	background:#FF9900 none repeat scroll 0%;
+	color:#FFFFFF;
+	cursor:default;
+	margin:0px;
+	padding:2px;
+	float: left;
+	clear: both;
+	width: 100%;
+}
+.uploadTitleText
+{
+	float: left;
+	clear: left;
+}
+.uploadCloseButton
+{
+	cursor: pointer;
+	float: right;
+	clear: right;
+	margin-right: 5px;
+	font-size: 9pt;
+}

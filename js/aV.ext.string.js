@@ -1,9 +1,9 @@
 /**
- * @fileOverview A library which extens the String class with some useful functions.
+ * @fileOverview A library which extends the String class with some useful functions.
  * @name String Extensions
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.1
+ * @version 1.2
  *
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
@@ -29,7 +29,29 @@ String.prototype.escapeRegExp=function()
 	outText+=this.substr(lastMatch);
 	return outText;
 };
-
+/**
+ * Makes the first letters of words uppercase.
+ *
+ * @return {String}
+ * @example
+ * var myText="javascript is lovely.";
+ * myText.ucWords();
+ * <br />Will give you "Javascript Is Lovely."
+ */
+String.prototype.ucWords=function() 
+{
+	var matcher = /\b\S+/g;
+	var result;
+	var outText='';
+	var lastMatch=0;
+	while (result=matcher.exec(this))
+	{
+		outText+=this.substring(lastMatch, result.index);
+		outText+=result[0].charAt(0).toUpperCase() + result[0].substr(1).toLowerCase();
+		lastMatch=result.index+result[0].length;
+	}
+	return outText;
+};
 /**
  * Replaces the occurences of the strings given in the fromArray with the toArray respectively.
  *
@@ -162,7 +184,7 @@ String.prototype.trim=function()
  * @param {String|Array} [tags] The tags which will be stripped out.
  * @return {String}
  */
-String.prototype.stripHTML = function(tags)
+String.prototype.stripHTML=function(tags)
 {
 	if (tags && tags.join)
 		tags='(' + tags.join('|') + ')';
@@ -171,4 +193,35 @@ String.prototype.stripHTML = function(tags)
 	tags='(<[\/]?' + tags + '>)';
 	var matcher=new RegExp(tags, "gi");
 	return this.replace(matcher, "");
-}
+};
+/**
+ * Formats a string according to the given parameters.
+ * Currently supports only string replacement.
+ * 
+ * @beta Needs testing and feedback.
+ * @param {String|Number} The strings to be replaced, any number of parameters can be given.
+ * @return {String} The formatted string.
+ * 
+ * @example
+ * "%s says this function is great but %2:s claims it's not".format("BYK", "useless", "snlzkn") will give you
+ * BYK says this function is great but snlzkn claims it's not
+ */
+String.prototype.format=function()
+{
+	var matcher=/%(\d*):?s/g;
+	var index=0;
+
+	var result;
+	var outText='';
+	var lastMatch=0;
+	
+	while (result=matcher.exec(this))
+	{
+		outText+=this.substring(lastMatch, result.index);
+		outText+=(result[1] !== '')?arguments[result[1]]:arguments[index++];
+		lastMatch=result.index+result[0].length;
+	}
+	
+	outText+=this.substr(lastMatch);
+	return outText;		
+};

@@ -17,10 +17,29 @@
 	left: 0px;
 	cursor: default;
 }
+#customHint table.DBGrid>tbody
+{
+	overflow-x: hidden!important;
+	overflow-y: auto!important;
+}
+#customHint iframe
+{
+	width: 98%!important;
+	height:98%!important;
+	white-space: normal!important;
+	cursor: default;
+}
 #customHint *
 {
 	width: 98%!important;
 	height: 98%!important;	
 	white-space: normal!important;
 	cursor: default;
+}
+#customHint p
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+	height: auto!important;
+	width: auto!important;
 }

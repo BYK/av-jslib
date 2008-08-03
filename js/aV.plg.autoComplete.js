@@ -3,22 +3,19 @@
  * @name Auto Complete
  * 
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.2.2
+ * @version 1.3
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
-if (typeof AutoComplete!="undefined")
-	throw new Error('"AutoComplete" namespace had already been taken!', "aV.plg.autoComplete.js@" + window.location.href, 11);
-	
 /**
  * Represents the namespace for AutoComplete functions.
  * 
  * @namespace
  * @requires {@link String} (aV.ext.string.js)
- * @requires {@link Events} (aV.main.events.js)
- * @requires {@link AJAX} (aV.main.ajax.js)
- * @requires {@link Visual} (aV.main.visual.js)
- * @requires {@link aParser} (aV.main.aParser.js)
+ * @requires {@link aV.Events} (aV.main.events.js)
+ * @requires {@link aV.AJAX} (aV.main.ajax.js)
+ * @requires {@link aV.Visual} (aV.main.visual.js)
+ * @requires {@link aV.aParser} (aV.main.aParser.js)
  * 
  * @param {String} [config.ruleFile='autoCompleteRules.txt'] Path to the external file which contains the rule definitons for editable items.
  * @param {integer} [config.listBoxOfset=3] The vertical offset from the input boxes for the list boxes which will be displayed.
@@ -28,12 +25,12 @@ if (typeof AutoComplete!="undefined")
  * @param {String}	[config.regExpPattern="'\\\\b' + filter"] The default RegExp pattern for checking the list.
  * @param {String[]} [config.allowedTags=["INOUT"]] The allowed tag names in uppercase for auto complete system.
  */
-AutoComplete = {};
+aV.AutoComplete = {};
 
 /**
  * Holds the configuration parameters.
  */
-AutoComplete.config=
+aV.config.AutoComplete=
 {
 	ruleFile: 'autoCompleteRules.txt',
 	listBoxOffset: 1,
@@ -44,226 +41,255 @@ AutoComplete.config=
 	allowedTags: ["INPUT"]
 };
 
-AutoComplete.listBoxCounter=0;
+aV.AutoComplete.listBoxCounter=0;
 
-AutoComplete._getRegExp=function(element)
+aV.AutoComplete._getRegExp=function(element)
 {
 	var filter='(' + element.value.escapeRegExp() + ')';
-	var regExpPattern=eval(element.autoComplete.regExpPattern || AutoComplete.config.regExpPattern);
+	var regExpPattern=eval(element.aVautoComplete.regExpPattern || aV.config.AutoComplete.regExpPattern);
 	return new RegExp(regExpPattern, 'i');
 }
 
-AutoComplete._removeListBox=function(element)
+aV.AutoComplete._removeListBox=function(element)
 {
-	if (!element.autoComplete.listBox)
+	if (!element.aVautoComplete.listBox)
 		return;
 	
-	Visual.fade(
-		element.autoComplete.listBox,
+	aV.Visual.fade(
+		element.aVautoComplete.listBox,
 		0,
 		function(listBox)
 		{
 			listBox.parentNode.removeChild(listBox);
-			delete element.autoComplete.listBox;
+			delete element.aVautoComplete.listBox;
 		}
 	);
 };
 
-AutoComplete._showListBox=function(element)
+aV.AutoComplete._showListBox=function(element)
 {
-	if (!element.autoComplete.listBox) 
+	if (!element.aVautoComplete.listBox) 
 	{
-		element.autoComplete.listBox = document.createElement("UL");
-		element.autoComplete.listBox.id="aCListBox" + AutoComplete.listBoxCounter++;
-		element.autoComplete.listBox.className="aCListBox";
-		element.autoComplete.listBox.style.position='absolute';
-		Visual.setOpacity(element.autoComplete.listBox, 0);
-		document.body.appendChild(element.autoComplete.listBox);
+		element.aVautoComplete.listBox = document.createElement("UL");
+		element.aVautoComplete.listBox.id="aCListBox" + aV.AutoComplete.listBoxCounter++;
+		element.aVautoComplete.listBox.className="aCListBox";
+		element.aVautoComplete.listBox.style.position='absolute';
+		aV.Visual.setOpacity(element.aVautoComplete.listBox, 0);
+		document.body.appendChild(element.aVautoComplete.listBox);
 	}
 	
-	element.autoComplete.listBox.innerHTML='';
-	element.autoComplete.listBox.style.left=Visual.getElementPositionX(element) + "px";
-	element.autoComplete.listBox.style.top=(Visual.getElementPositionY(element) + element.offsetHeight + AutoComplete.config.listBoxOffset) + "px";
+	element.aVautoComplete.listBox.innerHTML='';
+	element.aVautoComplete.listBox.style.left=aV.Visual.getElementPositionX(element) + "px";
+	element.aVautoComplete.listBox.style.top=(aV.Visual.getElementPositionY(element) + element.offsetHeight + aV.config.AutoComplete.listBoxOffset) + "px";
 	
-	var seeker=AutoComplete._getRegExp(element);
-	for (var i = 0, itemCounter=0, count = element.autoComplete.list.length; i < count; i++) 
+	element.aVautoComplete.list.selectedIndex=-1;
+	var seeker=aV.AutoComplete._getRegExp(element);
+	for (var i = 0, itemCounter=0, count = element.aVautoComplete.list.length; i < count; i++) 
 	{
-		var matchInfo=seeker.exec(element.autoComplete.list[i]);
+		var matchInfo=seeker.exec(element.aVautoComplete.list[i]);
 		if (matchInfo)
 		{
 			var newLi = document.createElement('LI');
 			newLi.itemIndex=itemCounter++;
-			newLi.origValue=element.autoComplete.list[i];
-			newLi.appendChild(document.createTextNode(element.autoComplete.list[i].substring(0, matchInfo.index)));
+			newLi.listIndex=i;
+			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(0, matchInfo.index)));
 			var matchedPart=newLi.appendChild(document.createElement('SPAN'));
 			matchedPart.className='aCMatchedPart';
 			matchedPart.appendChild(document.createTextNode(matchInfo[0]));
-			newLi.appendChild(document.createTextNode(element.autoComplete.list[i].substring(matchInfo.index+matchInfo[0].length)));
-			Events.add(newLi, 'mouseover', function(){AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
-			Events.add(newLi, 'click', function(){AutoComplete._onKeyDownHandler({target: element, which: 13})});
-			element.autoComplete.listBox.appendChild(newLi);
+			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(matchInfo.index+matchInfo[0].length)));
+			aV.Events.add(newLi, 'mouseover', function(){aV.AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
+			aV.Events.add(newLi, 'click', function(){aV.AutoComplete._onKeyDownHandler({target: element, which: 13})});
+			element.aVautoComplete.listBox.appendChild(newLi);
 		}
 	}
 	
-	if (element.autoComplete.listBox.innerHTML!='')
+	if (element.aVautoComplete.listBox.innerHTML!='')
 	{
-		if (AutoComplete.onShowListBox)
-			AutoComplete.onShowListBox(element.autoComplete.listBox);
-		Visual.fade(element.autoComplete.listBox, 1);
-		element.autoComplete.list.selectedIndex=0;
-		element.autoComplete.listBox.childNodes[0].className='selected';
+		if (aV.AutoComplete.onShowListBox)
+			aV.AutoComplete.onShowListBox(element.aVautoComplete.listBox);
+		aV.Visual.fade(element.aVautoComplete.listBox, 1);
+		element.aVautoComplete.list.selectedIndex=0;
+		element.aVautoComplete.listBox.childNodes[0].className='selected';
 	}
 	else
-		AutoComplete._removeListBox(element);
+		aV.AutoComplete._removeListBox(element);
 };
 
-AutoComplete._doKeyUp=function(element)
+aV.AutoComplete._doKeyUp=function(element)
 {
-	if (element.autoComplete.list==undefined || !(element.autoComplete.dataChecker && element.autoComplete.dataChecker.test(element.value)))
+	if (element.aVautoComplete.list==undefined || !(element.aVautoComplete.dataChecker && element.aVautoComplete.dataChecker.test(element.value)))
 	{
-		element.autoComplete.dataChecker=AutoComplete._getRegExp(element);
+		element.aVautoComplete.dataChecker=aV.AutoComplete._getRegExp(element);
 		
 		try 
 		{
-			var params=eval(element.autoComplete.params);
+			var params=eval(element.aVautoComplete.params);
 		} 
 		catch(error) 
 		{
-			var params = element.autoComplete.params;
+			var params = element.aVautoComplete.params;
 		}
 
-		AJAX.destroyRequestObject(element.autoComplete.request);
+		aV.AJAX.destroyRequestObject(element.aVautoComplete.request);
+		var minChars=(element.aVautoComplete.minChars!=undefined)?element.aVautoComplete.minChars:aV.config.AutoComplete.minChars;
+		if (element.value.length<minChars)
+			return false;
 		element.className+=' aCLoading';
-		element.autoComplete.request=AJAX.makeRequest(
+		element.aVautoComplete.request=aV.AJAX.makeRequest(
 			"GET",
-			element.autoComplete.source,
+			element.aVautoComplete.source,
 			params + '=' + encodeURIComponent(element.value),
 			function (requestObject)
 			{
 				if (requestObject.status == 200) 
 				{
-					element.autoComplete.list = requestObject.responseText.split("\n");
-					AutoComplete._showListBox(element);
+					element.aVautoComplete.list = requestObject.responseText.split("\n");
+					if (element.aVautoComplete.listProcessor)
+						element.aVautoComplete.list=element.aVautoComplete.listProcessor(element);
+					element.aVautoComplete.list.selectedIndex=-1;
+					aV.AutoComplete._showListBox(element);
 				}
 				else 
 				{
-					delete element.autoComplete.list;
-					delete element.autoComplete.filter;
+					if (element.aVautoComplete.list)
+						delete element.aVautoComplete.list;
+					if (element.aVautoComplete.filter)
+						delete element.aVautoComplete.filter;
 					
-					if (AutoComplete.config.retryOnError)
-						AutoComplete._doKeyUp(element);
+					if (aV.config.AutoComplete.retryOnError)
+						aV.AutoComplete._doKeyUp(element);
 					else
-						AutoComplete._removeListBox(element);
+						aV.AutoComplete._removeListBox(element);
 				}
 				element.className=element.className.replace(/\s*aCLoading/, "");
 			}
 		);
 	}
 	else
-		AutoComplete._showListBox(element);
+		aV.AutoComplete._showListBox(element);
 	
-	delete element.autoComplete.keyUpTimer;
+	delete element.aVautoComplete.keyUpTimer;
 };
 
-AutoComplete._onKeyUpHandler=function(event)
+aV.AutoComplete._onKeyUpHandler=function(event)
 {
-	if (event.target.autoComplete.keyUpTimer) 
+	if (event.target.aVautoComplete.keyUpTimer) 
 	{
-		clearTimeout(event.target.autoComplete.keyUpTimer);
-		delete event.target.autoComplete.keyUpTimer;
+		clearTimeout(event.target.aVautoComplete.keyUpTimer);
+		delete event.target.aVautoComplete.keyUpTimer;
 	}
 	
 	var key=event.keyCode || event.which;
-	var minChars=(event.target.autoComplete.minChars!=undefined)?event.target.autoComplete.minChars:AutoComplete.config.minChars;
+	var minChars=(event.target.aVautoComplete.minChars!=undefined)?event.target.aVautoComplete.minChars:aV.config.AutoComplete.minChars;
 	
 	if (event.target.value.length < minChars || key==27) 
 	{
-		AutoComplete._removeListBox(event.target);
-		return;
+		if (event.target.aVautoComplete.list)
+			event.target.aVautoComplete.list.selectedIndex=-1;
+		aV.AutoComplete._removeListBox(event.target);
+		return false;
 	}
 	
 	if (key != 13 && (key > 40 || key < 37 || key == undefined)) 
 	{
-		if (event.target.autoComplete.listBox)
-			AutoComplete._doKeyUp(event.target);
+		if (event.target.aVautoComplete.listBox)
+			aV.AutoComplete._doKeyUp(event.target);
 		else
 		{
-			var delay=event.target.autoComplete.delay || AutoComplete.config.delay;
-			event.target.autoComplete.keyUpTimer = setTimeout('AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
+			var delay=event.target.aVautoComplete.delay || aV.config.AutoComplete.delay;
+			event.target.aVautoComplete.keyUpTimer = setTimeout('aV.AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
 		}
 	}
 };
 
-AutoComplete._onKeyDownHandler=function(event, newIndex)
+aV.AutoComplete._onKeyDownHandler=function(event, newIndex)
 {
 	var key=event.keyCode || event.which;
 
-	if (event.target.autoComplete.list==undefined || !event.target.autoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
+	if (event.target.aVautoComplete.list==undefined || !event.target.aVautoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
 		return;
 	
-	if (event.target.autoComplete.list.selectedIndex>-1 && event.target.autoComplete.listBox)
-		event.target.autoComplete.listBox.childNodes[event.target.autoComplete.list.selectedIndex].className='';
+	if (event.target.aVautoComplete.list.selectedIndex>-1 && event.target.aVautoComplete.listBox)
+		event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].className='';
 	else
-		event.target.autoComplete.list.selectedIndex=0;
+		event.target.aVautoComplete.list.selectedIndex=-1;
 	
 	if (newIndex>-1)
-		event.target.autoComplete.list.selectedIndex=newIndex;
+		event.target.aVautoComplete.list.selectedIndex=newIndex;
 
 	if (key == 38) 
-		event.target.autoComplete.list.selectedIndex--;
+		event.target.aVautoComplete.list.selectedIndex--;
 	else if (key == 40) 
-		event.target.autoComplete.list.selectedIndex++;
-	else if (key == 13 && event.target.autoComplete.list.selectedIndex > -1) 
+		event.target.aVautoComplete.list.selectedIndex++;
+	else if (key == 13 && event.target.aVautoComplete.list.selectedIndex > -1) 
 	{
-		event.target.value = event.target.autoComplete.listBox.childNodes[event.target.autoComplete.list.selectedIndex].origValue;
-		delete event.target.autoComplete.list.selectedIndex;
-		AutoComplete._removeListBox(event.target);
+		event.target.value = event.target.aVautoComplete.list[event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].listIndex];
+		if (event.target.aVautoComplete.onSelectItem)
+			event.target.aVautoComplete.onSelectItem(event.target);
+		delete event.target.aVautoComplete.list.selectedIndex;
+		aV.AutoComplete._removeListBox(event.target);
 		return false;
 	}
 	
-	event.target.autoComplete.list.selectedIndex=(event.target.autoComplete.listBox.childNodes.length + event.target.autoComplete.list.selectedIndex) % event.target.autoComplete.listBox.childNodes.length;
+	event.target.aVautoComplete.list.selectedIndex=(event.target.aVautoComplete.listBox.childNodes.length + event.target.aVautoComplete.list.selectedIndex) % event.target.aVautoComplete.listBox.childNodes.length;
 	
-	var selectedItem=event.target.autoComplete.listBox.childNodes[event.target.autoComplete.list.selectedIndex];
+	var selectedItem=event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex];
 	selectedItem.className='selected';
-	if (event.target.autoComplete.listBox.scrollTop > selectedItem.offsetTop)
-		event.target.autoComplete.listBox.scrollTop=selectedItem.offsetTop;
-	else if ((event.target.autoComplete.listBox.scrollTop + event.target.autoComplete.listBox.clientHeight) < (selectedItem.offsetTop + selectedItem.offsetHeight))
-		event.target.autoComplete.listBox.scrollTop=selectedItem.offsetTop - event.target.autoComplete.listBox.clientHeight + selectedItem.offsetHeight + 2;
+	if (event.target.aVautoComplete.listBox.scrollTop > selectedItem.offsetTop)
+		event.target.aVautoComplete.listBox.scrollTop=selectedItem.offsetTop;
+	else if ((event.target.aVautoComplete.listBox.scrollTop + event.target.aVautoComplete.listBox.clientHeight) < (selectedItem.offsetTop + selectedItem.offsetHeight))
+		event.target.aVautoComplete.listBox.scrollTop=selectedItem.offsetTop - event.target.aVautoComplete.listBox.clientHeight + selectedItem.offsetHeight + 2;
 };
 
-AutoComplete._onBlurHandler=function(event)
+aV.AutoComplete._onBlurHandler=function(event)
 {
-	AutoComplete._removeListBox(event.target);
+	if (event.target.aVautoComplete.force && (!event.target.aVautoComplete.list || event.target.aVautoComplete.list.selectedIndex<0))
+		event.target.value='';
+	event.keyCode=13;
+	aV.AutoComplete._onKeyDownHandler(event);
+	aV.AJAX.destroyRequestObject(event.target.aVautoComplete.request);
 };
 
-AutoComplete._checkElement=function(element)
+aV.AutoComplete._checkElement=function(element)
 {
 	if (!element.id)
 		return false;
 
-	for (var i=AutoComplete.config.allowedTags.length-1; i>=0; i--)
-		if (element.tagName==AutoComplete.config.allowedTags[i])
+	for (var i=aV.config.AutoComplete.allowedTags.length-1; i>=0; i--)
+		if (element.tagName==aV.config.AutoComplete.allowedTags[i])
 			return true;
 	return false;
 };
 
-AutoComplete._setAutoCompleteElement=function(element)
+aV.AutoComplete._setElement=function(element)
 {
-	element.setAttribute("autocomplete", "off");
-	Events.add(element, 'keyup', AutoComplete._onKeyUpHandler);
-	Events.add(element, 'focus', AutoComplete._onKeyUpHandler);
-	Events.add(element, 'keydown', AutoComplete._onKeyDownHandler);
-	Events.add(element, 'blur', AutoComplete._onBlurHandler);
+	if (element.aVautoComplete.source || element.aVautoComplete.params)
+	{
+		element.setAttribute("autocomplete", "off");
+		aV.Events.add(element, 'keyup', aV.AutoComplete._onKeyUpHandler);
+		aV.Events.add(element, 'focus', aV.AutoComplete._onKeyUpHandler);
+		aV.Events.add(element, 'keydown', aV.AutoComplete._onKeyDownHandler);
+		aV.Events.add(element, 'blur', aV.AutoComplete._onBlurHandler);
+	}
+	else
+	{
+		delete element.aVautoComplete;
+		aV.Events.remove(element, 'keyup', aV.AutoComplete._onKeyUpHandler);
+		aV.Events.remove(element, 'focus', aV.AutoComplete._onKeyUpHandler);
+		aV.Events.remove(element, 'keydown', aV.AutoComplete._onKeyDownHandler);
+		aV.Events.remove(element, 'blur', aV.AutoComplete._onBlurHandler);
+	}
 };
 
-AutoComplete.init=function()
+aV.AutoComplete.init=function()
 {
-	aParser.assignAttributesFromFile(
-		AutoComplete.config.ruleFile,
-		'autoComplete',
-		AutoComplete._checkElement,
-		AutoComplete._setAutoCompleteElement
+	aV.AJAX.loadResource("/JSLib/css/aV.plg.autoComplete.css", "css", "aVautoCompleteCSS");
+	aV.aParser.assignAttributesFromFile(
+		aV.config.AutoComplete.ruleFile,
+		'aVautoComplete',
+		aV.AutoComplete._checkElement,
+		aV.AutoComplete._setElement
 	);	
 };
 
-Events.add(window, 'load', AutoComplete.init);
+aV.Events.add(window, 'load', aV.AutoComplete.init);

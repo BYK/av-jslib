@@ -1,9 +1,9 @@
 /**
  * @fileOverview	Allows non obtrusive in-place-editing functionality for both images and text based elements.
- * @name quickEdit
+ * @name aV.QuickEdit
  *
  * @author	Burak Yiğit KAYA	byk@amplio-vita.net
- * @version	2.1.1
+ * @version	2.1.2
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
@@ -13,23 +13,23 @@
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (typeof Events=="undefined")
-	throw new Error("Event functions cannot be found!", "aV.plg.quickEdit.js@" + window.location.href, 17);
+if (!aV)
+	throw new Error("aV namespace cannot be found.", "aV.plg.quickEdit.js@" + window.location.href);
 
-if (typeof AJAX=="undefined")
-	throw new Error("AJAX functions library cannot be found!", "aV.plg.quickEdit.js@" + window.location.href, 20);
+if (!aV.Events)
+	throw new Error("aV event manager library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
 
-if (typeof aParser=="undefined")
-	throw new Error("aParser functions library cannot be found!", "aV.plg.quickEdit.js@" + window.location.href, 23);
+if (!aV.AJAX)
+	throw new Error("aV AJAX functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
 
-if (typeof Visual=="undefined")
-	throw new Error("Visual functions library cannot be found!", "aV.plg.quickEdit.js@" + window.location.href, 26);
+if (!aV.aParser)
+	throw new Error("aV aParser functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
 
-if (typeof QuickEdit!="undefined")
-	throw new Error('"QuickEdit" namespace had already been taken!', "aV.plg.quickEdit.js@" + window.location.href, 29);
+if (!aV.Visual)
+	throw new Error("aV visual functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
 
 /**
- * Represents a namespace, QuickEdit, for the new functions and global parameters of those functions.
+ * Represents a namespace, aV.QuickEdit, for the new functions and global parameters of those functions.
  *
  * @namespace
  * @config {String} uploadImgPath The path to the image which will be shown while uploading a file via an upload box.
@@ -40,14 +40,14 @@ if (typeof QuickEdit!="undefined")
  * @config {Boolean} useInfoBox The script will try to use the InfoBox extension(if exists) to display messages instead of <b>alert</b> function.
  * @config {String[]} forbiddenTags The tag names in uppercase which should not be assigned for quickEdit in any case.
  */
-QuickEdit = {};
+aV.QuickEdit = {};
 
-QuickEdit.config=
+aV.config.QuickEdit=
 {
 	uploadImgPath: "images/uploading.gif",
 	imgUploadTitle: "Please select new image",
-	imgUploadError: "An error occured while uploading the new image. Please try again.",
-	textEditError: "An error occured while changing the value. Please try again.",
+	imgUploadError: "An error occurred while uploading the new image. Please try again.",
+	textEditError: "An error occurred while changing the value. Please try again.",
 	ruleFile: "editableRules.txt",
 	useInfoBox: true,
 	forbiddenTags: ["INPUT", "SELECT", "OPTION", "TEXTAREA", "FORM", "HR", "BR", "IFRAME"]
@@ -59,7 +59,7 @@ QuickEdit.config=
  *
  * @type integer
  */
-QuickEdit.uploadBoxCount=0;
+aV.QuickEdit.uploadBoxCount=0;
 
 /**
  * Creates a tiny little upload box which has the class name <b>uploadContainer</b>.
@@ -80,27 +80,27 @@ QuickEdit.uploadBoxCount=0;
  * the POST operation is completed.
  * <br />The upload box will automatically dissappear if callBackFunction is not assigned also.
  */
-QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
+aV.QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
 {
 	var containerDiv=document.createElement("div"); //create the container div, which contains the necessary elements for the upload box.
 	containerDiv.className="uploadContainer"; //set the div's class to uploadContainer both for CSS and identification
-	containerDiv.id="uplContainer" + QuickEdit.uploadBoxCount; //assign the unique upload div id
+	containerDiv.id="uplContainer" + aV.QuickEdit.uploadBoxCount; //assign the unique upload div id
 	containerDiv.callBackFunc=callBackFunc; //define a new property for the containerDiv for storing the *callBackFunc*
 	
 	//start defining the onload function of the upcoming iframe in text format for compatibility with IE
-	var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;if(!responseText)return;var destroyContainer=true;if(this.parentNode.callBackFunc)destroyContainer=this.parentNode.callBackFunc(this.parentNode,responseText);if(destroyContainer)setTimeout('QuickEdit._destroyUploadBox(document.getElementById(\\'" + containerDiv.id + "\\'));', 0);";
+	var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;if(!responseText)return;var destroyContainer=true;if(this.parentNode.callBackFunc)destroyContainer=this.parentNode.callBackFunc(this.parentNode,responseText);if(destroyContainer)setTimeout('aV.QuickEdit._destroyUploadBox(document.getElementById(\\'" + containerDiv.id + "\\'));', 0);";
 	
 	//prepare the inner visual structure of the uploadBox container div - this part might be customized
 	var inHTML='<div class="uploadTitle" style="float: left; clear: both; width: 100%">';
 	inHTML+='<div class="uploadTitleText">' + titleText + '</div>';
-	inHTML+='<div class="uploadCloseButton" onclick="QuickEdit._destroyUploadBox(this.parentNode.parentNode)"><sup>x</sup></div>';
+	inHTML+='<div class="uploadCloseButton" onclick="aV.QuickEdit._destroyUploadBox(this.parentNode.parentNode)"><sup>x</sup></div>';
 	inHTML+='</div>';
 	
 	//add the necessary hidden iframe code
-	inHTML+='<iframe id="uploadIframe' + QuickEdit.uploadBoxCount + '" name="uploadIframe' + QuickEdit.uploadBoxCount + '" style="display:none" src="about:blank" onload="' + onloadFunc + '"></iframe>';
+	inHTML+='<iframe id="uploadIframe' + aV.QuickEdit.uploadBoxCount + '" name="uploadIframe' + aV.QuickEdit.uploadBoxCount + '" style="display:none" src="about:blank" onload="' + onloadFunc + '"></iframe>';
 	
 	//add the necessary form code to the container div. Keeping this part as is, is strongly recommended but might be customized
-	inHTML+='<form style="float: left; width: 100%" action="' + postAddress + '" id="uploadForm' + QuickEdit.uploadBoxCount + '" method="post" enctype="multipart/form-data" target="uploadIframe' + QuickEdit.uploadBoxCount + '">';
+	inHTML+='<form style="float: left; width: 100%" action="' + postAddress + '" id="uploadForm' + aV.QuickEdit.uploadBoxCount + '" method="post" enctype="multipart/form-data" target="uploadIframe' + aV.QuickEdit.uploadBoxCount + '">';
 	
 	try
 	{
@@ -118,14 +118,14 @@ QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
 		inHTML+='<input type="hidden" name="' + tempArray[0] + '" value="' + tempArray[1] + '" />';
 	}
 	//inHTML+='<input type="hidden" name="MAX_FILE_SIZE" value="500000" />';
-	inHTML+='<input type="file" name="' + paramList[paramList.length-1] + '" onchange="if(this.value){this.form.submit();this.disabled=true;document.getElementById(\'uploadImg' + QuickEdit.uploadBoxCount + '\').style.display=\'block\'}" />';
+	inHTML+='<input type="file" name="' + paramList[paramList.length-1] + '" onchange="if(this.value){this.form.submit();this.disabled=true;document.getElementById(\'uploadImg' + aV.QuickEdit.uploadBoxCount + '\').style.display=\'block\'}" />';
 	//place the hidden "in-progress" image at the bottom of the form, might be customized except the id part
-	inHTML+='<center><img src="' + QuickEdit.config["uploadImgPath"] + '" id="uploadImg' + QuickEdit.uploadBoxCount + '" style="display: none; margin: 1px;" /></center>';
+	inHTML+='<center><img src="' + aV.config.QuickEdit["uploadImgPath"] + '" id="uploadImg' + aV.QuickEdit.uploadBoxCount + '" style="display: none; margin: 1px;" /></center>';
 	inHTML+='</form>';
 	//assign the dynamically generated HTML code to the container div's innerHTML property
 	containerDiv.innerHTML=inHTML;
 	document.body.appendChild(containerDiv); //add the container div to the document
-	QuickEdit.uploadBoxCount++;
+	aV.QuickEdit.uploadBoxCount++;
 	return containerDiv; //return the created, final container div as an object
 };
 
@@ -135,63 +135,63 @@ QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFunc)
  *
  * @method
  * @private
- * @deprecated Used internally by <a href="#QuickEdit.createUploadBox">createUploadBox</a>
+ * @deprecated Used internally by <a href="#aV.QuickEdit.createUploadBox">createUploadBox</a>
  * @param {HTMLDivElementObject | String} uploadBox The id or the object referance of the upload box, which will be destroyed.
  */
-QuickEdit._destroyUploadBox=function(uploadBox)
+aV.QuickEdit._destroyUploadBox=function(uploadBox)
 {
 	if (typeof(uploadBox)=='string')
 		uploadBox=document.getElementById(uploadBox);
 	if (!uploadBox) return false;
 	if (uploadBox.callerElement)
 	{
-		uploadBox.callerElement.quickEdit.active=false;
+		uploadBox.callerElement.aVquickEdit.active=false;
 		if (uploadBox.callerElement.onmouseout) uploadBox.callerElement.onmouseout({type: "mouseout", target: uploadBox.callerElement});
 	}
 	document.body.removeChild(uploadBox);
 	delete uploadBox;
-	//QuickEdit.uploadBoxCount--;
+	//aV.QuickEdit.uploadBoxCount--;
 	return true;
 };
 
 /**
  * Creates a special uploadBox in the middle of the image element given by <b>imgElement</b> parameter
  * and uploads the image to the <b>uploadAdress</b> using the uploadBox system which is explained in the
- * <a href="#QuickEdit.createUploadBox">createUploadBox</a>.
+ * <a href="#aV.QuickEdit.createUploadBox">createUploadBox</a>.
  *
  * @method
  * @private
- * @deprecated Direct call to this function is not suggested, see <a href="#QuickEdit.init">init</a> for details.
+ * @deprecated Direct call to this function is not suggested, see <a href="#aV.QuickEdit.init">init</a> for details.
  * @param {HTMLImageElementObject} imgElement The object reference of the image which will be dynamically replaced.
  * @param {String} uploadAddress The address of the server-side sccripting page, where the image will be uploaded(POSTed)
  * @param {Strimg} params The additional parameters while posting the image.
- * See <a href="#QuickEdit.createUploadBox">createUploadBox</a>'s <b>params</b> paramter for further details.
+ * See <a href="#aV.QuickEdit.createUploadBox">createUploadBox</a>'s <b>params</b> paramter for further details.
  * @param {String} [title] The title of the upload box created for the replacement operation of the image.
  * If not given, config["imgUploadTitle"]is used.
  */
-QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
+aV.QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
 {
 	/*
 	if (typeof(imgElement)=='string')
 		imgElement=document.getElementById(imgElement);
 	*/
 	
-	if (imgElement.quickEdit.active) //if there is already an uploadBox, return false
+	if (imgElement.aVquickEdit.active) //if there is already an uploadBox, return false
 		return false;
 				
 	if (!title) //if no spesific title is defined, use the default one
-		title=QuickEdit.config["imgUploadTitle"];
-	var uplBox=QuickEdit.createUploadBox(title, uploadAddress, params, QuickEdit._imgLoaded); //create an upload box, just as we want :)
-	imgElement.quickEdit.active=true; //set the image's quickEdit.active mode to true, to indicate it now has an uploadBox
+		title=aV.config.QuickEdit["imgUploadTitle"];
+	var uplBox=aV.QuickEdit.createUploadBox(title, uploadAddress, params, aV.QuickEdit._imgLoaded); //create an upload box, just as we want :)
+	imgElement.aVquickEdit.active=true; //set the image's aVquickEdit.active mode to true, to indicate it now has an uploadBox
 	uplBox.callerElement=imgElement; //set the uploadBox's callerElement as our image, for further use
 	uplBox.style.width="200px";
 	//position the upload box, in the middle of the image
-	uplBox.style.top=Math.round(Visual.getElementPositionY(imgElement) + (imgElement.offsetHeight - uplBox.offsetHeight)/2) + "px";
-	uplBox.style.left=Math.round(Visual.getElementPositionX(imgElement) + (imgElement.offsetWidth - uplBox.offsetWidth)/2) + "px";	
+	uplBox.style.top=Math.round(aV.Visual.getElementPositionY(imgElement) + (imgElement.offsetHeight - uplBox.offsetHeight)/2) + "px";
+	uplBox.style.left=Math.round(aV.Visual.getElementPositionX(imgElement) + (imgElement.offsetWidth - uplBox.offsetWidth)/2) + "px";	
 };
 
 /**
- * Used internally by <a href="#QuickEdit._changeImage">_changeImage</a> when the image is uploaded.
+ * Used internally by <a href="#aV.QuickEdit._changeImage">_changeImage</a> when the image is uploaded.
  *
  * @private
  * @deprecated
@@ -200,7 +200,7 @@ QuickEdit._changeImage=function(imgElement, uploadAddress, params, title)
  * @param {String} responseText The response text, returned from the server-sided-script file
  */
 
-QuickEdit._imgLoaded=function(container, responseText)
+aV.QuickEdit._imgLoaded=function(container, responseText)
 {
 	responseText=responseText.stripHTML().trim();
 	if (responseText && responseText.substr(0, 5)=="path=")
@@ -218,10 +218,10 @@ QuickEdit._imgLoaded=function(container, responseText)
 	else
 	{
 		//if the responseText is not in the format we expected, raise an error and inform the user
-		if (QuickEdit.config["useInfoBox"])
-			Visual.infoBox.show(QuickEdit.config["imgUploadError"]);
+		if (aV.config.QuickEdit["useInfoBox"])
+			aV.Visual.infoBox.show(aV.config.QuickEdit["imgUploadError"]);
 		else
-			alert(QuickEdit.config["imgUploadError"]);
+			alert(aV.config.QuickEdit["imgUploadError"]);
 		//alert(responseText);
 		//enable the "file" input box again for a retry
 		var inputAreas=container.getElementsByTagName("input");
@@ -237,7 +237,7 @@ QuickEdit._imgLoaded=function(container, responseText)
 };
 
 /**
- * This function is assigned to all editable elements' onMouseOver event by <a href="#QuickEdit.init">init</a>
+ * This function is assigned to all editable elements' onMouseOver event by <a href="#aV.QuickEdit.init">init</a>
  * <br />Might be customized, but it is not suggested.
  *
  * @method
@@ -245,22 +245,22 @@ QuickEdit._imgLoaded=function(container, responseText)
  * @deprecated It is an event handler, do not call directly
  * @param {EventObject} event
  */
-QuickEdit._editableElementHover=function(event)
+aV.QuickEdit._editableElementHover=function(event)
 {
 	var element=event.target;
-	if (!element.quickEdit)
+	if (!element.aVquickEdit)
 		return;
 
-	if(eval(element.quickEdit.condition))
+	if(eval(element.aVquickEdit.condition))
 	{//evaluate the given editing condition and if it is true, continue the operation.
 		element.className='editable'; //set the class to the general "editable" class
-		if (element.quickEdit.fade!=null) //if there is a "fade" variable, fade the element
-			Visual.fade(element, element.quickEdit.fade);
+		if (element.aVquickEdit.fade!=null) //if there is a "fade" variable, fade the element
+			aV.Visual.fade(element, element.aVquickEdit.fade);
 	}	
 };
 
 /**
- * This function is assigned to all editable elements' onMouseOut event by <a href="#QuickEdit.init">init</a>
+ * This function is assigned to all editable elements' onMouseOut event by <a href="#aV.QuickEdit.init">init</a>
  * <br />Might be customized, but it is not suggested.
  *
  * @method
@@ -268,22 +268,22 @@ QuickEdit._editableElementHover=function(event)
  * @deprecated It is an event handler, do not call directly.
  * @param {EventObject} event
  */
-QuickEdit._editableElementMouseOut=function(event)
+aV.QuickEdit._editableElementMouseOut=function(event)
 {
 	var element=event.target; //get the element from event object
-	if (!element.quickEdit)
+	if (!element.aVquickEdit)
 		return;
 	
-	if(!element.quickEdit.active) //if the element is not clicked (or being edited)
+	if(!element.aVquickEdit.active) //if the element is not clicked (or being edited)
 	{
-		if (element.quickEdit.fade!=null) //if fading assigned, return to opaque mode
-			Visual.fade(element, 1);
+		if (element.aVquickEdit.fade!=null) //if fading assigned, return to opaque mode
+			aV.Visual.fade(element, 1);
 		element.className=element.baseClass; //revert the class name to its original
 	}
 };
 
 /**
- * This function is assigned to all editable elements' onClick event by <a href="#QuickEdit.init">init</a>
+ * This function is assigned to all editable elements' onClick event by <a href="#aV.QuickEdit.init">init</a>
  * <br />Might be customized, but it is not suggested.
  *
  * @method
@@ -291,18 +291,18 @@ QuickEdit._editableElementMouseOut=function(event)
  * @deprecated It is an event handler, do not call directly.
  * @param {EventObject} event
  */
-QuickEdit._editableElementClick=function(event)
+aV.QuickEdit._editableElementClick=function(event)
 {
 	var element=event.target;
-	if (!element.quickEdit)
+	if (!element.aVquickEdit)
 		return;
 	
 	if(element.className=='editable')
 	{//if editing condition is satisfied on the mouseover event and the element has "editable" as its className, start editing
 		if (element.tagName=="IMG") //if the element is an image, use the "changeImage" function
-			QuickEdit._changeImage(element, element.quickEdit.action, element.quickEdit.params);
+			aV.QuickEdit._changeImage(element, element.aVquickEdit.action, element.aVquickEdit.params);
 		else //else if the element is a text-based element, use the regular "editLabel" function
-			QuickEdit._editLabel(element);
+			aV.QuickEdit._editLabel(element);
 	}	
 };
 
@@ -315,7 +315,7 @@ QuickEdit._editableElementClick=function(event)
  * @deprecated Used internally, should not be called directly.
  * @param {HTMLElementObject} nameContainer
  */
-QuickEdit._setEditedValue=function(nameContainer)
+aV.QuickEdit._setEditedValue=function(nameContainer)
 {
 	var labelObject=nameContainer.parentNode;
 	var completedFunction=function(requestObject)
@@ -327,15 +327,15 @@ QuickEdit._setEditedValue=function(nameContainer)
 			labelObject.appendChild(document.createTextNode(newName));
 			labelObject.innerHTML=labelObject.innerHTML.LBtoBR();
 
-			labelObject.quickEdit.active=false;
+			labelObject.aVquickEdit.active=false;
 			labelObject.onmouseout({type: "mouseout", target: labelObject});
 		}
 		else
 		{
-			if (QuickEdit.config["useInfoBox"])
-				Visual.infoBox.show(QuickEdit.config["textEditError"]);
+			if (aV.config.QuickEdit["useInfoBox"])
+				aV.Visual.infoBox.show(aV.config.QuickEdit["textEditError"]);
 			else
-				alert(QuickEdit.config["textEditError"]);
+				alert(aV.config.QuickEdit["textEditError"]);
 			nameContainer.disabled=false;
 		}
 	};
@@ -348,17 +348,17 @@ QuickEdit._setEditedValue=function(nameContainer)
 	var params;
 	try
 	{
-		eval("params=" + labelObject.quickEdit.params);
+		eval("params=" + labelObject.aVquickEdit.params);
 	}
 	catch (error)
 	{
-		params=labelObject.quickEdit.params;
+		params=labelObject.aVquickEdit.params;
 	}
 	
-	AJAX.makeRequest(
+	aV.AJAX.makeRequest(
 		"POST",
-		labelObject.quickEdit.action,
-		labelObject.quickEdit.params + '=' + encodeURIComponent(nameContainer.value.LBtoBR()),
+		labelObject.aVquickEdit.action,
+		labelObject.aVquickEdit.params + '=' + encodeURIComponent(nameContainer.value.LBtoBR()),
 		completedFunction,
 		loadFunction
 	);
@@ -372,32 +372,32 @@ QuickEdit._setEditedValue=function(nameContainer)
  * @deprecated Used internally, should not be used directly.
  * @param {HTMLElementObject} labelObject
  */
-QuickEdit._editLabel=function(labelObject)
+aV.QuickEdit._editLabel=function(labelObject)
 {
-	if (labelObject.quickEdit.active)
+	if (labelObject.aVquickEdit.active)
 		return;
 	
 	var editBox;
 	
-	switch(labelObject.quickEdit.type)
+	switch(labelObject.aVquickEdit.type)
 	{
 		case 'select':
-			if (typeof labelObject.quickEdit.selectValues == 'string') 
+			if (typeof labelObject.aVquickEdit.selectValues == 'string') 
 			{
 				try 
 				{
-					eval('labelObject.quickEdit.selectValues=' + labelObject.quickEdit.selectValues + ';');
+					eval('labelObject.aVquickEdit.selectValues=' + labelObject.aVquickEdit.selectValues + ';');
 				} 
 				catch (error) 
 				{
-					labelObject.quickEdit.selectValues = labelObject.quickEdit.selectValues;
+					labelObject.aVquickEdit.selectValues = labelObject.aVquickEdit.selectValues;
 				};
 			}
-			else if (typeof labelObject.quickEdit.selectValues=='undefined')
+			else if (typeof labelObject.aVquickEdit.selectValues=='undefined')
 				return false;
 			editBox=document.createElement("SELECT");			
-			for (var i=0; i<labelObject.quickEdit.selectValues.length; i++)
-				editBox.add(new Option(labelObject.quickEdit.selectValues[i], labelObject.quickEdit.selectValues[i]), undefined);
+			for (var i=0; i<labelObject.aVquickEdit.selectValues.length; i++)
+				editBox.add(new Option(labelObject.aVquickEdit.selectValues[i], labelObject.aVquickEdit.selectValues[i]), undefined);
 			break;
 		case 'textarea':
 			editBox=document.createElement("TEXTAREA");
@@ -408,7 +408,7 @@ QuickEdit._editLabel=function(labelObject)
 			editBox=document.createElement("INPUT");
 	};
 
-	if (labelObject.quickEdit.type!='select')
+	if (labelObject.aVquickEdit.type!='select')
 	{
 		editBox.onkeydown=function(e)
 		{
@@ -436,13 +436,13 @@ QuickEdit._editLabel=function(labelObject)
 		if (this.value==this.originalValue || !this.value)
 		{			
 			labelObject.innerHTML=labelObject.oldHTML;
-			labelObject.quickEdit.active=false;
+			labelObject.aVquickEdit.active=false;
 			labelObject.onmouseout({type: "mouseout", target: labelObject});
 		}
 		
 		else
 		{
-			QuickEdit._setEditedValue(this);
+			aV.QuickEdit._setEditedValue(this);
 			this.disabled=true;
 		}
 		
@@ -463,7 +463,7 @@ QuickEdit._editLabel=function(labelObject)
 	labelObject.innerHTML="";
 
 	labelObject.appendChild(editBox);
-	labelObject.quickEdit.active=true;
+	labelObject.aVquickEdit.active=true;
 	
 //	editBox.className="editLabel";
 	editBox.focus();
@@ -479,17 +479,17 @@ QuickEdit._editLabel=function(labelObject)
  * @return {Boolean}
  * @param {HTMLObject} element
  */
-QuickEdit._checkElement=function(element)
+aV.QuickEdit._checkElement=function(element)
 {
-	for (var i=QuickEdit.config.forbiddenTags.length-1; i>=0; i--)
-		if (element.tagName==QuickEdit.config.forbiddenTags[i])
+	for (var i=aV.config.QuickEdit.forbiddenTags.length-1; i>=0; i--)
+		if (element.tagName==aV.config.QuickEdit.forbiddenTags[i])
 			return false;
 	return true;
 };
 
 /**
  * Assigns the necessary functions to the editable element which
- * is gathered and whose attributes are set by aParser.setElementAttributes
+ * is gathered and whose attributes are set by aV.aParser.setElementAttributes
  * 
  * @private
  * @deprecated Used internally, might be used if a new element is dynamically added to the page and it should be editable.
@@ -497,32 +497,33 @@ QuickEdit._checkElement=function(element)
  * @param {HTMLElementObject} element The element whose attributes will be set.
  * @param {String} attributeStr The string which containts the editability properties.
  */
-QuickEdit._setEditableElement=function(element)
+aV.QuickEdit._setEditableElement=function(element)
 {
 	element.baseClass=element.className; //note its current class for roll back as baseClass
-	Events.add(element, "mouseover", QuickEdit._editableElementHover); //assign the "private" editableElementHover function to onmouseover event
-	Events.add(element, "mouseout", QuickEdit._editableElementMouseOut); //assign the "private" editableElementMouseOut function to onmouseout event
-	Events.add(element, "click", QuickEdit._editableElementClick); //assign the "private" editableElementClick function to onclick event
+	aV.Events.add(element, "mouseover", aV.QuickEdit._editableElementHover); //assign the "private" editableElementHover function to onmouseover event
+	aV.Events.add(element, "mouseout", aV.QuickEdit._editableElementMouseOut); //assign the "private" editableElementMouseOut function to onmouseout event
+	aV.Events.add(element, "click", aV.QuickEdit._editableElementClick); //assign the "private" editableElementClick function to onclick event
 };
 
 /**
- * This function initializes the QuickEdit system.
+ * This function initializes the aV.QuickEdit system.
  * Downloads the ruleFile if there is one, assigns the necessary property
  * and event handlers to the editable elements.
  * Attached to the window.onload event automatically.
  *
  * @method
  */
-QuickEdit.init=function()
+aV.QuickEdit.init=function()
 {
-	aParser.assignAttributesFromFile(
-		QuickEdit.config['ruleFile'],
-		'quickEdit',
-		QuickEdit._checkElement,
-		QuickEdit._setEditableElement
+	aV.AJAX.loadResource("/JSLib/css/aV.plg.quickEdit.css", "css", "aVquickEditCSS");
+	aV.aParser.assignAttributesFromFile(
+		aV.config.QuickEdit['ruleFile'],
+		'aVquickEdit',
+		aV.QuickEdit._checkElement,
+		aV.QuickEdit._setEditableElement
 	);
 
-	QuickEdit.config["useInfoBox"]=(QuickEdit.config["useInfoBox"] && Visual.infoBox);
+	aV.config.QuickEdit["useInfoBox"]=(aV.config.QuickEdit["useInfoBox"] && aV.Visual.infoBox);
 };
 
-Events.add(window, 'load', QuickEdit.init);
+aV.Events.add(window, 'load', aV.QuickEdit.init);

@@ -1,0 +1,134 @@
+/*
+ * Thanks to Mark James for his great icons.
+ * Check address below for more.
+ * http://www.famfamfam.com/lab/icons/silk/
+ */
+div.aVdS_container
+{
+	border: 1px solid #67A7E3;
+	overflow: hidden;
+	min-height: 50px;
+	width: auto;
+	font-size: 10pt;
+}
+div.aVdS_tabTitle
+{
+	float: left;
+	clear: both;
+	margin: 0px;
+	width: 100%;
+	background-color: #67A7E3;
+	color: #000000;
+	font-size: 12px;
+	height: 18px;
+	vertical-align: middle;
+}
+div.aVdS_tabTitle a
+{
+	text-decoration: none;
+	margin-left: 2px;
+	padding: 2px;
+	background: #efefef;
+	height: 16px;
+}
+form.aVdS_form ul
+{
+	float: left;
+	margin: 2px;
+	padding: 0px;
+	width: auto;
+}
+form.aVdS_form ul.aVdS_conditions
+{
+	width: 99%;
+	margin: 3px;
+	padding: 3px;
+}
+form.aVdS_form ul li
+{
+	float: left;
+	clear: both;
+	list-style: none;
+	width: auto;
+	height: 2em;
+	vertical-align: middle;
+}
+form.aVdS_form ul.aVdS_inputs li
+{
+	width: 170px;
+}
+form.aVdS_form ul.aVdS_inputs li input[type="text"]
+{
+	width: 152px;
+}
+form.aVdS_form ul.aVdS_conditions li
+{
+	width: 100%;
+	background: #ffffff;
+}
+form.aVdS_form ul.aVdS_conditions li input, form.aVdS_form ul.aVdS_conditions li select
+{
+	margin-right: 1px;
+	float: left;
+	clear: none;
+}
+form.aVdS_form ul li.aVdS_controlButtons input
+{
+	float: right;
+}
+form.aVdS_form ul li input[type="text"]
+{
+	background-image: url('../images/DynamicSearch/check.png');
+	background-position: right;
+	background-repeat: no-repeat;
+	border: 1px solid #cccccc;
+	height: 16px;
+	padding-right: 16px;
+}
+form.aVdS_form ul li input[type="text"].aVdS_error
+{
+	background-color: #efefef;
+	background-image: url('../images/DynamicSearch/error.png')!important;
+}
+form.aVdS_form ul li input[type="text"].aVdS_enum
+{
+	background-image: url('../images/DynamicSearch/dropdown.gif');
+}
+.aVdS_loading
+{
+	background-image: url('../images/loading.gif');
+	background-position: left;
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 50%;
+	float: left;
+	clear: both;
+	padding-left: 16px;	
+	font-style: italic;
+}
+.aVdS_addCondition, .aVdS_removeCondition
+{
+	background-image: url('../images/DynamicSearch/add.png');
+	background-position: left;
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	clear: none;
+}
+.aVdS_removeCondition
+{
+	background-image: url('../images/DynamicSearch/remove.png');
+	margin-left: 5px;
+}
+.aVdS_groupContainer
+{
+	border: 2px dashed #000000;
+	padding: 2px;
+	margin: 2px;
+	overflow: hidden;
+	float: left;
+	clear: both;
+	width: 98%;
+}

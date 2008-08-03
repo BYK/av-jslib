@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<language>
-	<welcome>Hoşgeldiniz!</welcome>
-	<submit_area><![CDATA[<input type="button" value="Gönder" />]]></submit_area>
-	<title1>Kutu başlığı</title1>
-	<content1>Bu kutuda bazı içerikler olur ama o olana kadar lorem ipsumdur.</content1>
-</language>

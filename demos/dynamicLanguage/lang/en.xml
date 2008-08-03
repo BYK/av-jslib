@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<language>
-	<welcome>Welcome!</welcome>
-	<submit_area><![CDATA[<input type="button" value="Send Data" />]]></submit_area>
-	<title1>Box Title</title1>
-	<content1>In here, there will be some content but till then, lorem ipsum rulz.</content1>
-</language>

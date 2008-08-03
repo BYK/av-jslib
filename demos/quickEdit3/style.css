@@ -1,0 +1,53 @@
+body, input, select, textarea
+{
+	font-family: Tahoma, Sans;
+	font-size: 10pt;
+}
+#idCard
+{
+	border: 2px dashed #ff9000;
+	width: 350px;
+	min-height: 140px;
+	padding: 5px;
+	overflow: hidden;
+	margin-left: auto;
+	margin-right: auto;
+}
+#idPicture
+{
+	float: left;
+	width: 128px;
+	height: 128px;
+	border: 2px solid #ffffff;
+	border-right: 2px solid #bbbbbb;
+	border-bottom: 2px solid #bbbbbb;
+}
+#idInfo
+{
+	float: left;
+	width: 190px;
+	min-height: 100px;
+	margin: 12px 0px 12px 10px;
+	padding: 0px;
+}
+#idInfo li
+{
+	font-weight: bold;
+	list-style: none;
+}
+#idInfo li div
+{
+	font-weight: normal;
+	display: block;
+	height: 2em;
+}
+#idInfo li span
+{
+	font-weight: normal;
+}
+#idExtraInfo
+{
+	min-height: 4.5em;
+	overflow-y: auto;
+	overflow-x: hidden;
+}

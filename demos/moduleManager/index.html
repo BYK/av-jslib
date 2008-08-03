@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html debug="true">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Module Manager Demo</title>
+		<script type="text/javascript" src="../../js/aV.ext.array.js"></script>
+		<script type="text/javascript" src="../../js/aV.ext.string.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.events.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.ajax.js"></script>
+		<script type="text/javascript" src="../../js/aV.plg.moduleManager.js"></script>
+		<script type="text/javascript">
+			function moduleLoadedCallback(moduleName)
+			{
+				var message="Module loaded: " + moduleName;
+				if (window.console)
+					console.log(message);
+				else
+					alert(message);
+				
+				var loadedList=document.getElementById("loadedModuleList");
+				while (loadedList.firstChild)
+					loadedList.removeChild(loadedList.firstChild);
+				
+				for (var i=0; i<aV.AJAX.ModuleManager.loadedModules.length; i++)
+				{
+					var newLi=document.createElement("LI");
+					newLi.appendChild(document.createTextNode("%s (uid: %s)".format(aV.AJAX.ModuleManager.loadedModules[i], aV.AJAX.ModuleManager.moduleUIDs[i])));
+					loadedList.appendChild(newLi);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<h4>Loaded Modules</h4>
+		<ul id="loadedModuleList">
+			<li>Nothing loaded yet :)</li>
+		</ul>
+		<select id="moduleList">
+			<option value="firebug-lite.js">firebug-lite.js</option>
+			<option value="file1.js">file1.js</option>
+			<option value="file2.js">file2.js</option>
+		</select>
+		<input type="checkbox" id="forceReload" /><label for="forceReload">Force Reload</label>
+		<input type="button" value="Load" onclick="var list=document.getElementById('moduleList'); aV.AJAX.ModuleManager.load([list.options[list.selectedIndex].value], moduleLoadedCallback, document.getElementById('forceReload'))" />
+	</body>
+</html>

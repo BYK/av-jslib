@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Inspired from http://www.lkozma.net/autocomplete.html?pres1=R#l3 -->
+<html>
+	<head>
+		<title>
+			Auto Complete
+		</title>
+		<style type="text/css">
+			@import "style.css";
+		</style>
+		<script src="../../js/dE.cssQuery.js" type="text/javascript"></script>
+		<script src="../../js/aV.ext.string.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.events.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.ajax.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.aParser.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.visual.js" type="text/javascript"></script>
+		<script src="../../js/aV.plg.autoComplete.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			/**
+			 * Adapted from http://javascript.nwbox.com/cursor_position/
+			 * @param {Object} element
+			 */
+			function getCursorPos(element)
+			{
+				if (element.createTextRange)
+				{
+					var r = document.selection.createRange().duplicate();
+					r.moveEnd('character', element.value.length);
+					if (r.text == '')
+						return element.value.length;
+					return element.value.lastIndexOf(r.text);
+				}
+				else
+					return element.selectionStart
+			}
+			aV.config.AutoComplete.regExpPattern="'(' + filter.substring(1, getCursorPos(element)+1) + '.*' + ((getCursorPos(element)<filter.length-2)?filter.substring(getCursorPos(element)+1, filter.length-1):'') + ')'";			
+			
+		</script>
+		<style type="text/aVautoComplete">
+			body>div>input[type = "text"]
+			{
+				source: 'auto_complete.php',
+				params: '"cPos=" + getCursorPos(element) + "&filter"'
+			}
+		</style>
+	</head>
+	<body>
+		Type in at least 2 characters in the box and wait a while.
+		<div id="left">
+			<div>Full Name</div>
+		</div>
+		<div id="right">
+			<input type="text" id="name"/>
+		</div>
+	</body>
+</html>

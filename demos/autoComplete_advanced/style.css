@@ -1,0 +1,24 @@
+body, input
+{
+	font-family: Tahoma, Sans;
+	font-size: 10pt;
+}
+#tableName, #left div
+{
+	background: #ccccff;
+	border-style:double;
+	border-color: #ccccff;
+	margin: 5px;
+}
+#left, #right
+{
+	float:left;
+	margin:5px;
+	height:100px;
+}
+#right input
+{
+	border-style:double;
+	border-color: #ccccff;		
+	margin:5px;	
+}

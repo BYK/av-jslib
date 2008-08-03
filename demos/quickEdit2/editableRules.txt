@@ -1,0 +1,22 @@
+#idInfo>li>div, #idInfo>li>span
+{
+	action: 'change.php',
+	params: 'var=' + element.id + '&val',
+	condition: 1
+}
+#idGender
+{
+	type: 'select',
+	selectValues: ['Unisex', 'Male', 'Female']
+}
+#idExtraInfo
+{
+	type: 'textarea'
+}
+#idPicture
+{
+	action: 'change.php',
+	params: 'var=' + element.id + '&val',
+	fade: 0.5,
+	condition: 1
+}

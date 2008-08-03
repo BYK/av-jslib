@@ -1,17 +1,17 @@
 /**
- * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#AJAX.XML.getValue">AJAX.XML.getValue</a> and <a href="#AJAX.XML.setValue">AJAX.XML.setValue</a>.
+ * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#aV.AJAX.XML.getValue">aV.AJAX.XML.getValue</a> and <a href="#aV.AJAX.XML.setValue">aV.AJAX.XML.setValue</a>.
  * @name Core AJAX and XML Library
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
- * @version 1.4.1
+ * @version 1.5
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (typeof AJAX!="undefined")
-	throw new Error('"AJAX" namespace had already been taken!', "aV.main.ajax.js@" + window.location.href, 11);
+if (!aV)
+	var aV={config: {}};
 	
 /**
- * Represents the namespace, AJAX, for the core AJAX functions and global parameters of those functions.
+ * Represents the namespace, aV.AJAX, for the core AJAX functions and global parameters of those functions.
  *
  * @namespace
  * @param {String} [config.noAjax="You need an AJAX supported browser to use this page."] The error message which user will see if his/her browser does not support AJAX.
@@ -22,26 +22,26 @@ if (typeof AJAX!="undefined")
  * @param {String} [config.pageLeaveWarning="There are one or more requests in progress. If you exit, there might be data loss."] The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
  * If you want to disable this warning, just set this to false.
  */
-AJAX = {};
+aV.AJAX = {};
 
 /**
  * Holds the configuration parameters.
  */
-AJAX.config=
+aV.config.AJAX=
 {
 	noAjax: "You need an AJAX supported browser to use this page.",
 	loadImgPath: "images/loading_img.gif",
-	loadingText: "<br><center><img src=\"" + this["loadImgPath"] + "\">Loading, please wait...</center>",
+	loadingText: "<br><center><img src=\"" + this.loadImgPath + "\">Loading, please wait...</center>",
 	pageLeaveWarning: "There are one or more requests in progress. If you exit, there might be data loss."
 };
 
 /**
  * Tries to get an XMLHttpRequest object, returns false if the browser does not support AJAX.
  * 
- * @deprecated You should not need to use this function directly, use {@link AJAX.makeRequest} to make AJAX calls.
+ * @deprecated You should not need to use this function directly, use {@link aV.AJAX.makeRequest} to make AJAX calls.
  * @return {XMLHttpRequestObject | false} A new XMLHttpRequest object or false
  */
-AJAX.createRequestObject=function()
+aV.AJAX.createRequestObject=function()
 {
 	var requestObject = false;
 	if(window.XMLHttpRequest && !(window.ActiveXObject))
@@ -82,7 +82,7 @@ AJAX.createRequestObject=function()
  *
  * @param {XMLHttpRequestObject} requestObject The requestObject which will be destroyed
  */
-AJAX.destroyRequestObject=function(requestObject)
+aV.AJAX.destroyRequestObject=function(requestObject)
 {
 	if (requestObject)
 	{
@@ -95,15 +95,15 @@ AJAX.destroyRequestObject=function(requestObject)
 
 /**
  * This function is assigned to the page's onbeforeunload event for pageLeaveWarning feature.
- * See {@link AJAX}.config.pageLeaveWarning
+ * See {@link aV.AJAX}.config.pageLeaveWarning
  *
  * @deprecated Should not be called directly, it is for the page's onbeforeunload event.
  * @return {String | null} pageLeaveWarning config variable or null
  */
-AJAX.checkActiveRequests=function()
+aV.AJAX.checkActiveRequests=function()
 {
-	if (AJAX.config.pageLeaveWarning && AJAX.activeRequestCount>0)
-		return AJAX.config.pageLeaveWarning;
+	if (aV.config.AJAX.pageLeaveWarning && aV.AJAX.activeRequestCount>0)
+		return aV.config.AJAX.pageLeaveWarning;
 };
 
 /**
@@ -112,7 +112,7 @@ AJAX.checkActiveRequests=function()
  * @return {String} The URI query string.
  * @param {Object} parameters
  */
-AJAX.serializeParameters=function(parameters, format)
+aV.AJAX.serializeParameters=function(parameters, format)
 {
 	if (format==undefined)
 		format='%s';
@@ -120,9 +120,12 @@ AJAX.serializeParameters=function(parameters, format)
 	parameters='';
 	for (var paramName in paramsTemp) 
 	{
+		if ((paramsTemp instanceof Array) && isNaN(parseInt(paramName)))
+			continue;
+
 		if ((paramsTemp[paramName] instanceof Object) || paramsTemp[paramName] instanceof Array)
 		{
-			parameters += '&' + AJAX.serializeParameters(paramsTemp[paramName], format.replace(/%s/g, paramName) + '[%s]');
+			parameters += '&' + aV.AJAX.serializeParameters(paramsTemp[paramName], format.replace(/%s/g, paramName) + '[%s]');
 		}
 		else 
 			parameters += '&' + format.replace(/%s/g, paramName) + '=' + encodeURIComponent(paramsTemp[paramName]);
@@ -140,7 +143,7 @@ AJAX.serializeParameters=function(parameters, format)
  * @param {String} adress The adress of the page which will be connected. Should include the URI encoded GET parameters.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
-AJAX.makeGetRequest=function(adress, changeFunction)
+aV.AJAX.makeGetRequest=function(adress, changeFunction)
 {
 	var resultRequest = this.createRequestObject(); //try to create an XMLHttpRequest object
 	if (resultRequest) //if the XMLHttpRequest object is valid
@@ -162,17 +165,17 @@ AJAX.makeGetRequest=function(adress, changeFunction)
 			{
 				if (resultRequest.readyState==4)
 				{
-					AJAX.activeRequestCount--;
+					aV.AJAX.activeRequestCount--;
 					delete resultRequest;
 					resultRequest=undefined;
 				}
 			}
 		};
 		resultRequest.send(null); //start the request
-		this.activeRequestCount++;
+		aV.AJAX.activeRequestCount++;
 	}
-	else if(this.config["noAjax"]) //if cannot create a valid XMLHttpRequest object, inform user.
-		alert(this.config["noAjax"]);
+	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
+		alert(aV.config.AJAX.noAjax);
 	return resultRequest; //return the created XMLHttpRequest object for any further use
 };
 
@@ -187,7 +190,7 @@ AJAX.makeGetRequest=function(adress, changeFunction)
  * @param {String} parameters The URI encoded and merged POST parameters for the HTTP request.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
-AJAX.makePostRequest=function(adress, parameters, changeFunction)
+aV.AJAX.makePostRequest=function(adress, parameters, changeFunction)
 {
 	var resultRequest = this.createRequestObject(); //try to create a XMLHttpRequest object
 	if (resultRequest) //if XMLHttpRequest object is valid
@@ -209,7 +212,7 @@ AJAX.makePostRequest=function(adress, parameters, changeFunction)
 			{
 				if (resultRequest.readyState==4)
 				{
-					AJAX.activeRequestCount--;
+					aV.AJAX.activeRequestCount--;
 					delete resultRequest;
 					resultRequest=undefined;
 				}
@@ -220,10 +223,10 @@ AJAX.makePostRequest=function(adress, parameters, changeFunction)
     resultRequest.setRequestHeader("Connection", "close");
 		//set some headers for POST method
 		resultRequest.send(parameters); //send the request with parameters attached
-		this.activeRequestCount++;
+		aV.AJAX.activeRequestCount++;
 	}
-	else if(this.config["noAjax"]) //if cannot create a valid XMLHttpRequest object, inform user.
-		alert(this.config["noAjax"]); //start the request
+	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
+		alert(aV.config.AJAX.noAjax);
 	return resultRequest; //return the created XMLHttpRequest object for any further use
 };
 
@@ -239,7 +242,7 @@ AJAX.makePostRequest=function(adress, parameters, changeFunction)
  * @param {Function(XMLHttpRequestObject)} [completedFunction] The function which will be called when the HTTP call is completed. (readyState==4)
  * @param {Function(XMLHttpRequestObject)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
  */
-AJAX.makeRequest=function(method, adress, parameters, completedFunction, loadingFunction)
+aV.AJAX.makeRequest=function(method, adress, parameters, completedFunction, loadingFunction)
 {
 	var triggerFunction=function (requestObject) //define the custom changeFunction as triggerFunction
 	{
@@ -250,14 +253,21 @@ AJAX.makeRequest=function(method, adress, parameters, completedFunction, loading
 	}; //finished defining the custom changeFunction
 	//checking parameters
 	if (typeof parameters=='object')
-		parameters=AJAX.serializeParameters(parameters);
+		parameters=aV.AJAX.serializeParameters(parameters);
 	
-	if (method.toUpperCase()=="GET") //if requested method is GET, then call the makeGetRequest function
+	if (method.toUpperCase()=="GET") //if requested method is GET, then call the aV.AJAX.makeGetRequest function
 		return this.makeGetRequest(adress + ((parameters)?'?' + parameters:''), triggerFunction);
-	else if (method.toUpperCase()=="POST") //else if requested method is POST, then call the makeAJAXPostRequest function
+	else if (method.toUpperCase()=="POST") //else if requested method is POST, then call the aV.AJAX.makePostRequest function
 		return this.makePostRequest(adress, parameters, triggerFunction);
 	else //if requested method is invalid, return false
 		return false;
+};
+
+aV.AJAX.isResponseOK=function(requestObject, responseType)
+{
+	if (!responseType)
+		responseType='Text';
+	return (requestObject.status==200 && requestObject["response" + responseType]);
 };
 
 /**
@@ -270,7 +280,7 @@ AJAX.makeRequest=function(method, adress, parameters, completedFunction, loading
  * @param {Function(Object, String)} [completedFunction] The function which will be called when the loading of the content is finished. It is called with the target container element and the URL as parameters.
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  */
-AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
+aV.AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
 {
 	if (typeof(element)=='string') //if id of the object is given instead of the object itself
 		element=document.getElementById(element); //assign the element the object corresponding to the given id
@@ -286,8 +296,8 @@ AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
 		{
 			if (loadingFunction) //if a custom loadingFunction is assigned
 				loadingFunction(element, theURL); //call it with the element object and the given URL as its parameters
-			else if (this.config["loadingText"])
-				element.innerHTML=this.config["loadingText"]; //set the given element's innerHTML the loading text to inform the user
+			else if (aV.config.AJAX.loadingText)
+				element.innerHTML=aV.config.AJAX.loadingText; //set the given element's innerHTML the loading text to inform the user
 		}
 	};
 	return (this.makeGetRequest(theURL, triggerFunction)); //make the GET request and return the used XMLHttpRequest object
@@ -305,7 +315,7 @@ AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
  * If not given, no id is assigned to the created node.
  * @param {Boolean} [forceRefresh] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
  */
-AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
+aV.AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 {
 	if (!type)
 		type="js";
@@ -339,7 +349,6 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 
 /**
  * @ignore
- * @beta This function/event handler is under construction and may not work properly.
  * @param {Object} theURL
  * @param {Object} parameters
  * @param {Object} element
@@ -347,18 +356,17 @@ AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
  * @param {Object} completedFunction
  * @param {Object} loadingFunction
  */
-AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
+aV.AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
 {
 	
 };
 
 /**
  * Sends the form data using AJAX when the form's onSubmit event is triggered.
- * @beta This function/event handler is under construction and may not work properly.
  * @return {Boolean} Returns always false to prevent "real" submission.
  * @param {Object} event
  */
-AJAX.sendForm=function(event)
+aV.AJAX.sendForm=function(event)
 {
 	var form=event.target;
 /*
@@ -384,7 +392,7 @@ AJAX.sendForm=function(event)
 			form.callback(requestObject);
 	};
 	
-	AJAX.makeRequest(form.method, form.action, params, completedFunction);
+	aV.AJAX.makeRequest(form.method, form.action, params, completedFunction);
 	return false;
 };
 
@@ -394,13 +402,13 @@ AJAX.sendForm=function(event)
  *
  * @type integer
  */
-AJAX.activeRequestCount=0;
+aV.AJAX.activeRequestCount=0;
 
 /**
  * Introduces some useful functions for XML parsing, which are returned by the XMLHttpRequest objects's responseXML property.
  * @namespace
  */
-AJAX.XML = {};
+aV.AJAX.XML = {};
 /**
  * Tries to extract the node value whose name is given with nodeName and is contained by mainItem node. Returns the defaultVal if any error occurs.
  *
@@ -409,7 +417,7 @@ AJAX.XML = {};
  * @param {String} nodeName Name of the sub node whose value will be extracted from the mainItem.
  * @param {String} [defaultVal] The default value which will be returned if the sub node whose name is given in nodeName is not found.
  */
-AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
+aV.AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 {
 	defaultVal=(defaultVal) ? defaultVal : "";
 	var val;
@@ -436,7 +444,7 @@ AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
  * @param {String} nodeName Name of the sub node whose value will be set.
  * @param {String} val The new value of the sub node whose name is given in nodeName.
  */
-AJAX.XML.setValue=function(mainItem, nodeName, val)
+aV.AJAX.XML.setValue=function(mainItem, nodeName, val)
 {
 	try
 	{
@@ -455,7 +463,7 @@ AJAX.XML.setValue=function(mainItem, nodeName, val)
  * @return {HTMLElementObject[]} The array version of the given collection.
  * @param {HTMLCollectionObject} collection The collection which will be converted to array.
  */
-AJAX.XML.toArray=function(collection)
+aV.AJAX.XML.toArray=function(collection)
 {
 	var result = new Array();
 	for (i = 0; i < collection.length; i++)
@@ -463,4 +471,4 @@ AJAX.XML.toArray=function(collection)
 	return result;
 };
 
-window.onbeforeunload=AJAX.checkActiveRequests;
+window.onbeforeunload=aV.AJAX.checkActiveRequests;

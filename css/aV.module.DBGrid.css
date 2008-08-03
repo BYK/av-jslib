@@ -1,0 +1,183 @@
+table.aVDBGrid
+{
+	[if lt IE 8] border-collapse: collapse;
+	[if ! lt IE 8] border-collapse: separate;
+	[if ! lt IE 8] border-spacing: 0px;
+	border: 1px solid;
+	border-top: none;
+	overflow: hidden;
+	font-size: 8pt;
+	table-layout: fixed;
+	width: 99%;
+	z-index: 5;
+	font-family: verdana;
+	font-size: 8pt;
+	margin: auto;
+	margin-bottom: 4px;
+	/* Conditional lines for Firefox 2 and below bug */
+	[if lt Gecko 1.9] float: left;
+	[if lt Gecko 1.9] clear: both;
+	[if lt Gecko 1.9] margin: 0px 0.5% 4px 0.5%;
+}
+table.aVDBGrid caption
+{
+	font-size: 10pt;
+	font-weight: bold;
+	overflow: hidden;
+	border: 1px solid;
+	text-align: left;
+	padding: 3px 2px 3px 1px;
+	z-index: 3;
+	background: #eeeeff;
+	/* Conditional line for Firefox 2 and below bug */
+	[if lt Gecko 1.9] margin: 4px 0.5% 0px 0.5%;
+}
+table.aVDBGrid caption div.title
+{
+	margin: 3px auto;
+	overflow: hidden;
+	width: 50%;
+	text-align: center;
+}
+table.aVDBGrid caption a
+{
+	display: block;
+	padding: 2px 3px 2px 16px;
+	float: right;
+	margin: 2px 2px 4px 2px;
+	background-repeat: no-repeat;
+	background-position: left;
+	font-size: 7pt;
+	text-decoration: none;
+	font-weight: normal;
+}
+table.aVDBGrid caption a.buttonColumnList
+{
+	float: left;
+	background-image: url('../images/DBGrid/wand.png');
+}
+table.aVDBGrid caption a.buttonGroupAll
+{
+	background-image: url('../images/DBGrid/link.png');
+}
+table.aVDBGrid caption a.buttonUngroupAll
+{
+	background-image: url('../images/DBGrid/link_break.png');
+}
+table.aVDBGrid caption a.buttonExport
+{
+	background-image: url('../images/DBGrid/disk.png');
+}
+table.aVDBGrid caption a.buttonFilter
+{
+	background-image: url('../images/DBGrid/filter.png');
+}
+div.aVDBGridColumnList
+{
+	background: #fafaff;
+	border: 1px solid;
+	border-color: #bbbbbb #888888 #888888 #bbbbbb;
+	max-width: 220px;
+	padding: 3px;
+	font-size: 8pt;
+	margin-top: 20px;
+	position: absolute;
+	z-index: 10;
+	font-weight: normal;
+	overflow: hidden;
+}
+table.aVDBGrid thead
+{
+	overflow: hidden;
+}
+table.aVDBGrid tbody
+{
+	overflow-x: hidden;
+	overflow-y: auto;
+/*
+	height: 400px;
+	[if lt IE 8] height: expression(this.clientHeight >= 400 ? "400px": "auto");
+*/
+}
+table.aVDBGrid td
+{
+	border: 1px solid #cccccc;
+	white-space: nowrap;
+	overflow: hidden;
+	padding: 2px;
+}
+table.aVDBGrid thead tr td
+{
+	background: #8888cc;
+	color: #ffffff;
+	font-weight: bold;
+	cursor: pointer;
+	vertical-align: bottom;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+table.aVDBGrid thead tr td:hover
+{
+	border-bottom: 1px solid #BBBBBB;
+	background: #6666bb;
+}
+table.aVDBGrid thead tr td.sortedAsc, table.aVDBGrid thead tr td.sortedDesc
+{
+	border-bottom: 1px solid #BBBBBB;
+	background-repeat: no-repeat;
+	background-position: left;
+	background-color: #6666bb;
+	padding-left: 10px!important;
+}
+table.aVDBGrid thead tr td.sortedAsc
+{
+	background-image: url('../images/DBGrid/up.png');
+}
+table.aVDBGrid thead tr td.sortedDesc
+{
+	background-image: url('../images/DBGrid/down.png');
+}
+table.aVDBGrid thead tr.filterRow td
+{
+	padding: 0px;
+	background: #eeeeff;
+}
+table.aVDBGrid thead tr.filterRow td input
+{
+	border: none;
+	width: 100%;
+}
+table.aVDBGrid tbody tr:hover
+{
+	background: #e3edfa;
+}
+table.aVDBGrid tbody tr td
+{
+	vertical-align: top;
+	padding: 2px;
+	border-width: 1px;
+	border-color: #cccccc;
+	border-style: none solid solid none;
+}
+table.aVDBGrid tbody tr td[datatype="int"], table.aVDBGrid tbody tr td[datatype="real"]
+{
+	text-align: right;
+	color: #4848ff
+}
+table.aVDBGrid tbody tr td p
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+table.aVDBGrid tfoot
+{
+	font-weight: bold;
+	overflow: hidden;
+	text-align: left;
+	z-index: 3;
+	background: #eeeeff;
+}
+table.aVDBGrid tfoot tr td
+{
+	padding: 2px 2px 4px 2px;
+}

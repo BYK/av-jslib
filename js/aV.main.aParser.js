@@ -1,28 +1,28 @@
 /**
  * @fileOverview A parser library which assignes elements some properties from a CSS-like external file, from a special style tag or from an inline HTML attribute.
- * @name aParser
+ * @name aV.aParser
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version	1.2
+ * @version	1.2.1
  * 
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (typeof AJAX=="undefined")
-	throw new Error("AJAX functions library cannot be found!", "aV.main.aParser.js@" + window.location.href, 16);
+if (!aV)
+	throw new Error("aV namespace cannot be found.", "aV.main.aParser.js@" + window.location.href);
 
-if (typeof aParser!="undefined")
-	throw new Error('"aParser" namespace had already been taken!', "aV.main.aParser.js@" + window.location.href, 25);
+if (!aV.AJAX)
+	throw new Error("aV AJAX functions library is not loaded.", "aV.main.aParser.js@" + window.location.href);
 
 /**
  * Represents the name space for aParser's functions and methods.
  * 
  * @namespace
  * @requires {@link String} (aV.ext.string.js)
- * @requires {@link AJAX} (aV.main.ajax.js)
+ * @requires {@link aV.AJAX} (aV.main.ajax.js)
  * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.cssQuery.js)
  */
-aParser = {};
+aV.aParser = {};
 
 /**
  * Evaluates and assigns the attributes given in attributeStr as string to the given element.
@@ -35,7 +35,7 @@ aParser = {};
  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
  * @param {String} attributeStr The string which containts the attributes.
  */
-aParser.setElementAttributes=function(element, propertyName, attributeStr)
+aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 {
 	try 
 	{
@@ -46,10 +46,10 @@ aParser.setElementAttributes=function(element, propertyName, attributeStr)
 		return false;
 	}
 	
-	if (propertyName in element)
+	if (element[propertyName])
 	{
-		for (var attrName in attributes)
-			element[propertyName][attrName]=attributes[attrName];
+		for (var attrName in attributes) 
+			element[propertyName][attrName] = attributes[attrName];
 	}
 	else
 		element[propertyName]=attributes;
@@ -74,7 +74,7 @@ aParser.setElementAttributes=function(element, propertyName, attributeStr)
  * successfully setting the attributes. You may do additional operations on the found elements by giving a
  * proper function to this paramter.
  */
-aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attributeStr, beforeSet, afterSet)
+aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attributeStr, beforeSet, afterSet)
 {
 	var elements=cssQuery(queryStr);
 	
@@ -87,7 +87,7 @@ aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attrib
 			continue;
 		
 		if (
-					aParser.setElementAttributes(
+					aV.aParser.setElementAttributes(
 						elements[i],
 						propertyName,
 						(attributeStr!='*')?attributeStr:elements[i].getAttribute(propertyName)
@@ -101,11 +101,11 @@ aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attrib
 
 /**
  * Assigns the elements' attributes rules from the ruleText
- * See {@link aParser.retrieveElementsAndSetAttributes} for other parameters.
+ * See {@link aV.aParser.retrieveElementsAndSetAttributes} for other parameters.
  * 
  * @param {String} ruleText The text which contains the rules in an external CSS file like structure.
  */
-aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, afterSet)
+aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, afterSet)
 {
 	ruleText+="\n*[" + propertyName + "]{*}";
 	ruleText=ruleText.replace(/\/\*.*\*\//g, '');
@@ -117,7 +117,7 @@ aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, aft
 		queryStr=result[1].trim();
 		attributeStr=result[2].trim();
 		
-		aParser.retrieveElementsAndSetAttributes(queryStr, propertyName, attributeStr, beforeSet, afterSet);
+		aV.aParser.retrieveElementsAndSetAttributes(queryStr, propertyName, attributeStr, beforeSet, afterSet);
 	}
 };
 
@@ -125,15 +125,15 @@ aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, aft
  * Assigns the elements' attributes using the rules from the given text file.
  * Loads the file and then calls the assignAttributesFromText to
  * parse its text content.
- * See {@link aParser.retrieveElementsAndSetAttributes} for other parameters.
+ * See {@link aV.aParser.retrieveElementsAndSetAttributes} for other parameters.
  * 
  * @method
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
  * @param {Boolean} [includeStyleTags=true] Tells the function that whether it should use the inline style tags for additional rules.
  */
-aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags)
+aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags)
 {
-	AJAX.makeRequest(
+	aV.AJAX.makeRequest(
 		'GET',
 		fileAddress,
 		'',
@@ -143,22 +143,22 @@ aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, 
 			if (requestObject.status==200 || requestObject.status==0 && requestObject.responseText)
 				ruleText=requestObject.responseText;
 			
-			aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
+			aV.aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
 			if (includeStyleTags || includeStyleTags===undefined)
-				aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
+				aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
 		}
 	);
 };
 
 /**
  * Assigns the element's attributes using the inline style elements defined in the document.
- * The style elements' types should be "text/propertyName" for aParser to recognize them.
+ * The style elements' types should be "text/propertyName" for aV.aParser to recognize them.
  * propertyName in "text/propertyName" refers to the given parameter's value.
- * See {@link aParser.retrieveElementsAndSetAttributes} for parameters.
+ * See {@link aV.aParser.retrieveElementsAndSetAttributes} for parameters.
  */
-aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterSet)
+aV.aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterSet)
 {
 	var styleTags=cssQuery('style[type="text/' + propertyName + '"]');
 	for (var i=0; i<styleTags.length; i++)
-		aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, beforeSet, afterSet);
+		aV.aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, beforeSet, afterSet);
 };

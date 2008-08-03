@@ -6,19 +6,19 @@
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
  * <br />Adomas Paltanavičius adomas.paltanavicius@gmail.com
  * <br />Burak Yiğit Kaya byk@amplio-vita.net
- * @version 1.2
+ * @version 1.2.1
  * @copyright &copy;2005 - 2008
  */
 
-if (typeof Events!="undefined")
-	throw new Error('"Events" namespace had already been taken!', "events.js@" + window.location.href, 14);
+if (!aV)
+	var aV={config: {}};
 
 /**
- * Represents the namespace, Events, for creating and managing event handler queues for any element.
+ * Represents the namespace, aV.Events, for creating and managing event handler queues for any element.
  *
  * @namespace
  */
-Events = {};
+aV.Events = {};
 
 /**
  * A counter used to create unique IDs for given event handlers.
@@ -26,7 +26,7 @@ Events = {};
  * @private
  * @type integer
  */
-Events.guid=1;
+aV.Events.guid=1;
 
 /**
  * Adds the given event handler to element's the on-type event's event handler queue.
@@ -41,12 +41,12 @@ Events.guid=1;
  * {
  * 	alert("You have resized the window!");
  * }
- * Events.add(window, "resize", resizeAlert);
+ * aV.Events.add(window, "resize", resizeAlert);
  */
-Events.add=function(element, type, handler)
+aV.Events.add=function(element, type, handler)
 {
 	// assign each event handler a unique ID
-	if (!handler.$$guid) handler.$$guid = Events.guid++;
+	if (!handler.$$guid) handler.$$guid = aV.Events.guid++;
 	// create a hash table of event types for the element
 	if (!element.events) element.events = {};
 	// create a hash table of event handlers for each element/event pair
@@ -61,7 +61,7 @@ Events.add=function(element, type, handler)
 	// store the event handler in the hash table
 	handlers[handler.$$guid] = handler;
 	// assign a global event handler to do all the work
-	element["on" + type] = Events._handle;
+	element["on" + type] = aV.Events._handle;
 	return handler;
 };
 
@@ -73,9 +73,9 @@ Events.add=function(element, type, handler)
  * @param {Function(EventObject)} handler The event handler function
  *
  * @example
- * Events.remove(window, "resize", resizeAlert);
+ * aV.Events.remove(window, "resize", resizeAlert);
  */
-Events.remove=function(element, type, handler)
+aV.Events.remove=function(element, type, handler)
 {
 	// delete the event handler from the hash table
 	if (element.events && element.events[type]) {
@@ -84,12 +84,11 @@ Events.remove=function(element, type, handler)
 };
 
 /**
- * Clears all the events associated to an element.
- * Good for resetting an element's state.
+ * Clears all the event handlers attached to the given element.
  * 
- * @param {Object} element The element whose events will be cleared
+ * @param {Object} element
  */
-Events.clear=function(element)
+aV.Events.clear=function(element)
 {
 	if (!element.events)
 		return;
@@ -110,11 +109,11 @@ Events.clear=function(element)
  * @param {EventObject}
  * @return {Boolean}
  */
-Events._handle=function(event)
+aV.Events._handle=function(event)
 {
 	var returnValue = true;
 	// grab the event object (IE uses a global event object)
-	event = event || Events.fix(((this.ownerDocument || this.document || this).parentWindow || window).event);
+	event = event || aV.Events.fix(((this.ownerDocument || this.document || this).parentWindow || window).event);
 	if (!event._type)
 		event._type=event.type;
 	// get a reference to the hash table of event handlers
@@ -136,7 +135,7 @@ Events._handle=function(event)
  * @param {EventObject} event The IE non-standard event object
  * @return {EventObject} The event object which supports W3C standard event methods
  */
-Events.fix=function(event)
+aV.Events.fix=function(event)
 {
 	event.target=event.srcElement;
 	event.preventDefault = function() {this.returnValue=false;};
@@ -151,10 +150,10 @@ Events.fix=function(event)
  * @private
  * @return {Boolean}
  */
-Events._handleMouseWheelEvent=function(event)
+aV.Events._handleMouseWheelEvent=function(event)
 {
 	if (!event) /* For IE. */
-		event = Events.fix(window.event);
+		event = aV.Events.fix(window.event);
 
 	event._type="wheel";
 	event.delta=0;
@@ -190,6 +189,6 @@ Events._handleMouseWheelEvent=function(event)
 /* Initialization code for onwheel */
 if (window.addEventListener)
 	// DOMMouseScroll is for mozilla
-	window.addEventListener('DOMMouseScroll', Events._handleMouseWheelEvent, false);
+	window.addEventListener('DOMMouseScroll', aV.Events._handleMouseWheelEvent, false);
 // IE/Opera
-window.onmousewheel = document.onmousewheel = Events._handleMouseWheelEvent;
+window.onmousewheel = document.onmousewheel = aV.Events._handleMouseWheelEvent;

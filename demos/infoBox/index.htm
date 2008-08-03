@@ -3,17 +3,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 		<title>InfoBox Demo Page</title>
-		<link href="../../css/aV.plg.infoBox.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript" src="../../js/aV.main.events.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.ajax.js"></script>
 		<script type="text/javascript" src="../../js/aV.main.visual.js"></script>
 		<script type="text/javascript" src="../../js/aV.plg.infoBox.js"></script>
 		<script type="text/javascript" src="config.js"></script>
 	</head>
-	<body onload="Visual.init();">
+	<body>
 		<h1>InfoBox Demo Page</h1>
 		<div id="content">
-			<a href="javascript:void(0)" onclick="Visual.infoBox.show(generalVars['msg1']);">Click to show a message!</a><br />
-			<a href="javascript:void(0)" onmouseover="Visual.infoBox.show(generalVars['msg2']);">Hover to show another message</a>
+			<a href="javascript:void(0)" onclick="aV.Visual.infoBox.show(generalVars['msg1'], aV.config.Visual.infoBox.images.info);">Click to show a message!</a><br />
+			<a href="javascript:void(0)" onmouseover="aV.Visual.infoBox.show(generalVars['msg2']);">Hover to show another message</a>
 		</div>
 	</body>
 </html>

@@ -140,6 +140,7 @@ aV.QuickEdit.createUploadBox=function(titleText, postAddress, params, callBackFu
  */
 aV.QuickEdit._destroyUploadBox=function(uploadBox)
 {
+	var uploadBox;
 	if (typeof(uploadBox)=='string')
 		uploadBox=document.getElementById(uploadBox);
 	if (!uploadBox) return false;
@@ -149,7 +150,6 @@ aV.QuickEdit._destroyUploadBox=function(uploadBox)
 		if (uploadBox.callerElement.onmouseout) uploadBox.callerElement.onmouseout({type: "mouseout", target: uploadBox.callerElement});
 	}
 	document.body.removeChild(uploadBox);
-	delete uploadBox;
 	//aV.QuickEdit.uploadBoxCount--;
 	return true;
 };

@@ -3,7 +3,7 @@
  * @name aV.aParser
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version	1.2.1
+ * @version	1.2.2
  * 
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
@@ -19,6 +19,7 @@ if (!aV.AJAX)
  * 
  * @namespace
  * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link Object} (aV.ext.object.js)
  * @requires {@link aV.AJAX} (aV.main.ajax.js)
  * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.cssQuery.js)
  */
@@ -37,9 +38,10 @@ aV.aParser = {};
  */
 aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 {
+	attributeStr="{" + attributeStr + "}";
 	try 
 	{
-		var attributes=eval("({" + attributeStr + "})");
+		var attributes=eval('(' + attributeStr + ')');
 	} 
 	catch(error) 
 	{
@@ -47,10 +49,7 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 	}
 	
 	if (element[propertyName])
-	{
-		for (var attrName in attributes) 
-			element[propertyName][attrName] = attributes[attrName];
-	}
+			element[propertyName].unite(attributes);
 	else
 		element[propertyName]=attributes;
 	

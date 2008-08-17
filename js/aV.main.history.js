@@ -3,11 +3,17 @@
  * @name aV.main.history
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.0
+ * @version 1.1
  */
 
 if (!aV)
 	var aV={config: {}};
+
+aV.config.History=
+{
+	compression: true,
+	startOnLoad: true
+};
 
 aV.History=
 {
@@ -25,34 +31,45 @@ aV.History._listener=function()
 	var changedKeys=[];
 	if (document.location.hash.length > 1) 
 	{
-		var tempArray = document.location.hash.substring(1).split('&');
+		var paramStr = document.location.hash.substring(1);
+		if (paramStr.charAt(0)=='!' && ULZSS && Base64)
+			paramStr = ULZSS.decode(Base64.decode(paramStr));
+		var tempArray = paramStr.split('&');
 		var pair, keyChanged;
+		var matcher=/^([^&=]+)=([^&]+)$/;
 		for (var i = 0; i < tempArray.length; i++) 
 		{
-			pair = tempArray[i].split('=');
-			pair[0] = aV.History._unserializeElement(pair[0], decodeURIComponent(pair[1]), aV.History._get);
+			pair = tempArray[i].match(matcher);
+			if (!(pair && pair[1]))
+				continue;
+			pair[1] = aV.History._unserializeElement(pair[1], decodeURIComponent(pair[2]), aV.History._get);
 			try
 			{
-				keyChanged=eval("(oldGet" + pair[0] + "!=aV.History._get" + pair[0] + ")");
+				keyChanged=eval("(oldGet" + pair[1] + "!=aV.History._get" + pair[1] + ")");
 			}
 			catch (error)
 			{
 				keyChanged=true;
 			}
 			if (keyChanged)
-				changedKeys.push(pair[0]);
+				changedKeys.push(pair[1]);
 		}
 	}
 	
 	if (changedKeys.length) 
-		aV.History.onchange({type: "change",	changedKeys: changedKeys});
+	{
+		aV.History.onchange({type: "change", changedKeys: changedKeys});
+	}
 };
 
 aV.History.set=function(newGet)
 {
 	if (!newGet)
-		newGet=aV.History._get;
-	document.location.hash='#' + aV.AJAX.serializeParameters(newGet);
+		newGet = aV.History._get;
+	var paramStr = newGet.toQueryString();
+	if (aV.config.History.compression && ULZSS)
+		paramStr = '!' + Base64.encode(ULZSS.encode(paramStr));
+	document.location.hash = '#' + paramStr;
 };
 
 aV.History.startListener=function()
@@ -77,7 +94,7 @@ aV.History._unserializeElement=function(str, value, result)
 	for (var i = 0; i < arr.length - 1; i++) 
 	{
 		if (!result[arr[i]])
-			result[arr[i]] = (parseInt(arr[i+1]==0)) ? [] : {};
+			result[arr[i]] = (parseInt(arr[i+1])==0) ? [] : {};
 		result = result[arr[i]];
 	}
 	result[arr[i]] = value;
@@ -85,4 +102,7 @@ aV.History._unserializeElement=function(str, value, result)
 	return arr.join('');
 };
 
-aV.Events.add(window, "load", aV.History.startListener);
+aV.AJAX.loadResource("/JSLib/js/webtoolkit.base64.js", "js", "base64Library");
+aV.AJAX.loadResource("/JSLib/js/ulzss.js", "js", "ulzssCompressionLibrary");
+if (aV.config.History.startOnLoad)
+	aV.Events.add(window, "load", aV.History.startListener);

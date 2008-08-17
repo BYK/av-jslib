@@ -159,3 +159,40 @@ Array.prototype.shuffle=function()
 	}
 	return result;
 };
+
+Array.prototype.min=function(compareFunction)
+{
+	if (!compareFunction)
+		compareFunction=function(a, b)
+		{
+			return a-b;
+		};
+
+	var result=0;
+	for (var i=0; i<this.length; i++)
+		if (compareFunction(this[i], this[result])<0)
+			result=i;
+	return result;
+};
+
+Array.prototype.max=function(compareFunction)
+{
+	if (!compareFunction)
+		compareFunction=function(a, b)
+		{
+			return a-b;
+		};
+	var result=0;
+	for (var i=0; i<this.length; i++)
+		if (compareFunction(this[i], this[result])>0)
+			result=i;
+	return result;
+};
+
+Array.prototype.coalesce=function(startFrom)
+{
+	var result;
+	while (!result && startFrom<this.length)
+		result=this[startFrom++];
+	return result;
+};

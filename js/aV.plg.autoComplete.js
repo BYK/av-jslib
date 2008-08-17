@@ -2,8 +2,8 @@
  * @fileOverview Allows non obtrusive auto complete functionality for text inputs.
  * @name Auto Complete
  * 
- * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.3
+ * @author Burak Yigit KAYA byk@amplio-vita.net
+ * @version 1.3.1
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
@@ -37,7 +37,7 @@ aV.config.AutoComplete=
 	minChars: 2,
 	delay: 200,
 	retryOnError: false,
-	regExpPattern: "'\\\\b' + filter",
+	regExpPattern: "'^(' + filter + ')|\\\\W+(' + filter + ')'",
 	allowedTags: ["INPUT"]
 };
 
@@ -45,7 +45,7 @@ aV.AutoComplete.listBoxCounter=0;
 
 aV.AutoComplete._getRegExp=function(element)
 {
-	var filter='(' + element.value.escapeRegExp() + ')';
+	var filter=element.value.escapeRegExp();
 	var regExpPattern=eval(element.aVautoComplete.regExpPattern || aV.config.AutoComplete.regExpPattern);
 	return new RegExp(regExpPattern, 'i');
 }
@@ -92,11 +92,13 @@ aV.AutoComplete._showListBox=function(element)
 			var newLi = document.createElement('LI');
 			newLi.itemIndex=itemCounter++;
 			newLi.listIndex=i;
-			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(0, matchInfo.index)));
+			var matchedStr=matchInfo.coalesce(1) || '';
+			var matchedStrIndex=matchInfo[0].indexOf(matchedStr);
+			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(0, matchInfo.index + matchedStrIndex)));
 			var matchedPart=newLi.appendChild(document.createElement('SPAN'));
 			matchedPart.className='aCMatchedPart';
-			matchedPart.appendChild(document.createTextNode(matchInfo[0]));
-			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(matchInfo.index+matchInfo[0].length)));
+			matchedPart.appendChild(document.createTextNode(matchedStr));
+			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(matchInfo.index + matchedStrIndex + matchedStr.length)));
 			aV.Events.add(newLi, 'mouseover', function(){aV.AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
 			aV.Events.add(newLi, 'click', function(){aV.AutoComplete._onKeyDownHandler({target: element, which: 13})});
 			element.aVautoComplete.listBox.appendChild(newLi);
@@ -105,8 +107,8 @@ aV.AutoComplete._showListBox=function(element)
 	
 	if (element.aVautoComplete.listBox.innerHTML!='')
 	{
-		if (aV.AutoComplete.onShowListBox)
-			aV.AutoComplete.onShowListBox(element.aVautoComplete.listBox);
+		if (aV.AutoComplete.onshowlistbox)
+			aV.AutoComplete.onshowlistbox({type: 'showlistbox',	target: element});
 		aV.Visual.fade(element.aVautoComplete.listBox, 1);
 		element.aVautoComplete.list.selectedIndex=0;
 		element.aVautoComplete.listBox.childNodes[0].className='selected';
@@ -146,6 +148,8 @@ aV.AutoComplete._doKeyUp=function(element)
 					element.aVautoComplete.list = requestObject.responseText.split("\n");
 					if (element.aVautoComplete.listProcessor)
 						element.aVautoComplete.list=element.aVautoComplete.listProcessor(element);
+					else
+						element.aVautoComplete.list.each(function(x){return x.trim()});
 					element.aVautoComplete.list.selectedIndex=-1;
 					aV.AutoComplete._showListBox(element);
 				}
@@ -224,8 +228,8 @@ aV.AutoComplete._onKeyDownHandler=function(event, newIndex)
 	else if (key == 13 && event.target.aVautoComplete.list.selectedIndex > -1) 
 	{
 		event.target.value = event.target.aVautoComplete.list[event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].listIndex];
-		if (event.target.aVautoComplete.onSelectItem)
-			event.target.aVautoComplete.onSelectItem(event.target);
+		if (event.target.aVautoComplete.onselectitem)
+			event.target.aVautoComplete.onselectitem({type: 'selectitem',	target: event.target});
 		delete event.target.aVautoComplete.list.selectedIndex;
 		aV.AutoComplete._removeListBox(event.target);
 		return false;
@@ -283,7 +287,6 @@ aV.AutoComplete._setElement=function(element)
 
 aV.AutoComplete.init=function()
 {
-	aV.AJAX.loadResource("/JSLib/css/aV.plg.autoComplete.css", "css", "aVautoCompleteCSS");
 	aV.aParser.assignAttributesFromFile(
 		aV.config.AutoComplete.ruleFile,
 		'aVautoComplete',
@@ -292,4 +295,5 @@ aV.AutoComplete.init=function()
 	);	
 };
 
+aV.AJAX.loadResource("/JSLib/css/aV.plg.autoComplete.css", "css", "aVautoCompleteCSS");
 aV.Events.add(window, 'load', aV.AutoComplete.init);

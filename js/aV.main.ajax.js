@@ -3,7 +3,7 @@
  * @name Core AJAX and XML Library
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
- * @version 1.5
+ * @version 1.6
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
@@ -24,16 +24,20 @@ if (!aV)
  */
 aV.AJAX = {};
 
+if (!aV.config.AJAX)
+	aV.config.AJAX={};
 /**
  * Holds the configuration parameters.
  */
-aV.config.AJAX=
-{
-	noAjax: "You need an AJAX supported browser to use this page.",
-	loadImgPath: "images/loading_img.gif",
-	loadingText: "<br><center><img src=\"" + this.loadImgPath + "\">Loading, please wait...</center>",
-	pageLeaveWarning: "There are one or more requests in progress. If you exit, there might be data loss."
-};
+aV.config.AJAX.unite(
+	{
+		noAjax: "You need an AJAX supported browser to use this page.",
+		loadImgPath: "/JSLib/images/loading.gif",
+		loadingText: "<br><center><img src=\"/JSLib/images/loading.gif\">Loading, please wait...</center>",
+		pageLeaveWarning: "There are one or more requests in progress. If you exit, there might be data loss.",
+		blankPageURL: "/JSLib/blank.html"
+	}
+);
 
 /**
  * Tries to get an XMLHttpRequest object, returns false if the browser does not support AJAX.
@@ -50,7 +54,7 @@ aV.AJAX.createRequestObject=function()
 		{
 			requestObject = new XMLHttpRequest();
 		}
-		catch(e)
+		catch(error)
 		{
 			requestObject = false;
 		}
@@ -61,13 +65,13 @@ aV.AJAX.createRequestObject=function()
 		{
 			requestObject = new ActiveXObject("Msxml2.XMLHTTP");
 		}
-		catch(e)
+		catch(error)
 		{
 			try
 			{
 				requestObject = new ActiveXObject("Microsoft.XMLHTTP");
 			}
-			catch(e)
+			catch(error)
 			{
 				requestObject = false;
 			}
@@ -88,9 +92,107 @@ aV.AJAX.destroyRequestObject=function(requestObject)
 	{
 		if ((requestObject.readyState!=4) && (requestObject.readyState!=0))
 			requestObject.abort();
-		delete requestObject;
 		requestObject=undefined;
 	}
+};
+
+aV.AJAX.createCrossDomainRequestObject=function()
+{
+	var requestObject={};
+	var callBackUrl=window.location.protocol + '//' + window.location.host + '/' + aV.config.AJAX.blankPageURL;
+	requestObject.$$guid=aV.AJAX._crossDomainRequestLastGuid++;
+	requestObject._container=document.createElement("span");
+	requestObject._container.innerHTML='<iframe style="display:none" id="aVAJAXFrame' + requestObject.$$guid + '" name="aVAJAXFrame' + requestObject.$$guid + '" onload="this.loaded()"></iframe>';
+	requestObject._container.iframe=requestObject._container.firstChild;
+	requestObject._container.iframe.loaded=function()
+	{
+		if (!requestObject.status)
+		{
+			requestObject.status=200;
+			this.contentWindow.location = callBackUrl;
+			return;
+		}
+		requestObject.responseText=this.contentWindow.name;
+		try
+		{
+			if (window.DOMParser)
+				requestObject.responseXML=(new DOMParser()).parseFromString(requestObject.responseText, "application/xml");
+			else if (window.ActiveXObject)
+			{
+				requestObject.responseXML=new ActiveXObject("Microsoft.XMLDOM");
+				requestObject.responseXML.async=false;
+				requestObject.responseXML.loadXML(requestObject.responseText);
+			}
+			else
+				throw new Error("Cannot find an XML parser!");
+		}
+		catch(error)
+		{
+			requestObject.responseXML=null;
+		}
+		requestObject.readyState=4;
+		requestObject._doReadyStateChange();
+
+		setTimeout(function(){document.body.removeChild(requestObject._container); delete requestObject._container;}, 0);
+	};
+	
+	requestObject.readyState=1;
+	requestObject.status=0;
+	
+	requestObject._doReadyStateChange=function()
+	{
+		if (requestObject.onreadystatechange)
+			requestObject.onreadystatechange({type: "readystatechange", target: requestObject});
+	};
+
+	requestObject.open=function(method, address)
+	{
+		if (this._container.form)
+			this._container.removeChild(this._container.form);
+
+		this._container.form=this._container.appendChild(document.createElement("form"));
+		this._container.form.style.display='none';
+		this._container.form.target=requestObject._container.iframe.name;
+		this._container.form.method=method;
+		this._container.form.action=address;
+		requestObject.readyState=2;
+		requestObject._doReadyStateChange();
+	};
+	
+	requestObject.setRequestHeader=function(header, value)
+	{
+		header=header.toLowerCase();
+		header=aV.AJAX.headerTranslations[header];
+		if (!(this._container.form && (header in this._container.form)))
+			return false;
+		this._container.form[header]=value;
+		return true;
+	};
+	
+	requestObject.send=function(parameters)
+	{
+		parameters=(parameters)?parameters.split('&'):[];
+		var matcher=/^([^&=]+)=([^&]+)$/;
+		var pair, parameterObj;
+		for (var i = 0; i < parameters.length; i++) 
+		{
+			pair = parameters[i].match(matcher);
+			if (!(pair && pair[1]))
+				continue;
+			parameterObj = document.createElement("input");
+			parameterObj.type = "hidden";
+			parameterObj.name = pair[1];
+			parameterObj.value = decodeURIComponent(pair[2]);
+			this._container.form.appendChild(parameterObj);
+		}
+		requestObject.readyState=3;
+		requestObject._doReadyStateChange();
+		this._container.form.submit();
+	};
+	
+	document.body.appendChild(requestObject._container);	
+	
+	return requestObject;
 };
 
 /**
@@ -107,127 +209,109 @@ aV.AJAX.checkActiveRequests=function()
 };
 
 /**
- * This function serializes the parameters object to a standart URI query string.
- * 
- * @return {String} The URI query string.
- * @param {Object} parameters
- */
-aV.AJAX.serializeParameters=function(parameters, format)
-{
-	if (format==undefined)
-		format='%s';
-	var paramsTemp=parameters;
-	parameters='';
-	for (var paramName in paramsTemp) 
-	{
-		if ((paramsTemp instanceof Array) && isNaN(parseInt(paramName)))
-			continue;
-
-		if ((paramsTemp[paramName] instanceof Object) || paramsTemp[paramName] instanceof Array)
-		{
-			parameters += '&' + aV.AJAX.serializeParameters(paramsTemp[paramName], format.replace(/%s/g, paramName) + '[%s]');
-		}
-		else 
-			parameters += '&' + format.replace(/%s/g, paramName) + '=' + encodeURIComponent(paramsTemp[paramName]);
-	}
-	return parameters.substr(1);
-};
-
-/**
- * Creates a new XMLHttpRequest object which connects to the adress, which includes the URI encoded and merged GET parameters.
+ * Creates a new XMLHttpRequest object which connects to the address, which includes the URI encoded and merged GET parameters.
  * Assignes changeFunction to the newly created XMLHttpRequest object's onreadystatechange event.
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
  * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
  * @return {XMLHttpRequestObject}
- * @param {String} adress The adress of the page which will be connected. Should include the URI encoded GET parameters.
+ * @param {String} address The address of the page which will be connected. Should include the URI encoded GET parameters.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
-aV.AJAX.makeGetRequest=function(adress, changeFunction)
+aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
 {
-	var resultRequest = this.createRequestObject(); //try to create an XMLHttpRequest object
-	if (resultRequest) //if the XMLHttpRequest object is valid
+	var requestObject = (crossDomain)?this.createCrossDomainRequestObject():this.createRequestObject(); //try to create an XMLHttpRequest object
+	if (requestObject) //if the XMLHttpRequest object is valid
 	{
-		resultRequest.open("GET", adress, true); //set the adress and HTTP method to GET
-		resultRequest.onreadystatechange = function()
+		requestObject.open("GET", address, true); //set the address and HTTP method to GET
+		requestObject.onreadystatechange = function()
 		{
 			try
 			{
 				if (changeFunction) //if there is an assigned changeFunction, assign it to the onreadystatechange event specially, that it recieves the XMLHttpRequest object as its parameter		
-					changeFunction(resultRequest);
+					changeFunction(requestObject);
 			}
-			catch(e)
+			catch(error)
 			{
-				if (window.handleError)
-					handleError(e.message, e.fileName, e.lineNumber);
+				if (window.onerror)
+					window.onerror(error.message, error.fileName, error.lineNumber);
 			}
 			finally
 			{
-				if (resultRequest.readyState==4)
+				if (requestObject.readyState==4)
 				{
 					aV.AJAX.activeRequestCount--;
-					delete resultRequest;
-					resultRequest=undefined;
+					requestObject=undefined;
 				}
 			}
 		};
-		resultRequest.send(null); //start the request
+		requestObject.send((crossDomain)?'&windowname=true':null); //start the request
 		aV.AJAX.activeRequestCount++;
 	}
 	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
 		alert(aV.config.AJAX.noAjax);
-	return resultRequest; //return the created XMLHttpRequest object for any further use
+	return requestObject; //return the created XMLHttpRequest object for any further use
 };
 
 /**
- * Creates a new XMLHttpRequest object which posts the given URI query string to the given adress.
+ * Creates a new XMLHttpRequest object which posts the given URI query string to the given address.
  * Assignes changeFunction to the newly created XMLHttpRequest object's onreadystatechange event.
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
  * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
  * @return {XMLHttpRequestObject}
- * @param {String} adress The adress of the page which will be connected. Should  NOT include any parameters.
+ * @param {String} address The address of the page which will be connected. Should  NOT include any parameters.
  * @param {String} parameters The URI encoded and merged POST parameters for the HTTP request.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
  */
-aV.AJAX.makePostRequest=function(adress, parameters, changeFunction)
+aV.AJAX.makePostRequest=function(address, parameters, changeFunction, crossDomain)
 {
-	var resultRequest = this.createRequestObject(); //try to create a XMLHttpRequest object
-	if (resultRequest) //if XMLHttpRequest object is valid
+	var requestObject = (crossDomain)?this.createCrossDomainRequestObject():this.createRequestObject(); //try to create a XMLHttpRequest object
+	if (requestObject) //if XMLHttpRequest object is valid
 	{
-		resultRequest.open("POST", adress, true); //set the adress and HTTP method to GET
-		resultRequest.onreadystatechange = function()
+		requestObject.open("POST", address, true); //set the address and HTTP method to GET
+		requestObject.onreadystatechange = function()
 		{
 			try
 			{
 				if (changeFunction) //if there is an assigned changeFunction, assign it to the onreadystatechange event specially, that it recieves the XMLHttpRequest object as its parameter		
-					changeFunction(resultRequest);
-			}/*
-			catch(e)
+					changeFunction(requestObject);
+			}
+			catch(error)
 			{
-				if (console)
-					console.error(e);
-			}*/
+				if (window.onerror)
+					window.onerror(error.message, error.fileName, error.lineNumber);
+			}
 			finally
 			{
-				if (resultRequest.readyState==4)
+				if (requestObject.readyState==4)
 				{
 					aV.AJAX.activeRequestCount--;
-					delete resultRequest;
-					resultRequest=undefined;
+					requestObject=undefined;
 				}
 			}
 		};
-		resultRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    resultRequest.setRequestHeader("Content-length", parameters.length);
-    resultRequest.setRequestHeader("Connection", "close");
+		if (!parameters)
+			parameters='';
+		requestObject.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    requestObject.setRequestHeader("Content-length", parameters.length);
+    requestObject.setRequestHeader("Connection", "close");
 		//set some headers for POST method
-		resultRequest.send(parameters); //send the request with parameters attached
+		if (crossDomain)
+			parameters+='&windowname=true';
+		requestObject.send(parameters); //send the request with parameters attached
 		aV.AJAX.activeRequestCount++;
 	}
 	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
 		alert(aV.config.AJAX.noAjax);
-	return resultRequest; //return the created XMLHttpRequest object for any further use
+	return requestObject; //return the created XMLHttpRequest object for any further use
+};
+
+aV.AJAX.isCrossDomain=function(url)
+{
+	var matchResult=url.match(/^\w+:\/\/([^\/@ ]+)/i);
+	var domain=(matchResult)?matchResult[1]:null;
+	return (domain && (domain!=document.domain));
 };
 
 /**
@@ -237,13 +321,14 @@ aV.AJAX.makePostRequest=function(adress, parameters, changeFunction)
  *
  * @return {XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
  * @param {String} method Should be either POST or GET according to the type of the HTTP request.
- * @param {String} adress The adress of the page which will be connected. Should  NOT include any parameters.
+ * @param {String} address The address of the page which will be connected. Should  NOT include any parameters.
  * @param {String | Object} parameters The parameters which are either URI encoded and merged or given in the JSON format
  * @param {Function(XMLHttpRequestObject)} [completedFunction] The function which will be called when the HTTP call is completed. (readyState==4)
  * @param {Function(XMLHttpRequestObject)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
  */
-aV.AJAX.makeRequest=function(method, adress, parameters, completedFunction, loadingFunction)
+aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loadingFunction)
 {
+	var crossDomain=aV.AJAX.isCrossDomain(address);
 	var triggerFunction=function (requestObject) //define the custom changeFunction as triggerFunction
 	{
 		if (requestObject.readyState == 4 && completedFunction) //if the request is finished and there is a  completedFunction assigned
@@ -252,13 +337,15 @@ aV.AJAX.makeRequest=function(method, adress, parameters, completedFunction, load
 			loadingFunction(requestObject); //call the loadingFunction passing the requestObject as its parameter
 	}; //finished defining the custom changeFunction
 	//checking parameters
-	if (typeof parameters=='object')
-		parameters=aV.AJAX.serializeParameters(parameters);
+	if (!parameters)
+		parameters='';
+	if (parameters.constructor==Object)
+		parameters=parameters.toQueryString();
 	
 	if (method.toUpperCase()=="GET") //if requested method is GET, then call the aV.AJAX.makeGetRequest function
-		return this.makeGetRequest(adress + ((parameters)?'?' + parameters:''), triggerFunction);
+		return this.makeGetRequest(address + ((parameters)?'?' + parameters:''), triggerFunction, crossDomain);
 	else if (method.toUpperCase()=="POST") //else if requested method is POST, then call the aV.AJAX.makePostRequest function
-		return this.makePostRequest(adress, parameters, triggerFunction);
+		return this.makePostRequest(address, parameters, triggerFunction, crossDomain);
 	else //if requested method is invalid, return false
 		return false;
 };
@@ -275,13 +362,14 @@ aV.AJAX.isResponseOK=function(requestObject, responseType)
  * If the config.loadingText is defined, target container element's innerHTML is filled with its valye while the content is loading.
  *
  * @result {XMLHttpRequestObject}
- * @param {String} theURL The URL of the content which will be loaded dynamically into the given container.
+ * @param {String} address The URL of the content which will be loaded dynamically into the given container.
  * @param {String|Object} element The container element itself or its id, which the dynamic content will be loaded into.
  * @param {Function(Object, String)} [completedFunction] The function which will be called when the loading of the content is finished. It is called with the target container element and the URL as parameters.
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  */
-aV.AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction)
+aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction)
 {
+	var crossDomain=aV.AJAX.isCrossDomain(address);
 	if (typeof(element)=='string') //if id of the object is given instead of the object itself
 		element=document.getElementById(element); //assign the element the object corresponding to the given id
 	var triggerFunction = function(requestObject) //define the custom changeFunction
@@ -290,17 +378,17 @@ aV.AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction
 		{
 			element.innerHTML=requestObject.responseText; //fill the element's innerHTML with the returning data
 			if (completedFunction) //if a callback function assigned to *callbackFunc*
-				completedFunction(element, theURL); //call it with the element object and the given URL as its parameters
+				completedFunction(element, address); //call it with the element object and the given URL as its parameters
 		}
 		else
 		{
 			if (loadingFunction) //if a custom loadingFunction is assigned
-				loadingFunction(element, theURL); //call it with the element object and the given URL as its parameters
+				loadingFunction(element, address); //call it with the element object and the given URL as its parameters
 			else if (aV.config.AJAX.loadingText)
 				element.innerHTML=aV.config.AJAX.loadingText; //set the given element's innerHTML the loading text to inform the user
 		}
 	};
-	return (this.makeGetRequest(theURL, triggerFunction)); //make the GET request and return the used XMLHttpRequest object
+	return this.makeGetRequest(address, triggerFunction, crossDomain); //make the GET request and return the used XMLHttpRequest object
 };
 
 /**
@@ -308,19 +396,19 @@ aV.AJAX.loadContent=function(theURL, element, completedFunction, loadingFunction
  * Removes the old node if a resourceId is given.
  * 
  * @return {HTMLElementObject} The newly added script or link DOM node.
- * @param {String} theURL The address of the resource-to-be-loaded.
+ * @param {String} address The address of the resource-to-be-loaded.
  * @param {String} [type="js"] The type of the resource.
  * Should be either js or css.
  * @param {String} [resourceId]	The id which will be assigned to newly created DOM node.
  * If not given, no id is assigned to the created node.
  * @param {Boolean} [forceRefresh] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
  */
-aV.AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
+aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh)
 {
 	if (!type)
 		type="js";
 	if (forceRefresh)
-		theURL+="?" + Date.parse(new Date());
+		address+="?" + Date.parse(new Date());
 	var attr, newNode;
 	var head=document.getElementsByTagName("head")[0];
 	if (type=="js")
@@ -343,20 +431,20 @@ aV.AJAX.loadResource=function(theURL, type, resourceId, forceRefresh)
 		delete old;
 		newNode.id=resourceId;
 	}
-	newNode[attr]=theURL;
+	newNode[attr]=address;
 	return head.appendChild(newNode);
 };
 
 /**
  * @ignore
- * @param {Object} theURL
+ * @param {Object} address
  * @param {Object} parameters
  * @param {Object} element
  * @param {Object} incremental
  * @param {Object} completedFunction
  * @param {Object} loadingFunction
  */
-aV.AJAX.loadSelectOptions=function(theURL, parameters, element, incremental, completedFunction, loadingFunction)
+aV.AJAX.loadSelectOptions=function(address, parameters, element, incremental, completedFunction, loadingFunction)
 {
 	
 };
@@ -404,6 +492,15 @@ aV.AJAX.sendForm=function(event)
  */
 aV.AJAX.activeRequestCount=0;
 
+aV.AJAX._crossDomainRequestLastGuid=1;
+
+aV.AJAX.headerTranslations=
+{
+	'content-type': 'enctype',
+	'accept-charset': 'acceptCharset',
+	'accept-language': 'lang'
+};
+
 /**
  * Introduces some useful functions for XML parsing, which are returned by the XMLHttpRequest objects's responseXML property.
  * @namespace
@@ -426,7 +523,7 @@ aV.AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 		val=mainItem.getElementsByTagName(nodeName)[0].firstChild.nodeValue;
 		val=(val!=undefined) ? val : defaultVal;
 	}
-	catch(e)
+	catch(error)
 	{
 		val=defaultVal;
 	}
@@ -451,7 +548,7 @@ aV.AJAX.XML.setValue=function(mainItem, nodeName, val)
 		mainItem.getElementsByTagName(nodeName)[0].firstChild.nodeValue=val;
 		return val;
 	}
-	catch(e)
+	catch(error)
 	{
 		return false;
 	}
@@ -468,6 +565,35 @@ aV.AJAX.XML.toArray=function(collection)
 	var result = new Array();
 	for (i = 0; i < collection.length; i++)
 		result.push(collection[i]);
+	return result;
+};
+
+aV.AJAX.XML.toObject=function(source, includeRoot)
+{
+	var result={};
+	if (source.nodeType==9)
+		source=source.firstChild;
+	if (!includeRoot)
+		source=source.firstChild;
+	
+	while (source) 
+	{
+		if (source.childNodes.length) 
+		{
+			if (source.tagName in result) 
+			{
+				if (result[source.tagName].constructor != Array)
+					result[source.tagName] = [result[source.tagName]];
+				result[source.tagName].push(aV.AJAX.XML.toObject(source));
+			}
+			else
+				result[source.tagName] = aV.AJAX.XML.toObject(source);
+		}
+		else 
+			result = source.nodeValue;
+		source=source.nextSibling;
+	}
+
 	return result;
 };
 

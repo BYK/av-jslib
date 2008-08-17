@@ -5,13 +5,14 @@
  * @name aV.DBGrid
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.7
+ * @version 1.7.1
  */
 
 /**
  * @classDescription A dynamically filled DBGrid class
- * @constructor * 
+ * @constructor
  * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link Object} (aV.ext.object.js)
  * @requires {@link aV.Events} (aV.main.events.js)
  * @requires {@link aV.AJAX} (aV.main.ajax.js)
  * @requires {@link aV.Visual} (aV.main.visual.js)
@@ -122,7 +123,7 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 	{
 		var params=this.parameters || {};
 		if (typeof params=='object')
-			params=aV.AJAX.serializeParameters(params);
+			params=params.toQueryString();
 		params+='&type=' + encodeURIComponent(type);
 		
 		return this.dataAddress + '?' + params;
@@ -245,7 +246,7 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 		}
 		
 		if (this.error)
-			throw new Error("Parse Error: Bad or empty data.", 'aV.module.DBGrid.js@' + this.dataAddress + '?' + aV.AJAX.serializeParameters(this.parameters));
+			throw new Error("Parse Error: Bad or empty data.", 'aV.module.DBGrid.js@' + this.dataAddress + '?' + this.parameters.toQueryString());
 
 		this.tableElement=document.createElement("table");
 		this.tableElement.creator=this;
@@ -408,7 +409,7 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 				visibleColCount--;
 			}
 			
-			aV.Events.add(newCell.filterBox, "keydown", aV.DBGrid._filterBoxKeyDownHandler);
+			aV.Events.add(newCell.filterBox, "keyup", aV.DBGrid._filterBoxKeyUpHandler);
 		}
 			
 		var tableFooter=this.tableElement.appendChild(document.createElement("tfoot"));
@@ -760,7 +761,13 @@ aV.DBGrid._lockResize=function(event)
 	while (obj.visibleNextSibling && obj.visibleNextSibling.style.display!='')
 		obj.visibleNextSibling=obj.visibleNextSibling.nextSibling;
 
-	aV.DBGrid._activeResizer=(event.clientX>(cellPosition+aV.config.DBGrid.resizeLockOffset))?obj:obj.visiblePrevSibling;
+	aV.DBGrid._activeResizer = (event.clientX > (cellPosition + aV.config.DBGrid.resizeLockOffset)) ? obj : obj.visiblePrevSibling;
+
+	if (!(aV.DBGrid._activeResizer && aV.DBGrid._activeResizer.visibleNextSibling)) 
+	{
+		aV.DBGrid._activeResizer = undefined;
+		return false;
+	}
 
 	aV.DBGrid._activeResizer.initialWidth=(aV.DBGrid._activeResizer.style.width)?parseInt(aV.DBGrid._activeResizer.style.width):aV.DBGrid._activeResizer.offsetWidth;
 	if (aV.DBGrid._activeResizer.visibleNextSibling)
@@ -795,8 +802,8 @@ aV.DBGrid._doResize=function(event)
 		return false;
 
 	if (obj.visibleNextSibling)
-		obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.visibleNextSibling.cellIndex, obj.visibleNextSibling.initialWidth - change);
-	obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.cellIndex, obj.initialWidth + change);
+		obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.visibleNextSibling.colIndex, obj.visibleNextSibling.initialWidth - change);
+	obj.parentNode.parentNode.parentNode.creator._setColumnWidth(obj.colIndex, obj.initialWidth + change);
 };
 
 aV.DBGrid._rowGrouper=function(event)
@@ -841,154 +848,161 @@ aV.DBGrid._rowClickHandler=function(event)
 	}
 };
 
-aV.DBGrid._filterBoxKeyDownHandler=function(event)
+aV.DBGrid._filterBoxKeyUpHandler=function(event)
 {
+	if (this.creator.filterTimer)
+		clearTimeout(this.creator.filterTimer);
 	var keyCode=(event.which)?event.which:event.keyCode;
 	if (keyCode == 27)
-	{
 		this.value='';
-		keyCode=13;
-	}
 	
-	if (keyCode==13)
+	if (this.value=='' || keyCode==13)
+		this.creator._printRows();
+	else if (this.value.length>=aV.config.DBGrid.minCharsToFilter)
 	{
 		this.creator.columnProperties[this.columnHeader.colIndex].filter=this.value;
-		this.creator._printRows();
-		return false;
+		var self=this;
+		this.creator.filterTimer=window.setTimeout(function(){self.creator._printRows()}, aV.config.DBGrid.filterTimeout);
 	}
 };
 
-aV.config.DBGrid=
-{
-	maxSortAccumulation: 4,
-	resizeLockOffset: 10,
-	minColWidth: 20, //show be >= 2*resizeLockOffset
-	maxBodyHeight: 400,
-	texts:
+if (!aV.config.DBGrid)
+	aV.config.DBGrid={};
+
+aV.config.DBGrid.unite(
 	{
-		defaultTableTitle: 'Untitled Table',
-		rows: ' row(s)',
-		error: 'An error occured while preparing the table. Details are below:<br />',
-		fetching: 'Gathering data...',
-		printing: 'Creating table...',
-		sorting: 'Sorting table...',
-		grouping: 'Groping rows...',
-		ungrouping: 'Ungrouping rows...',
-		ready: 'Table is ready to use.',
-		columnList: 'Column Manager',
-		columnListHint: 'You can set the visibility of the table columns from here',
-		groupAll: 'Group all',
-		groupAllHint: 'You can group all the rows <b>by the sorted column</b> which means you <u>should</u> sort the table first.<br />You can also group individual rows by double clicking on them.',
-		ungroupAll: 'Ungroup all',
-		ungroupAllHint: 'You can ungroup all the grouped rows by using this button.<br />You can also ungroup individual row groups by double clicking on them.',
-		'export': 'Export',
-		filter: 'Filter',
-		filterHint: 'You can filter the rows using the filter boxes above the columns. You may use "!" as the "not" operator. You may also use numerical comparators such as "<", ">" in numerical fields. Filters are cumulative.'
-	},
-	classNames:
-	{
-		general: 'aVDBGrid',
-		columnList: 'aVDBGridColumnList',
-		sortedAsc: 'sortedAsc',
-		sortedDesc: 'sortedDesc',
-		buttonColumnList: 'buttonColumnList',
-		buttonGroupAll: 'buttonGroupAll',
-		buttonUngroupAll: 'buttonUngroupAll',
-		buttonExport: 'buttonExport',
-		buttonFilter: 'buttonFilter',
-		captionTitle: 'title',
-		filterRow: 'filterRow',
-		slider: 'slider'
-	},
-	defaultEventHandlers:
-	{
-		onReady: function()
+		maxSortAccumulation: 4,
+		resizeLockOffset: 10,
+		minColWidth: 20, //show be >= 2*resizeLockOffset
+		maxBodyHeight: 400,
+		minCharsToFilter: 2,
+		filterTimeout: 200,
+		texts:
 		{
-			aV.Visual.infoBox.show(aV.config.DBGrid.texts.ready, aV.config.Visual.infoBox.images.info);
+			defaultTableTitle: 'Untitled Table',
+			rows: ' row(s)',
+			error: 'An error occured while preparing the table. Details are below:<br />',
+			fetching: 'Gathering data...',
+			printing: 'Creating table...',
+			sorting: 'Sorting table...',
+			grouping: 'Groping rows...',
+			ungrouping: 'Ungrouping rows...',
+			ready: 'Table is ready to use.',
+			columnList: 'Column Manager',
+			columnListHint: 'You can set the visibility of the table columns from here',
+			groupAll: 'Group all',
+			groupAllHint: 'You can group all the rows <b>by the sorted column</b> which means you <u>should</u> sort the table first.<br />You can also group individual rows by double clicking on them.',
+			ungroupAll: 'Ungroup all',
+			ungroupAllHint: 'You can ungroup all the grouped rows by using this button.<br />You can also ungroup individual row groups by double clicking on them.',
+			'export': 'Export',
+			filter: 'Filter',
+			filterHint: 'You can filter the rows using the filter boxes above the columns. You may use "!" as the "not" operator. You may also use numerical comparators such as "<", ">" in numerical fields. Filters are cumulative.'
 		},
-		onFetchBegin: function()
+		classNames:
 		{
-			aV.Visual.infoBox.show(aV.config.DBGrid.texts.fetching, aV.config.Visual.infoBox.images.loading, true, 60000);
+			general: 'aVDBGrid',
+			columnList: 'aVDBGridColumnList',
+			sortedAsc: 'sortedAsc',
+			sortedDesc: 'sortedDesc',
+			buttonColumnList: 'buttonColumnList',
+			buttonGroupAll: 'buttonGroupAll',
+			buttonUngroupAll: 'buttonUngroupAll',
+			buttonExport: 'buttonExport',
+			buttonFilter: 'buttonFilter',
+			captionTitle: 'title',
+			filterRow: 'filterRow',
+			slider: 'slider'
 		},
-		onFetchError: function(requestObject)
+		defaultEventHandlers:
 		{
-			aV.Visual.infoBox.show(aV.config.DBGrid.texts.error + '(' + requestObject.status + ') - ' + requestObject.responseText, aV.config.Visual.infoBox.images.error, false, 60000);
+			onReady: function()
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.ready, aV.config.Visual.infoBox.images.info);
+			},
+			onFetchBegin: function()
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.fetching, aV.config.Visual.infoBox.images.loading, true, 60000);
+			},
+			onFetchError: function(requestObject)
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.error + '(' + requestObject.status + ') - ' + requestObject.responseText, aV.config.Visual.infoBox.images.error, false, 60000);
+			},
+			onPrintBegin: function()
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.printing, aV.config.Visual.infoBox.images.info, true);
+			},
+			onSortBegin: function()
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.sorting, aV.config.Visual.infoBox.images.info, true);
+			}
 		},
-		onPrintBegin: function()
+		filterFunctions:
 		{
-			aV.Visual.infoBox.show(aV.config.DBGrid.texts.printing, aV.config.Visual.infoBox.images.info, true);
+			dt_default: function(value, filter)
+			{
+				value=value.toLowerCase();
+				var expression=(filter.charAt(0)=='*');
+				
+				if (expression || (filter.charAt(0)==' '))
+					filter=filter.substr(1);
+				
+				filter=new RegExp((expression)?filter:filter.escapeRegExp(), "gi");
+		
+				return !value.match(filter);
+			},	
+			dt_int: function(value, filter)
+			{
+				if (!isNaN(filter))
+					filter='==' + filter;
+				else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
+					filter='=' + filter;
+		
+				if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
+					return !eval('(' + value + filter + ')');
+				else
+					return false;
+			},
+			dt_real: function(value, filter)
+			{
+				if (!isNaN(filter))
+					filter='==' + filter;
+				else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
+					filter='=' + filter;
+		
+				if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
+					return !eval('(' + value + filter + ')');
+				else
+					return false;
+			}
 		},
-		onSortBegin: function()
+		compareFunctions:
 		{
-			aV.Visual.infoBox.show(aV.config.DBGrid.texts.sorting, aV.config.Visual.infoBox.images.info, true);
-		}
-	},
-	filterFunctions:
-	{
-		dt_default: function(value, filter)
-		{
-			value=value.toLowerCase();
-			var expression=(filter.charAt(0)=='*');
-			
-			if (expression || (filter.charAt(0)==' '))
-				filter=filter.substr(1);
-			
-			filter=new RegExp((expression)?filter:filter.escapeRegExp(), "gi");
-	
-			return !value.match(filter);
-		},	
-		dt_int: function(value, filter)
-		{
-			if (!isNaN(filter))
-				filter='==' + filter;
-			else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
-				filter='=' + filter;
-	
-			if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
-				return !eval('(' + value + filter + ')');
-			else
-				return false;
-		},
-		dt_real: function(value, filter)
-		{
-			if (!isNaN(filter))
-				filter='==' + filter;
-			else if (filter.charAt(0)=='=' && !isNaN(filter.substr(1)))
-				filter='=' + filter;
-	
-			if (filter.match(/^([><]+=*|==)\d+\.?\d*$/))
-				return !eval('(' + value + filter + ')');
-			else
-				return false;
-		}
-	},
-	compareFunctions:
-	{
-		dt_default: function(str1, str2)
-		{
-			str1=str1.toLowerCase();
-			str2=str2.toLowerCase();
-			if (str1<str2)
-				return -1;
-			else if (str1>str2)
-				return 1;
-			else
-				return 0;
-		},
-		dt_int: function(num1, num2)
-		{
-			num1=parseInt(num1);
-			num2=parseInt(num2);
-			return ((num1 - num2) || (isNaN(num1)?-1:1));
-		},
-		dt_real: function(num1, num2)
-		{
-			num1=parseFloat(num1);
-			num2=parseFloat(num2);
-			return ((num1 - num2) || (isNaN(num1)?-1:1));
+			dt_default: function(str1, str2)
+			{
+				str1=str1.toLowerCase();
+				str2=str2.toLowerCase();
+				if (str1<str2)
+					return -1;
+				else if (str1>str2)
+					return 1;
+				else
+					return 0;
+			},
+			dt_int: function(num1, num2)
+			{
+				num1=parseInt(num1);
+				num2=parseInt(num2);
+				return ((num1 - num2) || (isNaN(num1)?-1:1));
+			},
+			dt_real: function(num1, num2)
+			{
+				num1=parseFloat(num1);
+				num2=parseFloat(num2);
+				return ((num1 - num2) || (isNaN(num1)?-1:1));
+			}
 		}
 	}
-};
+);
 
 /**
  * The guid counter for Window.DBGrids array, do not touch.

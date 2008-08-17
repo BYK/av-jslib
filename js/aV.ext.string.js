@@ -3,7 +3,7 @@
  * @name String Extensions
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
- * @version 1.2
+ * @version 1.1
  *
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
@@ -224,4 +224,12 @@ String.prototype.format=function()
 	
 	outText+=this.substr(lastMatch);
 	return outText;		
+};
+
+String.prototype.toObject=function(secure)
+{
+	if (!secure)
+		return eval('(' + this + ')');
+	else if (window.JSON)
+		return JSON.parse(this);
 };

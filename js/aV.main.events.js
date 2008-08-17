@@ -6,7 +6,7 @@
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
  * <br />Adomas Paltanavičius adomas.paltanavicius@gmail.com
  * <br />Burak Yiğit Kaya byk@amplio-vita.net
- * @version 1.2.1
+ * @version 1.2.2
  * @copyright &copy;2005 - 2008
  */
 
@@ -94,8 +94,12 @@ aV.Events.clear=function(element)
 		return;
 	for (var event in element.events)
 	{
-		for (var guid in element.events[event])
-			delete element.events[event][guid];
+		if (!element.events.hasOwnProperty(event))
+			continue;
+
+		for (var guid in element.events[event]) 
+			if (element.events[event].hasOwnProperty(guid))
+				delete element.events[event][guid];
 		delete element.events[event];
 		element["on" + event]=undefined;
 	}
@@ -119,11 +123,13 @@ aV.Events._handle=function(event)
 	// get a reference to the hash table of event handlers
 	var handlers = this.events[event._type];
 	// execute each event handler
-	for (var i in handlers) {
+	for (var i in handlers)
+	{
+		if (!handlers.hasOwnProperty(i))
+			continue;
 		this.$$handleEvent = handlers[i];
-		if (this.$$handleEvent(event) === false) {
+		if (this.$$handleEvent(event) === false)
 			returnValue = false;
-		}
 	}
 	//delete this.$$handleEvent;
 	return returnValue;

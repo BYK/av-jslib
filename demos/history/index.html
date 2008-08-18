@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<title>History & AJAX Demo</title>
+		<script src="/JSLib/js/aV.ext.string.js" type="text/javascript"></script>
+		<script src="/JSLib/js/aV.ext.array.js" type="text/javascript"></script>
+		<script src="/JSLib/js/aV.ext.object.js" type="text/javascript"></script>
+		<script src="/JSLib/js/aV.main.events.js" type="text/javascript"></script>
+		<script src="/JSLib/js/aV.main.ajax.js" type="text/javascript"></script>
+		<script src="/JSLib/js/aV.main.history.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="contentContainer" style="float:left;width:100%;border:solid thin #aabbcc"></div>
+		<ul id="links" style="float:left;clear:left;">
+			<li><a href="#part=content1">Content 1</a></li>
+			<li><a href="#part=content2">Content 2</a></li>
+			<li><a href="#part=content3">Content 3</a></li>
+		</ul>
+		<script type="text/javascript">
+			function addressBarChange(event)
+			{
+				if (event.changedKeys.indexOf("['part']") > -1)
+				{
+					var partName = aV.History._get['part'];
+					aV.AJAX.loadContent(partName + '.php', document.getElementById('contentContainer'));
+				}
+			}
+			aV.Events.add(aV.History, 'change', addressBarChange);
+		</script>
+	</body>
+</html>

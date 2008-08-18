@@ -37,11 +37,11 @@
 			<li>Nothing loaded yet :)</li>
 		</ul>
 		<select id="moduleList">
-			<option value="firebug-lite.js">firebug-lite.js</option>
+			<option value="../firebug-lite.js">firebug-lite.js</option>
 			<option value="file1.js">file1.js</option>
 			<option value="file2.js">file2.js</option>
 		</select>
 		<input type="checkbox" id="forceReload" /><label for="forceReload">Force Reload</label>
-		<input type="button" value="Load" onclick="var list=document.getElementById('moduleList'); aV.AJAX.ModuleManager.load([list.options[list.selectedIndex].value], moduleLoadedCallback, document.getElementById('forceReload'))" />
+		<input type="button" value="Load" onclick="var list=document.getElementById('moduleList'); aV.AJAX.ModuleManager.load([list.options[list.selectedIndex].value], moduleLoadedCallback, document.getElementById('forceReload').checked)" />
 	</body>
 </html>

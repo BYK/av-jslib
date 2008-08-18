@@ -12,5 +12,5 @@
 		exit;
 	}
 	include($filePath);
-	echo "\nif (window.onscriptload)\n\twindow.onscriptload({type: 'scriptload', module: '".basename($_REQUEST["filename"])."', moduleUID: {$_REQUEST["UID"]}});";
+	echo "\nif (window.onscriptload)\n\twindow.onscriptload({type: 'scriptload', module: '{$_REQUEST["filename"]}', moduleUID: {$_REQUEST["UID"]}});";
 ?>

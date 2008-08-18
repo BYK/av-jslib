@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /JSLib/demos
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} ^.+--JSLE[0-9]+$
+RewriteRule ^(.+)--JSLE([0-9]+)$ ../php/JSLoader.php?filename=../demos/$1&UID=$2

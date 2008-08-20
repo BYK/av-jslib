@@ -98,6 +98,7 @@ aV.DynamicSearch.prototype._createContainer=function(destructive)
 	
 	//create and assign the container div to the "container" property of the current object.
 	this.container=document.createElement("DIV");
+	this.container.formBasic=this.container.formAdvanced=null;
 	this.container.className=aV.config.DynamicSearch.classNames.container;
 
 	var newA;
@@ -131,12 +132,14 @@ aV.DynamicSearch.prototype._createDBGrid=function(destructive)
 	}
 	
 	this.DBGrid=new aV.DBGrid(aV.config.DynamicSearch.paths.results, {}, this.container);
+	this.DBGrid.tableElement=null;
 	this.DBGrid.printAfterParse=this.DBGrid.parseDataAfterFetch=true;
 	var self=this;
-	this.DBGrid.onFetchEnd=function()
-	{
-		aV.DynamicSearch.releaseForm(self.activeForm);
-	};
+	aV.Events.add(this.DBGrid, "fetchend", function(event)
+		{
+			aV.DynamicSearch.releaseForm(self.activeForm);
+		}
+	);
 }
 
 /**
@@ -342,9 +345,13 @@ aV.DynamicSearch.prototype._initForms=function()
 		if (!aV.AJAX.isResponseOK(requestObject))
 			return;
 		self.fields=requestObject.responseText.toObject();
-		for (var fieldName in self.fields)
-			if (!("alias" in self.fields[fieldName]))
+		for (var fieldName in self.fields) 
+		{
+			if (!self.fields.hasOwnProperty(fieldName))
+				continue;
+			if (!("alias" in self.fields[fieldName])) 
 				self.fields[fieldName].alias = fieldName.replace(/_/g, " ").ucWords();
+		}
 		self.container.removeChild(loadIndicator);
 
 		self._createDBGrid(true);
@@ -439,7 +446,7 @@ aV.DynamicSearch.prototype.addCondition=function(afterElement)
 		newLi.className = aV.config.DynamicSearch.classNames.conjunction;
 		var conjunctionSelector = newLi.appendChild(document.createElement("SELECT"));
 		for (var i = 0; i < aV.config.DynamicSearch.conjunctions.length; i++) 
-			conjunctionSelector.add(new Option(aV.config.DynamicSearch.conjunctions[i]), undefined);
+			conjunctionSelector.add(new Option(aV.config.DynamicSearch.conjunctions[i], aV.config.DynamicSearch.conjunctions[i]), undefined);
 		conjunctionSelector.value=conjunctionSelector.options[0].value;
 		parentElement.insertBefore(newLi, afterElement);
 	}
@@ -448,7 +455,8 @@ aV.DynamicSearch.prototype.addCondition=function(afterElement)
 	newLi.owner=this;
 	var fieldSelector=newLi.appendChild(document.createElement("SELECT"));
 	for (var fieldName in this.fields)
-		fieldSelector.add(new Option(this.fields[fieldName].alias, fieldName), undefined);
+		if (this.fields.hasOwnProperty(fieldName))
+			fieldSelector.add(new Option(this.fields[fieldName].alias, fieldName), undefined);
 	aV.Events.add(fieldSelector, 'change', aV.DynamicSearch._onFieldSelect);
 	var operatorSelector=newLi.appendChild(document.createElement("SELECT"));
 	var condition=newLi.appendChild(document.createElement("INPUT"));
@@ -502,12 +510,12 @@ aV.DynamicSearch._onFieldSelect=function(event)
 		operatorSelector.remove(operatorSelector.options[0]);
 	var operatorList=aV.config.DynamicSearch.operators['dt_' + event.target.form.owner.fields[event.target.value].dataType] || aV.config.DynamicSearch.operators.dt_default;
 	for (var i=0; i<operatorList.length; i++)
-		operatorSelector.add(new Option(operatorList[i]), undefined);
+		operatorSelector.add(new Option(operatorList[i], operatorList[i]), undefined);
 
 	event.target.form.owner._initNewCondition(event.target.condition, event.target.value);
 	aV.AutoComplete.init();
 	if (event.target.condition.aVautoComplete)
-		event.target.condition.aVautoComplete.list=undefined;
+		event.target.condition.aVautoComplete.list=null;
 };
 
 aV.DynamicSearch._onConditionClick=function(event)
@@ -720,6 +728,8 @@ aV.DynamicSearch._onFormSubmit=function(event)
 
 aV.DynamicSearch.updateHistory=function()
 {
+	if (!aV.config.DynamicSearch.history.active)
+		return;
 	var newHistory={};
 	newHistory.unite(aV.History.get);
 	newHistory[aV.config.DynamicSearch.history.key]=aV.DynamicSearch.historyList;
@@ -728,8 +738,8 @@ aV.DynamicSearch.updateHistory=function()
 
 aV.DynamicSearch._historyOnChangeHandler=function(event)
 {
-	if (!aV.config.DynamicSearch.history.active)
-		return;
+//	if (!aV.config.DynamicSearch.history.active)
+//		return;
 	var matcher=new RegExp("^\\['" + aV.config.DynamicSearch.history.key + "'\\]", "");
 	if (!event.changedKeys.reduce(function(a,b){if (!a) a=matcher.test(b); return a;}))
 		return;
@@ -764,87 +774,91 @@ aV.DynamicSearch._conditionFocusHandler=function(event)
 
 aV.DynamicSearch.$$lastGuid=1;
 
-aV.config.DynamicSearch=
-{
-	classNames:
-	{	
-		error: 'aVdS_error',
-		container: 'aVdS_container',
-		tabTitle: 'aVdS_tabTitle',
-		form: 'aVdS_form',
-		controlButtons: 'aVdS_controlButtons',
-		labelsUL: 'aVdS_labels',
-		inputsUL: 'aVdS_inputs',
-		enumInput: 'aVdS_enum',
-		loadIndicator: 'aVdS_loading',
-		conditions: 'aVdS_conditions',
-		addCondition: 'aVdS_addCondition',
-		removeCondition: 'aVdS_removeCondition',
-		groupContainer: 'aVdS_groupContainer',
-		conjunction: 'aVdS_conjunction',
-		noAC: 'aVdS_noAC'
-	},
-	paths:
+if (!aV.config.DynamicSearch)
+	aV.config.DynamicSearch={};
+
+aV.config.DynamicSearch.unite(
 	{
-		results: '/dynamic/search/search.php',
-		fields: '/dynamic/search/fields_info.php'
-	},
-	history:
-	{
-		active: true,
-		key: 'aVdS'
-	},
-	texts:
-	{
-		submit: 'Search',
-		reset: 'Clear',
-		basic: 'Basic',
-		advanced: 'Advanced',
-		loading: 'Loading...',
-		addCondition: 'Add',
-		removeCondition: 'Remove',
-		enlarge: 'Enlarge',
-		shrink: 'Shrink',
-		removeConditionError: 'You cannot remove this item.',
-		invalidConditionValue: 'You have invalid data in one or more fields.'
-	},
-	operators:
-	{
-		dt_default: ['LIKE', 'NOT LIKE', '=', '<>'],
-		dt_integer: ['=', '<=', '<', '>=', '>', '<>'],
-		dt_real: ['=', '<=', '<', '>=', '>', '<>'],
-		dt_date: ['=', '<=', '<', '>=', '>', '<>']
-	},
-	conjunctions: ['AND', 'OR'],
-	checkFunctions:
-	{
-		dt_default: function()
-		{
-			return true;
+		classNames:
+		{	
+			error: 'aVdS_error',
+			container: 'aVdS_container',
+			tabTitle: 'aVdS_tabTitle',
+			form: 'aVdS_form',
+			controlButtons: 'aVdS_controlButtons',
+			labelsUL: 'aVdS_labels',
+			inputsUL: 'aVdS_inputs',
+			enumInput: 'aVdS_enum',
+			loadIndicator: 'aVdS_loading',
+			conditions: 'aVdS_conditions',
+			addCondition: 'aVdS_addCondition',
+			removeCondition: 'aVdS_removeCondition',
+			groupContainer: 'aVdS_groupContainer',
+			conjunction: 'aVdS_conjunction',
+			noAC: 'aVdS_noAC'
 		},
-		dt_int: function(element)
+		paths:
 		{
-			element=element.target || element.srcElement || element;
-			var isValid=element.value.match(/^-?\d*$/);
-			element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
-			return isValid;
+			results: '/dynamic/search/search.php',
+			fields: '/dynamic/search/fields_info.php'
 		},
-		dt_real: function(element)
+		history:
 		{
-			element=element.target || element.srcElement || element;
-			var isValid=element.value.match(/^-?\d*\.?\d*$/);
-			element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
-			return isValid;
+			active: true,
+			key: 'aVdS'
 		},
-		dt_date: function(element)
+		texts:
 		{
-			element=element.target || element.srcElement || element;
-			var isValid=(element.value=='') || element.value.match(/^\d{4}-\d{2}-\d{2}($| \d{2}:\d{2}$| \d{2}:\d{2}:\d{2}$)/);
-			element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
-			return isValid;
+			submit: 'Search',
+			reset: 'Clear',
+			basic: 'Basic',
+			advanced: 'Advanced',
+			loading: 'Loading...',
+			addCondition: 'Add',
+			removeCondition: 'Remove',
+			enlarge: 'Enlarge',
+			shrink: 'Shrink',
+			removeConditionError: 'You cannot remove this item.',
+			invalidConditionValue: 'You have invalid data in one or more fields.'
+		},
+		operators:
+		{
+			dt_default: ['LIKE', 'NOT LIKE', '=', '<>'],
+			dt_integer: ['=', '<=', '<', '>=', '>', '<>'],
+			dt_real: ['=', '<=', '<', '>=', '>', '<>'],
+			dt_date: ['=', '<=', '<', '>=', '>', '<>']
+		},
+		conjunctions: ['AND', 'OR'],
+		checkFunctions:
+		{
+			dt_default: function()
+			{
+				return true;
+			},
+			dt_int: function(element)
+			{
+				element=element.target || element.srcElement || element;
+				var isValid=element.value.match(/^-?\d*$/);
+				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
+				return isValid;
+			},
+			dt_real: function(element)
+			{
+				element=element.target || element.srcElement || element;
+				var isValid=element.value.match(/^-?\d*\.?\d*$/);
+				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
+				return isValid;
+			},
+			dt_date: function(element)
+			{
+				element=element.target || element.srcElement || element;
+				var isValid=(element.value=='') || element.value.match(/^\d{4}-\d{2}-\d{2}($| \d{2}:\d{2}$| \d{2}:\d{2}:\d{2}$)/);
+				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
+				return isValid;
+			}
 		}
 	}
-};
+);
 
 aV.DynamicSearch.list={};
 aV.DynamicSearch.historyList={};

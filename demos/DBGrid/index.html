@@ -1,4 +1,4 @@
-<html>
+<html debug="true">
 	<head>
 		<title>DBGrid Demo</title>
 		<script src="/JSLib/js/aV.ext.string.js" type="text/javascript"></script>
@@ -9,9 +9,37 @@
 		<script src="/JSLib/js/aV.plg.customHint.js" type="text/javascript"></script>
 		<script src="/JSLib/js/aV.plg.infoBox.js" type="text/javascript"></script>
 		<script src="/JSLib/js/aV.module.DBGrid.js" type="text/javascript"></script>
+		<script src="../firebug-lite.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			function logEvent(event)
+			{
+				console.log(event, "on%s event fired. Event parameter dump is below: ".format(event.type));
+				for (var property in event)
+					if (event.hasOwnProperty(property))
+						console.log("\t", property, ": ", event[property]);
+			}
+			function prepareDBGrid()
+			{
+				window.table = new aV.DBGrid('source_file.php', {}, document.getElementById('tableDiv'));
+				window.table.printAfterParse = window.table.parseDataAfterFetch = true;
+				var matcher = /on([^\s.]+)/;
+				var result;
+				for (var property in window.table) 
+				{
+					if (!window.table.hasOwnProperty(property)) 
+						continue;
+					if (result = property.match(matcher)) 
+						aV.Events.add(window.table, result[1], logEvent);
+				}
+				matcher = null;
+				result = null;
+			}
+			aV.Events.add(window, "load", prepareDBGrid);
+		</script>
 	</head>
 	<body>
-		<input type="button" value="Show Demo Table" onclick="if (window.table) window.table.destroy();window.table = new aV.DBGrid('source_file.php',{},document.getElementById('tableDiv'), true, true);"/>
+		<h4>You can track the vents in the Firebug Console. The table has also a "rowclick" event, so <u>do</u> click on some rows ;)</h4>
+		<input type="button" value="Show Demo Table" onclick="window.table.refreshData();"/>
 		<div id="tableDiv"></div>
 	</body>
 </html>

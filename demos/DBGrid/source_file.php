@@ -1,5 +1,5 @@
 <?php
-	require_once("DBGrid_functions.php");
+	require_once("../../php/DBGrid_functions.php");
 	$link = mysql_connect('mysql300.ixwebhosting.com', 'snlBYK_jsltest', 'jsltestpwd');
 	if (!$link) {echo "Connection Failed";exit;};
 	mysql_select_db('snlBYK_jslib');

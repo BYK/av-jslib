@@ -37,8 +37,10 @@ Object.prototype.unite=function(additive, overwrite)
 		overwrite=true;
 	for (var property in additive) 
 	{
-		if (this[property] && (this[property].constructor == Object) && this.hasOwnProperty(property)) 
-			this[property].unite(additive[property])
+		if (!additive.hasOwnProperty(property))
+			continue;
+		if (this[property] && this[property].constructor == Object && this.hasOwnProperty(property)) 
+			this[property].unite(additive[property], overwrite);
 		else if (overwrite || !(property in this))
 			this[property] = additive[property];
 	}

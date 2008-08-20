@@ -101,9 +101,9 @@ aV.Events.clear=function(element)
 			if (element.events[event].hasOwnProperty(guid))
 				delete element.events[event][guid];
 		delete element.events[event];
-		element["on" + event]=undefined;
+		element["on" + event]=null;
 	}
-	delete element.events;
+	element.events=undefined;
 }
 
 /**

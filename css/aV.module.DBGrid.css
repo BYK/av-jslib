@@ -84,7 +84,8 @@ div.aVDBGridColumnList
 	position: absolute;
 	z-index: 10;
 	font-weight: normal;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 table.aVDBGrid thead
 {

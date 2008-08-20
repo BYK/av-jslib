@@ -33,7 +33,7 @@ aV.History._listener=function()
 	{
 		var paramStr = document.location.hash.substring(1);
 		if (paramStr.charAt(0)=='!' && ULZSS && Base64)
-			paramStr = ULZSS.decode(Base64.decode(paramStr));
+			paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
 		var tempArray = paramStr.split('&');
 		var pair, keyChanged;
 		var matcher=/^([^&=]+)=([^&]+)$/;

@@ -37,7 +37,7 @@ aV.config.AJAX.unite(
 		pageLeaveWarning: "There are one or more requests in progress. If you exit, there might be data loss.",
 		blankPageURL: "/JSLib/blank.html"
 	}
-);
+, false);
 
 /**
  * Tries to get an XMLHttpRequest object, returns false if the browser does not support AJAX.

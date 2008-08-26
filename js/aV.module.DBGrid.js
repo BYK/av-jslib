@@ -70,6 +70,7 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 	this.onfetchbegin=null;
 	this.onfetcherror=null;
 	this.onfetchend=null;
+	this.onparseerror=null;
 	this.onprintbegin=null;
 	this.onprintend=null;
 	this.onsortbegin=null;
@@ -78,6 +79,7 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 	/* assign default event hadlers */
 	aV.Events.add(this, "fetchbegin", aV.config.DBGrid.defaultEventHandlers.onfetchbegin);
 	aV.Events.add(this, "fetcherror", aV.config.DBGrid.defaultEventHandlers.onfetcherror);
+	aV.Events.add(this, "parseerror", aV.config.DBGrid.defaultEventHandlers.onparseerror);
 	aV.Events.add(this, "printbegin", aV.config.DBGrid.defaultEventHandlers.onprintbegin);
 	aV.Events.add(this, "printend", aV.config.DBGrid.defaultEventHandlers.onready);
 	aV.Events.add(this, "sortbegin", aV.config.DBGrid.defaultEventHandlers.onsortbegin);
@@ -163,9 +165,6 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 		
 		this.error=false;
 		
-		if (!this.data)
-			return false;
-		
 		try
 		{
 			if (fullRefresh) 
@@ -186,12 +185,19 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 					};
 					
 					this.columnProperties[i].filterFunction = aV.config.DBGrid.filterFunctions["dt_" + this.columnProperties[i].dataType] || aV.config.DBGrid.filterFunctions.dt_default;
-
-					this.exportTypes=aV.AJAX.XML.getValue(this.data, "exportTypes", '');
-					if (this.exportTypes!='')
-						this.exportTypes=this.exportTypes.split(',');
 				}
 			}
+			
+			this.exportTypes=aV.AJAX.XML.getValue(this.data, "exportTypes", '');
+			if (this.exportTypes != '') 
+			{
+				this.exportTypes = this.exportTypes.split(',');
+				this.exportLinksHTML = '<div style="min-width: 25px;">';
+				for (var i = 0; i < this.exportTypes.length; i++) 
+					this.exportLinksHTML += '<a href="' + this.getExportLink(this.exportTypes[i]) + '" target="_blank">' + this.exportTypes[i] + '</a><br/>';
+				this.exportLinksHTML += '</div>';
+			}
+			
 			this.rows=aV.AJAX.XML.toArray(this.data.getElementsByTagName("row"));
 			this.rowCount=this.rows.length;
 		}
@@ -199,11 +205,12 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 		catch(e)
 		{
 			this.error=e;
+			this.triggerEvent("parseerror", this.error);
 		}
 
 		finally
 		{
-			if (this.printAfterParse) 
+			if (!this.error && this.printAfterParse) 
 			{
 				if (fullRefresh) 
 					this._print(false);
@@ -256,9 +263,6 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 			if (this.tableElement)
 				delete this.tableElement;
 		}
-		
-		if (this.error)
-			throw new Error("Parse Error: Bad or empty data.", 'aV.module.DBGrid.js@' + this.dataAddress + '?' + this.parameters.toQueryString());
 
 		this.tableElement=document.createElement("table");
 		this.tableElement.creator=this;
@@ -280,26 +284,13 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 		this.tableElement.buttonColumnList.className=aV.config.DBGrid.classNames.buttonColumnList;
 		this.tableElement.buttonColumnList.appendChild(document.createTextNode(aV.config.DBGrid.texts.columnList));
 		this.tableElement.buttonColumnList.setAttribute("hint", aV.config.DBGrid.texts.columnListHint);
-		this.tableElement.buttonColumnList.onclick=function()
-		{
-			var columnList=this.parentNode.parentNode.columnList;
-			columnList.style.left=aV.Visual.getElementPositionX(this) + "px";
-			columnList.style.top=aV.Visual.getElementPositionY(this) + "px";
-			if (columnList.style.height == "0px")
-				aV.Visual.fadeNSlide(columnList, Math.min(columnList.scrollHeight, Math.round(this.parentNode.parentNode.offsetHeight*.75)), 1);
-			else 
-				aV.Visual.fadeNSlide(columnList, 0, -1);
-		};
+		aV.Events.add(this.tableElement.buttonColumnList, "click", aV.DBGrid._columnManagerClickHandler);
 		tableCaption.appendChild(this.tableElement.buttonColumnList);
 		columnList=null;
 		
 		/* Export/Save button */
 		if (this.exportTypes.length) 
 		{
-			this.exportLinksHTML='<div style="min-width: 25px;">';
-			for (var i=0; i<this.exportTypes.length; i++)
-				this.exportLinksHTML+='<a href="' + this.getExportLink(this.exportTypes[i]) + '" target="_blank">' + this.exportTypes[i] + '</a><br/>';
-			this.exportLinksHTML+='</div>';
 			this.tableElement.buttonExport = document.createElement("a");
 			this.tableElement.buttonExport.href = "javascript:void(0)";
 			this.tableElement.buttonExport.className = aV.config.DBGrid.classNames.buttonExport;
@@ -726,6 +717,17 @@ aV.DBGrid=function(dataAddress, parameters, printElement, fetch, print)
 		this.refreshData();
 }
 
+aV.DBGrid._columnManagerClickHandler=function(event)
+{
+	var columnList=event.target.parentNode.parentNode.columnList;
+	columnList.style.left=aV.Visual.getElementPositionX(event.target) + "px";
+	columnList.style.top=aV.Visual.getElementPositionY(event.target.parentNode.parentNode.tHead) + "px";
+	if (columnList.style.height == "0px")
+		aV.Visual.fadeNSlide(columnList, Math.min(columnList.scrollHeight, Math.round(event.target.parentNode.parentNode.offsetHeight*.75)), 1);
+	else 
+		aV.Visual.fadeNSlide(columnList, 0, -1);
+};
+
 aV.DBGrid._titleClickHandler=function(event)
 {
 	if (event.target.cancelClick) 
@@ -892,7 +894,8 @@ aV.config.DBGrid.unite(
 		{
 			defaultTableTitle: 'Untitled Table',
 			rows: ' row(s)',
-			error: 'An error occured while preparing the table. Details are below:<br />',
+			fetchError: 'An error occured while gathering the table data. Details are below:<br />',
+			parseError: 'Table cannot be generated because the gathered table data is invalid.',
 			fetching: 'Gathering data...',
 			printing: 'Creating table...',
 			sorting: 'Sorting table...',
@@ -936,7 +939,11 @@ aV.config.DBGrid.unite(
 			},
 			onfetcherror: function(event)
 			{
-				aV.Visual.infoBox.show(aV.config.DBGrid.texts.error + '(' + event.target.fetcher.status + ') - ' + event.target.fetcher.responseText, aV.config.Visual.infoBox.images.error, false, 60000);
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.fetchError + '(' + event.target.fetcher.status + ') - ' + event.target.fetcher.responseText, aV.config.Visual.infoBox.images.error, false, 60000);
+			},
+			onparseerror: function(event)
+			{
+				aV.Visual.infoBox.show(aV.config.DBGrid.texts.parseError, aV.config.Visual.infoBox.images.error, false, 60000);
 			},
 			onprintbegin: function(event)
 			{
@@ -1013,7 +1020,7 @@ aV.config.DBGrid.unite(
 			}
 		}
 	}
-);
+, false);
 
 /**
  * The guid counter for Window.DBGrids array, do not touch.

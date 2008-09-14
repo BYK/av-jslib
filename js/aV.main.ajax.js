@@ -78,7 +78,7 @@ aV.AJAX.createRequestObject=function()
 		}
 	}
 	return requestObject;
-}
+};
 
 /**
  * Destroys the given XMLHttpRequest object safely.

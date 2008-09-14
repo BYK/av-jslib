@@ -139,11 +139,11 @@ aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSe
 		function(requestObject)
 		{
 			var ruleText='';
-			if (requestObject.status==200 || requestObject.status==0 && requestObject.responseText)
+			if (aV.AJAX.isResponseOK(requestObject))
 				ruleText=requestObject.responseText;
 			
 			aV.aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
-			if (includeStyleTags || includeStyleTags===undefined)
+			if (includeStyleTags!==false)
 				aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
 		}
 	);

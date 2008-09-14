@@ -80,7 +80,8 @@ div.aVDBGridColumnList
 	max-width: 220px;
 	padding: 3px;
 	font-size: 8pt;
-	margin-top: 20px;
+	margin-top: -5px;
+	[if lt IE 8] margin-top: 24px;
 	position: absolute;
 	z-index: 10;
 	font-weight: normal;
@@ -181,4 +182,47 @@ table.aVDBGrid tfoot
 table.aVDBGrid tfoot tr td
 {
 	padding: 2px 2px 4px 2px;
+	border: none;
+}
+table.aVDBGrid tfoot tr td.pageControls
+{
+	text-align: right;
+}
+table.aVDBGrid tfoot tr td input
+{
+	font-size: 8pt;
+	text-decoration: underline;
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+	margin-right: 10px;
+	width: 20px;
+	text-align: center;
+}
+table.aVDBGrid tfoot tr td input.page
+{
+	margin-right: 0;
+}
+table.aVDBGrid tfoot tr td a
+{
+	text-decoration: none;
+	color: #000080;
+	padding-bottom: 3px;
+}
+table.aVDBGrid tfoot tr td a[disabled="true"]
+{
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+	cursor: text;
+}
+table.aVDBGrid tfoot tr td a.previousPage
+{
+	padding-right: 18px;
+	background: url('../images/DBGrid/previous.png') no-repeat right;
+}
+table.aVDBGrid tfoot tr td a.nextPage
+{
+	padding-left: 18px;
+	background: url('../images/DBGrid/next.png') no-repeat left;
 }

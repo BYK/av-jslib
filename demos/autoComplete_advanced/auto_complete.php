@@ -10,5 +10,6 @@
 			array_push($filtered, $one_name);
 	}
 	fclose($list);
-	echo implode($filtered, "\n");
+	//we can sort the array in here
+	echo implode($filtered, "");
 ?>

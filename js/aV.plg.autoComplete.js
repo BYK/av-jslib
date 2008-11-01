@@ -107,8 +107,8 @@ aV.AutoComplete._showListBox=function(element)
 	
 	if (element.aVautoComplete.listBox.innerHTML!='')
 	{
-		if (aV.AutoComplete.onshowlistbox)
-			aV.AutoComplete.onshowlistbox({type: 'showlistbox',	target: element});
+		if (element.aVautoComplete.onshowlistbox)
+			element.aVautoComplete.onshowlistbox({type: 'showlistbox',	target: element});
 		aV.Visual.fade(element.aVautoComplete.listBox, 1);
 		element.aVautoComplete.list.selectedIndex=0;
 		element.aVautoComplete.listBox.childNodes[0].className='selected';
@@ -182,10 +182,10 @@ aV.AutoComplete._onKeyUpHandler=function(event)
 		clearTimeout(event.target.aVautoComplete.keyUpTimer);
 		delete event.target.aVautoComplete.keyUpTimer;
 	}
-	
+
 	var key=event.keyCode || event.which;
 	var minChars=(event.target.aVautoComplete.minChars!=undefined)?event.target.aVautoComplete.minChars:aV.config.AutoComplete.minChars;
-	
+
 	if (event.target.value.length < minChars || key==27) 
 	{
 		if (event.target.aVautoComplete.list)
@@ -277,7 +277,7 @@ aV.AutoComplete._setElement=function(element)
 	}
 	else
 	{
-		delete element.aVautoComplete;
+		element.aVautoComplete=undefined;
 		aV.Events.remove(element, 'keyup', aV.AutoComplete._onKeyUpHandler);
 		aV.Events.remove(element, 'focus', aV.AutoComplete._onKeyUpHandler);
 		aV.Events.remove(element, 'keydown', aV.AutoComplete._onKeyDownHandler);

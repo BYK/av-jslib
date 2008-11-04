@@ -72,7 +72,7 @@ aV.AJAX.ModuleManager.unload=function(modules)
 
 aV.AJAX.ModuleManager.onscriptloadHandler=function(event)
 {
-	aV.AJAX.ModuleManager.loadedModules.push(event.module);
+	aV.AJAX.ModuleManager.loadedModules.push(event.module.substr(event.module.lastIndexOf('/')+1));
 	aV.AJAX.ModuleManager.moduleUIDs.push(event.moduleUID);
 	aV.AJAX.ModuleManager._processCallbackQueue();
 };

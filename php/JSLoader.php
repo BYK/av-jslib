@@ -1,5 +1,7 @@
 <?php
   header("Content-type: text/javascript; charset=UTF-8");
+	if ($_REQUEST["basepath"])
+		chdir($_REQUEST["basepath"]);
 	$filePath=realpath($_REQUEST["filename"]);
 	if (!file_exists($filePath))
 	{
@@ -12,5 +14,5 @@
 		exit;
 	}
 	include($filePath);
-	echo "\nif (window.onscriptload)\n\twindow.onscriptload({type: 'scriptload', module: '{$_REQUEST["filename"]}', moduleUID: {$_REQUEST["UID"]}});";
+	echo "\nif (window.onscriptload)\n\twindow.onscriptload({type: 'scriptload', module: '".basename($_REQUEST["filename"])."', moduleUID: {$_REQUEST["UID"]}});";
 ?>

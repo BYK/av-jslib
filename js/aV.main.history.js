@@ -9,11 +9,24 @@
 if (!aV)
 	var aV={config: {}};
 
-aV.config.History=
-{
-	compression: true,
-	startOnLoad: true
-};
+if (!aV.config.History)
+	aV.config.History={};
+
+aV.config.History.unite(
+	{
+		compression: true,
+		startOnLoad: true,
+		listenPeriod: 500,
+		useIFrame: false,
+		listenerIFrameURL: '/JSLib/blank.html',
+		listenerIFrameId: 'aVHistoryListenerIFrame'
+	}
+);
+
+//IE conditional comments to force the use of IFrame
+/*@cc_on
+aV.config.History.useIFrame=true;
+@*/
 
 aV.History=
 {
@@ -23,61 +36,71 @@ aV.History=
 
 aV.History._listener=function()
 {
-	if (!aV.History.onchange)
+	if (!aV.History.onchange || document.location.hash.length<=1)
 		return false;
 
-	var oldGet=aV.History._get;
-	aV.History._get={};
 	var changedKeys=[];
-	if (document.location.hash.length > 1) 
+	var paramStr = document.location.href.substring(document.location.href.indexOf('#')+1);
+	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
+		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
+	var newList = paramStr.split('&');
+	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).simplify();
+	var pair;
+	var matcher=/^([^&=]+)=([^&]+)$/;
+	for (var i = 0; i < changeList.length; i++) 
 	{
-		var paramStr = document.location.hash.substring(1);
-		if (paramStr.charAt(0)=='!' && ULZSS && Base64)
-			paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
-		var tempArray = paramStr.split('&');
-		var pair, keyChanged;
-		var matcher=/^([^&=]+)=([^&]+)$/;
-		for (var i = 0; i < tempArray.length; i++) 
-		{
-			pair = tempArray[i].match(matcher);
-			if (!(pair && pair[1]))
-				continue;
-			pair[1] = aV.History._unserializeElement(pair[1], decodeURIComponent(pair[2]), aV.History._get);
-			try
-			{
-				keyChanged=eval("(oldGet" + pair[1] + "!=aV.History._get" + pair[1] + ")");
-			}
-			catch (error)
-			{
-				keyChanged=true;
-			}
-			if (keyChanged)
-				changedKeys.push(pair[1]);
-		}
+		pair = changeList[i].match(matcher);
+		if (!(pair && pair[1]))
+			continue;
+		if (changedKeys.indexOf(pair[1])==-1)
+			changedKeys.push(pair[1]);
 	}
-	
-	if (changedKeys.length) 
+
+	if (changedKeys.length)
 	{
+		aV.History._get=Object.fromQueryString(newList);
 		aV.History.onchange({type: "change", changedKeys: changedKeys});
 	}
+};
+
+aV.History._iframeListener=function()
+{
+	if (aV.History._oldIframeLocation==aV.History._iframe.contentWindow.location.search)
+		return;
+		
+	aV.History._oldIframeLocation=aV.History._iframe.contentWindow.location.search;
+	document.location.replace(document.location.pathname + document.location.search + '#' + aV.History._iframe.contentWindow.location.search.substring(1));
 };
 
 aV.History.set=function(newGet)
 {
 	if (!newGet)
-		newGet = aV.History._get;
+		newGet = {};
 	var paramStr = newGet.toQueryString();
 	if (aV.config.History.compression && ULZSS)
 		paramStr = '!' + Base64.encode(ULZSS.encode(paramStr));
 	document.location.hash = '#' + paramStr;
+	if (aV.History._iframe)
+		aV.History._iframe.contentWindow.location.search = '?' + paramStr;
 };
 
 aV.History.startListener=function()
 {
 	if (aV.History._listenerHandle)
 		return aV.History._listenerHandle;
-
-	aV.History._listenerHandle=window.setInterval(aV.History._listener, 500);
+	
+	aV.History._listenerHandle=window.setInterval(aV.History._listener, aV.config.History.listenPeriod);
+	
+	if (aV.config.History.useIFrame)
+	{
+		aV.History._iframe=document.createElement('IFRAME');
+		aV.History._iframe.style.display='none';
+		aV.History._iframe.src=aV.config.History.listenerIFrameURL;
+		aV.History._iframe.id=aV.config.History.listenerIFrameId;
+		document.body.appendChild(aV.History._iframe);
+		
+		aV.History._iframeListenerHandle=window.setInterval(aV.History._iframeListener, aV.config.History.listenPeriod);
+	}
 };
 
 aV.History.stopListener=function()
@@ -86,20 +109,15 @@ aV.History.stopListener=function()
 		return false;
 	window.clearInterval(aV.History._listenerHandle);
 	return delete aV.History._listenerHandle;
-};
-
-aV.History._unserializeElement=function(str, value, result)
-{
-	var arr=str.match(/([^\s\[\]]+)/g);
-	for (var i = 0; i < arr.length - 1; i++) 
+	
+	if (aV.config.History.useIFrame)
 	{
-		if (!result[arr[i]])
-			result[arr[i]] = (parseInt(arr[i+1])==0) ? [] : {};
-		result = result[arr[i]];
+		window.clearInterval(aV.History._iframeListenerHandle);
+		return delete aV.History._iframeListenerHandle;
+
+		if (aV.History._iframe && aV.History._iframe.parentNode)
+			aV.History._iframe.parentNode.removeChild(aV.History._iframe);
 	}
-	result[arr[i]] = value;
-	arr.each(function(x){return "['" + x + "']";});
-	return arr.join('');
 };
 
 aV.AJAX.loadResource("/JSLib/js/webtoolkit.base64.js", "js", "base64Library");

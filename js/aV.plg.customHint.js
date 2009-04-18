@@ -63,12 +63,12 @@ aV.Visual.customHint.adjustSizeNPosition=function(xPos, yPos)
 
 	this.style.height="auto";
 	this.style.width="auto";
-	var widthVar=Math.min(this.scrollWidth, aV.Visual.clientWidth()/3);
+	var widthVar=Math.min(this.scrollWidth, aV.DOM.windowClientWidth()/3);
 	this.style.width=widthVar + 'px';
-	var heightVar=Math.min(this.scrollHeight, aV.Visual.clientHeight()/3);
+	var heightVar=Math.min(this.scrollHeight, aV.DOM.windowClientHeight()/3);
 	this.style.height=heightVar + 'px';
-	this.style.left=((aV.config.Visual.customHint.offsetX + xPos + widthVar) < (aV.Visual.clientWidth() + aV.Visual.scrollLeft())) ? (aV.config.Visual.customHint.offsetX + xPos + 'px') : (aV.config.Visual.customHint.offsetX + xPos - widthVar + 'px');
-	this.style.top=((aV.config.Visual.customHint.offsetY + yPos + heightVar) < (aV.Visual.clientHeight() + aV.Visual.scrollTop())) ? (aV.config.Visual.customHint.offsetY + yPos + 'px') : (aV.config.Visual.customHint.offsetY + yPos - heightVar + 'px');
+	this.style.left=((aV.config.Visual.customHint.offsetX + xPos + widthVar) < (aV.DOM.windowClientWidth() + aV.DOM.windowScrollLeft())) ? (aV.config.Visual.customHint.offsetX + xPos + 'px') : (aV.config.Visual.customHint.offsetX + xPos - widthVar + 'px');
+	this.style.top=((aV.config.Visual.customHint.offsetY + yPos + heightVar) < (aV.DOM.windowClientHeight() + aV.DOM.windowScrollTop())) ? (aV.config.Visual.customHint.offsetY + yPos + 'px') : (aV.config.Visual.customHint.offsetY + yPos - heightVar + 'px');
 	
 	this.lastXPos=xPos;
 	this.lastYPos=yPos;
@@ -169,7 +169,7 @@ aV.Visual.customHint._mouseMoveHandler=function(event)
 	}
 	else if (element && hint && element!=aV.Visual.customHint.lastElement)
 	{
-		aV.Visual.customHint.pop(hint, event.clientX + aV.Visual.scrollLeft(), event.clientY + aV.Visual.scrollTop());
+		aV.Visual.customHint.pop(hint, event.clientX + aV.DOM.windowScrollLeft(), event.clientY + aV.DOM.windowScrollTop());
 	}
 	if (element && element!=aV.Visual.customHint)
 		aV.Visual.customHint.lastElement=element;
@@ -182,9 +182,10 @@ aV.Events.add(document,
 
 aV.Visual.initFunctions.push(
 	function()
-	{
+	{/*
 		if (aV.AJAX)
-			aV.AJAX.loadResource("/JSLib/css/aV.plg.customHint.css", "css", "aVcustomHintCSS");
+			aV.AJAX.loadResource("/JSLib/css/aV.plg.customHint.css", "css", "aVcustomHintCSS");*/
 		document.body.appendChild(aV.Visual.customHint);
+		aV.AJAX.loadResource("/JSLib/css/aV.plg.customHint.css", "css", "aVcustomHintCSS");
 	}
 );

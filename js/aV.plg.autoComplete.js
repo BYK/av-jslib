@@ -38,14 +38,43 @@ aV.config.AutoComplete=
 	delay: 200,
 	retryOnError: false,
 	regExpPattern: "'^(' + filter + ')|\\\\W+(' + filter + ')'",
-	allowedTags: ["INPUT"]
+	regExpBackferenceIndex: 1,
+	filterPattern: "'^(.+)$'", //"'([^' + separator + ']*)$'", //uncomment previous if you want multiple select by default
+	filterBackferenceIndex: 1,
+	allowedTags: ["INPUT"],
+	separator: ',',
+	defaultHTTPMethod: "GET",
+	classNames:
+	{
+		listbox: 'aCListBox',
+		matchedPart: 'aCMatchedPart',
+		selectedItem: 'selected'
+	}
 };
 
 aV.AutoComplete.listBoxCounter=0;
 
+aV.AutoComplete._getFilter=function(element)
+{
+	var separator=(element.aVautoComplete.separator || aV.config.AutoComplete.separator).escapeRegExp();
+	element.aVautoComplete.filterRegExp=new RegExp(eval(element.aVautoComplete.filterPattern || aV.config.AutoComplete.filterPattern), "i");
+	var filter=element.value.match(element.aVautoComplete.filterRegExp);
+	if (filter) 
+	{
+		element.aVautoComplete.currentBaseStr=element.value.substring(0, filter.index);
+		filter=filter[element.aVautoComplete.filterBackferenceIndex || aV.config.AutoComplete.filterBackferenceIndex].trim();
+	}
+	else
+	{
+		element.aVautoComplete.currentBaseStr='';
+		filter='';
+	}
+	return filter;
+};
+
 aV.AutoComplete._getRegExp=function(element)
 {
-	var filter=element.value.escapeRegExp();
+	var filter=element.aVautoComplete.currentFilter.escapeRegExp();
 	var regExpPattern=eval(element.aVautoComplete.regExpPattern || aV.config.AutoComplete.regExpPattern);
 	return new RegExp(regExpPattern, 'i');
 }
@@ -71,16 +100,18 @@ aV.AutoComplete._showListBox=function(element)
 	if (!element.aVautoComplete.listBox) 
 	{
 		element.aVautoComplete.listBox = document.createElement("UL");
-		element.aVautoComplete.listBox.id="aCListBox" + aV.AutoComplete.listBoxCounter++;
-		element.aVautoComplete.listBox.className="aCListBox";
+		element.aVautoComplete.listBox.id=aV.config.AutoComplete.classNames.listbox + aV.AutoComplete.listBoxCounter++;
+		element.aVautoComplete.listBox.className=aV.config.AutoComplete.classNames.listbox;
 		element.aVautoComplete.listBox.style.position='absolute';
 		aV.Visual.setOpacity(element.aVautoComplete.listBox, 0);
 		document.body.appendChild(element.aVautoComplete.listBox);
 	}
 	
 	element.aVautoComplete.listBox.innerHTML='';
-	element.aVautoComplete.listBox.style.left=aV.Visual.getElementPositionX(element) + "px";
-	element.aVautoComplete.listBox.style.top=(aV.Visual.getElementPositionY(element) + element.offsetHeight + aV.config.AutoComplete.listBoxOffset) + "px";
+	var elementCoordinates=aV.DOM.getElementCoordinates(element);
+	element.aVautoComplete.listBox.style.left=elementCoordinates.x + "px";
+	element.aVautoComplete.listBox.style.top=(elementCoordinates.y + element.offsetHeight + aV.config.AutoComplete.listBoxOffset) + "px";
+	element.aVautoComplete.listBox.style.width=element.offsetWidth + "px";
 	
 	element.aVautoComplete.list.selectedIndex=-1;
 	var seeker=aV.AutoComplete._getRegExp(element);
@@ -94,9 +125,9 @@ aV.AutoComplete._showListBox=function(element)
 			newLi.listIndex=i;
 			var matchedStr=matchInfo.coalesce(1) || '';
 			var matchedStrIndex=matchInfo[0].indexOf(matchedStr);
-			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(0, matchInfo.index + matchedStrIndex)));
+			newLi.appendChild(document.createTextNode(element.aVautoComplete.currentBaseStr + element.aVautoComplete.list[i].substring(0, matchInfo.index + matchedStrIndex)));
 			var matchedPart=newLi.appendChild(document.createElement('SPAN'));
-			matchedPart.className='aCMatchedPart';
+			matchedPart.className=aV.config.AutoComplete.classNames.matchedPart;
 			matchedPart.appendChild(document.createTextNode(matchedStr));
 			newLi.appendChild(document.createTextNode(element.aVautoComplete.list[i].substring(matchInfo.index + matchedStrIndex + matchedStr.length)));
 			aV.Events.add(newLi, 'mouseover', function(){aV.AutoComplete._onKeyDownHandler({target: element}, this.itemIndex)});
@@ -110,8 +141,13 @@ aV.AutoComplete._showListBox=function(element)
 		if (element.aVautoComplete.onshowlistbox)
 			element.aVautoComplete.onshowlistbox({type: 'showlistbox',	target: element});
 		aV.Visual.fade(element.aVautoComplete.listBox, 1);
-		element.aVautoComplete.list.selectedIndex=0;
-		element.aVautoComplete.listBox.childNodes[0].className='selected';
+		if (element.aVautoComplete.autoSelectFirst) 
+		{
+			element.aVautoComplete.list.selectedIndex = 0;
+			element.aVautoComplete.listBox.childNodes[0].className = aV.config.AutoComplete.classNames.selectedItem;
+		}
+		if (element.aVautoComplete.listBox.scrollHeight > element.aVautoComplete.listBox.clientHeight) //check if there is a vertical scrollbar
+			element.aVautoComplete.listBox.style.width=(element.aVautoComplete.listBox.clientWidth + 37) + 'px'; //expand the width according to the default scrollbar width to avoid overlapping with it
 	}
 	else
 		aV.AutoComplete._removeListBox(element);
@@ -119,7 +155,7 @@ aV.AutoComplete._showListBox=function(element)
 
 aV.AutoComplete._doKeyUp=function(element)
 {
-	if (element.aVautoComplete.list==undefined || !(element.aVautoComplete.dataChecker && element.aVautoComplete.dataChecker.test(element.value)))
+	if (element.aVautoComplete.list==undefined || !(element.aVautoComplete.dataChecker && element.aVautoComplete.dataChecker.test(element.aVautoComplete.currentFilter)))
 	{
 		element.aVautoComplete.dataChecker=aV.AutoComplete._getRegExp(element);
 		
@@ -133,14 +169,11 @@ aV.AutoComplete._doKeyUp=function(element)
 		}
 
 		aV.AJAX.destroyRequestObject(element.aVautoComplete.request);
-		var minChars=(element.aVautoComplete.minChars!=undefined)?element.aVautoComplete.minChars:aV.config.AutoComplete.minChars;
-		if (element.value.length<minChars)
-			return false;
 		element.className+=' aCLoading';
 		element.aVautoComplete.request=aV.AJAX.makeRequest(
-			"GET",
+			element.aVautoComplete.HTTPMethod || aV.config.AutoComplete.defaultHTTPMethod,
 			element.aVautoComplete.source,
-			params + '=' + encodeURIComponent(element.value),
+			params + '=' + encodeURIComponent(element.aVautoComplete.currentFilter),
 			function (requestObject)
 			{
 				if (requestObject.status == 200) 
@@ -157,8 +190,6 @@ aV.AutoComplete._doKeyUp=function(element)
 				{
 					if (element.aVautoComplete.list)
 						delete element.aVautoComplete.list;
-					if (element.aVautoComplete.filter)
-						delete element.aVautoComplete.filter;
 					
 					if (aV.config.AutoComplete.retryOnError)
 						aV.AutoComplete._doKeyUp(element);
@@ -185,8 +216,9 @@ aV.AutoComplete._onKeyUpHandler=function(event)
 
 	var key=event.keyCode || event.which;
 	var minChars=(event.target.aVautoComplete.minChars!=undefined)?event.target.aVautoComplete.minChars:aV.config.AutoComplete.minChars;
+	event.target.aVautoComplete.currentFilter=aV.AutoComplete._getFilter(event.target);
 
-	if (event.target.value.length < minChars || key==27) 
+	if (event.target.aVautoComplete.currentFilter.length < minChars || key==27) 
 	{
 		if (event.target.aVautoComplete.list)
 			event.target.aVautoComplete.list.selectedIndex=-1;
@@ -210,9 +242,12 @@ aV.AutoComplete._onKeyDownHandler=function(event, newIndex)
 {
 	var key=event.keyCode || event.which;
 
+	if (key == 27) 
+		event.preventDefault(); //to prevent IE from clearing the form
+
 	if (event.target.aVautoComplete.list==undefined || !event.target.aVautoComplete.listBox || (key!=13 && (key<37 || key>40) && !(newIndex>-1)))
 		return;
-	
+
 	if (event.target.aVautoComplete.list.selectedIndex>-1 && event.target.aVautoComplete.listBox)
 		event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].className='';
 	else
@@ -225,20 +260,25 @@ aV.AutoComplete._onKeyDownHandler=function(event, newIndex)
 		event.target.aVautoComplete.list.selectedIndex--;
 	else if (key == 40) 
 		event.target.aVautoComplete.list.selectedIndex++;
-	else if (key == 13 && event.target.aVautoComplete.list.selectedIndex > -1) 
+	else if (key == 13)
 	{
-		event.target.value = event.target.aVautoComplete.list[event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].listIndex];
-		if (event.target.aVautoComplete.onselectitem)
-			event.target.aVautoComplete.onselectitem({type: 'selectitem',	target: event.target});
+		var result=true;
+		if (event.target.aVautoComplete.list.selectedIndex > -1) 
+		{
+			result=false;
+			event.target.value = event.target.aVautoComplete.currentBaseStr + event.target.aVautoComplete.list[event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex].listIndex];
+			if (event.target.aVautoComplete.onselectitem) 
+				event.target.aVautoComplete.onselectitem({type: 'selectitem',	target: event.target});
+		}
 		delete event.target.aVautoComplete.list.selectedIndex;
 		aV.AutoComplete._removeListBox(event.target);
-		return false;
+		return result;
 	}
 	
 	event.target.aVautoComplete.list.selectedIndex=(event.target.aVautoComplete.listBox.childNodes.length + event.target.aVautoComplete.list.selectedIndex) % event.target.aVautoComplete.listBox.childNodes.length;
 	
 	var selectedItem=event.target.aVautoComplete.listBox.childNodes[event.target.aVautoComplete.list.selectedIndex];
-	selectedItem.className='selected';
+	selectedItem.className=aV.config.AutoComplete.classNames.selectedItem;
 	if (event.target.aVautoComplete.listBox.scrollTop > selectedItem.offsetTop)
 		event.target.aVautoComplete.listBox.scrollTop=selectedItem.offsetTop;
 	else if ((event.target.aVautoComplete.listBox.scrollTop + event.target.aVautoComplete.listBox.clientHeight) < (selectedItem.offsetTop + selectedItem.offsetHeight))
@@ -249,8 +289,15 @@ aV.AutoComplete._onBlurHandler=function(event)
 {
 	if (event.target.aVautoComplete.force && (!event.target.aVautoComplete.list || event.target.aVautoComplete.list.selectedIndex<0))
 		event.target.value='';
-	event.keyCode=13;
-	aV.AutoComplete._onKeyDownHandler(event);
+
+	if (event.target.aVautoComplete.selectOnExit) 
+	{
+		event.keyCode = 13/*enter*/;
+		aV.AutoComplete._onKeyDownHandler(event);
+	}
+	else
+		aV.AutoComplete._removeListBox(event.target);
+
 	aV.AJAX.destroyRequestObject(event.target.aVautoComplete.request);
 };
 

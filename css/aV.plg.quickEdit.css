@@ -1,19 +1,19 @@
-div.editable, span.editable
+.aVqE_editable
 {
 	text-decoration: underline;
 	cursor: pointer;
 }
-span.editable
+span.aVqE_editable, td.aVqE_editable
 {
 	background: #ffffaa;
 	text-decoration: none;
 }
-img.editable
+img.aVqE_editable
 {
 	border: 2px solid #dddddd;
 	cursor: pointer;
 }
-.editable input, .editable select
+input.aVqE_editor, select.aVqE_editor
 {
 	border: 1px solid #cccccc;
 	padding: 0px;
@@ -21,22 +21,23 @@ img.editable
 	display: inline;
 	width: 98%;
 }
-span.editable input
+.aVqE_editee input.aVqE_editor
 {
 	border: none;
 	border-bottom: 1px solid #bbbbbb;
 	width: 120px;
-	background: none;
+	/*background: none;*/
 }
-.editable textarea
+.aVqE_editee textarea.aVqE_editor
 {
 	border: none;
 	margin: 0px;
 	padding: 1px;
 	width: 98%;
-	max-height: 4.5em;
+	overflow-y: hidden;
+	overflow-x: auto;
 }
-.uploadContainer
+div.aVqE_uploadBox
 {
 	background:#FFFFFF none repeat scroll 0%;
 	border:1px solid #FF9900;
@@ -46,8 +47,9 @@ span.editable input
 	overflow:hidden;
 	padding:0px;
 	position:absolute;
+	width: 200px;
 }
-.uploadContainer input
+div.aVqE_uploadBox input
 {
 	font-family:Tahoma;
 	font-size:8pt;
@@ -55,7 +57,7 @@ span.editable input
 	text-align:center;
 	width:100%;
 }
-.uploadTitle
+div.aVqE_uploadBox div.aVqE_uploadBoxTitle
 {
 	background:#FF9900 none repeat scroll 0%;
 	color:#FFFFFF;
@@ -66,16 +68,32 @@ span.editable input
 	clear: both;
 	width: 100%;
 }
-.uploadTitleText
+div.aVqE_uploadBox div.aVqE_uploadBoxTitle div.aVqE_uploadBoxTitleText
 {
 	float: left;
 	clear: left;
 }
-.uploadCloseButton
+div.aVqE_uploadBox div.aVqE_uploadBoxTitle div.aVqE_uploadBoxCloseButton
 {
 	cursor: pointer;
 	float: right;
 	clear: right;
 	margin-right: 5px;
 	font-size: 9pt;
+}
+div.aVqE_uploadBox form.aVqE_uploadBoxForm
+{
+	float: left;
+	width: 100%;
+}
+div.aVqE_uploadBox div.aVqE_uploadBoxLoadingDiv
+{
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	text-align: center;
+}
+div.aVqE_uploadBox div.aVqE_uploadBoxLoadingDiv img
+{
+	margin: 1px auto;
 }

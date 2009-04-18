@@ -2,26 +2,26 @@
  * @fileOverview A parser library which assignes elements some properties from a CSS-like external file, from a special style tag or from an inline HTML attribute.
  * @name aV.aParser
  *
- * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version	1.2.2
  * 
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (!aV)
+if (!window.aV)
 	throw new Error("aV namespace cannot be found.", "aV.main.aParser.js@" + window.location.href);
 
 if (!aV.AJAX)
 	throw new Error("aV AJAX functions library is not loaded.", "aV.main.aParser.js@" + window.location.href);
 
 /**
- * Represents the name space for aParser's functions and methods.
+ * Represents the namespace for aParser's functions and methods.
  * 
  * @namespace
- * @requires {@link String} (aV.ext.string.js)
- * @requires {@link Object} (aV.ext.object.js)
- * @requires {@link aV.AJAX} (aV.main.ajax.js)
- * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.cssQuery.js)
+ * @requires String Extensions (aV.ext.string.js)
+ * @requires Object Extension (aV.ext.object.js)
+ * @requires aV.AJAX (aV.main.ajax.js)
+ * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.main.cssQuery.js)
  */
 aV.aParser = {};
 
@@ -47,12 +47,12 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 	{
 		return false;
 	}
-	
+
 	if (element[propertyName])
 			element[propertyName].unite(attributes);
 	else
 		element[propertyName]=attributes;
-	
+
 	return element;
 };
 
@@ -76,7 +76,7 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attributeStr, beforeSet, afterSet)
 {
 	var elements=cssQuery(queryStr);
-	
+
 	if (!beforeSet)
 		beforeSet=function(){return true;};
 	
@@ -84,16 +84,8 @@ aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, att
 	{
 		if (beforeSet(elements[i])===false)
 			continue;
-		
-		if (
-					aV.aParser.setElementAttributes(
-						elements[i],
-						propertyName,
-						(attributeStr!='*')?attributeStr:elements[i].getAttribute(propertyName)
-					)
-					&&
-					afterSet
-				)
+		if (aV.aParser.setElementAttributes(elements[i], propertyName, (attributeStr != '*') ? attributeStr : ((elements[i].attributes[propertyName.toLowerCase()])?elements[i].attributes[propertyName.toLowerCase()].value:'')) &&
+		afterSet) 
 			afterSet(elements[i]);
 	}	
 };
@@ -106,16 +98,13 @@ aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, att
  */
 aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, afterSet)
 {
-	ruleText+="\n*[" + propertyName + "]{*}";
 	ruleText=ruleText.replace(/\/\*.*\*\//g, '');
-	var matcher=/([^\{]+)\s*\{\s*([^\}]+)\s*\}/g;
-	
+	var matcher=new RegExp("([^{]+)\\s*{\\s*([^}]+)\\s*}", "g");
 	var result, queryStr, attributeStr;
 	while (result=matcher.exec(ruleText))
 	{
-		queryStr=result[1].trim();
-		attributeStr=result[2].trim();
-		
+		queryStr = result[1].trim();
+		attributeStr = result[2].trim();
 		aV.aParser.retrieveElementsAndSetAttributes(queryStr, propertyName, attributeStr, beforeSet, afterSet);
 	}
 };
@@ -130,7 +119,7 @@ aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, 
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
  * @param {Boolean} [includeStyleTags=true] Tells the function that whether it should use the inline style tags for additional rules.
  */
-aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags)
+aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags, includeInnerDefinitions)
 {
 	aV.AJAX.makeRequest(
 		'GET',
@@ -139,12 +128,14 @@ aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSe
 		function(requestObject)
 		{
 			var ruleText='';
-			if (aV.AJAX.isResponseOK(requestObject))
+			if (aV.AJAX.isResponseOK(requestObject, 'text/plain'))
 				ruleText=requestObject.responseText;
 			
 			aV.aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
-			if (includeStyleTags!==false)
+			if (includeStyleTags || includeStyleTags===undefined)
 				aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
+			if (includeInnerDefinitions || includeInnerDefinitions===undefined)
+				aV.aParser.assignAttributesFromInnerDefinitions(propertyName, beforeSet, afterSet);
 		}
 	);
 };
@@ -160,4 +151,9 @@ aV.aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterS
 	var styleTags=cssQuery('style[type="text/' + propertyName + '"]');
 	for (var i=0; i<styleTags.length; i++)
 		aV.aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, beforeSet, afterSet);
+};
+
+aV.aParser.assignAttributesFromInnerDefinitions=function(propertyName, beforeSet, afterSet)
+{
+	aV.aParser.assignAttributesFromText("*[" + propertyName + "]{*}", propertyName, beforeSet, afterSet);
 };

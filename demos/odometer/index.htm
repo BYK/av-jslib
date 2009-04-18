@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>
+			Odometer
+		</title>
+		<script src="../../js/dE.main.cssQuery.js" type="text/javascript"></script>
+		<script src="../../js/aV.ext.string.js" type="text/javascript"></script>
+		<script src="../../js/aV.ext.array.js" type="text/javascript"></script>
+		<script src="../../js/aV.ext.object.js" type="text/javascript"></script>
+		<script src="../../js/aV.ext.DOM.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.events.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.ajax.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.aParser.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.visual.js" type="text/javascript"></script>
+		<script src="../../js/aV.plg.odometer.js" type="text/javascript"></script>
+		<style type="text/aVodometer">
+			div.aVodometerContainer
+			{
+				digits: 8,
+				refreshInterval: 10000,
+				refreshURL: 'random.php'
+			}
+		</style>
+	</head>
+	<body>
+		<div class="aVodometerContainer">123</div><br />
+		<label for="newOdoVal">Set To:</label> <input type="text" id="newOdoVal" value="9016" /><input type="button" value="Set!" onclick="document.getElementById('myOdo').aVodometer.number=parseInt(document.getElementById('newOdoVal').value); aV.Odometer.setNumber(document.getElementById('myOdo'));" />
+		<label for="effectSelector">Effect Type: </label> <select id="effectSelector" onchange="aV.config.Odometer.transition.type=this.value"><option>linear</option><option>exponential</option><option>trigonometric</option><option selected>power</option></select>
+	</body>
+</html>

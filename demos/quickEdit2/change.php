@@ -1,6 +1,6 @@
 <?php
 	if ($_REQUEST['var']=='idPicture')
-		echo "path=images/byk.gif";
+		echo "{path: 'images/byk.gif'}";
 	else
-		echo 1;
+		echo "{value: '".addslashes($_REQUEST['val'])."'}";
 ?>

@@ -1,0 +1,9 @@
+div.aVodometerContainer
+{
+	background: url('/JSLib/images/Odometer/bg.gif');
+}
+div.aVodometerDigit
+{
+	float: left;
+	background: url('/JSLib/images/Odometer/digits.gif');
+}

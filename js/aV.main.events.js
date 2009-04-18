@@ -97,14 +97,14 @@ aV.Events.clear=function(element)
 		if (!element.events.hasOwnProperty(event))
 			continue;
 
-		for (var guid in element.events[event])
+		for (var guid in element.events[event]) 
 			if (element.events[event].hasOwnProperty(guid))
 				delete element.events[event][guid];
 		delete element.events[event];
 		element["on" + event]=null;
 	}
 	element.events=undefined;
-};
+}
 
 /**
  * The generic event handler which manages the event queue
@@ -147,7 +147,7 @@ aV.Events.fix=function(event)
 	event.preventDefault = function() {this.returnValue=false;};
 	event.stopPropagation = function() {this.cancelBubble=true;};
 	return event;
-};
+},
 
 /**
  * Handles the mouse wheel event and iterprets it for a browser independent usage.

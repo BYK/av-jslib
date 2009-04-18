@@ -1,11 +1,11 @@
 /**
- * @fileOverview A visual effects function library incloding some positioning functions.
+ * @fileOverview A visual effects function library.
  * @name Visual Effects and Functions Library
  *
- * @author Burak YiÄŸit KAYA	byk@amplio-vita.net
- * @version 1.6
+ * @author Burak Yiðit KAYA <byk@amplio-vita.net>
+ * @version 1.7
  *
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
 if (!aV)
@@ -13,6 +13,9 @@ if (!aV)
 
 if (!aV.Events)
 	throw new Error("aV event manager library is not loaded.", "aV.main.visual.js@" + window.location.href);
+	
+if (!aV.DOM)
+	throw new Error("aV DOM library is not loaded.", "aV.main.visual.js@" + window.location.href);
 
 /**
  * Represents a namespace, aV.Visual, for the new functions and global parameters of those functions.
@@ -34,7 +37,67 @@ aV.config.Visual=
 	slideTreshold: 2,
 	slideDivisor: 4,
 	fadeTreshold: 0.05,
-	fadeDivisor: 4
+	fadeDivisor: 4,
+	defaults:
+	{
+		interval: 50,
+		duration: 2000,
+		converger: 'exponential'
+	},
+	convergers:
+	{
+		linear: function(start, end, steps)
+		{
+			this.step=0;
+			this.steps=steps;
+			this.m=(end-start)/this.steps;
+			this.c=start;
+			this.next=function()
+			{
+				this.step++;
+				return this.m*this.step + this.c;
+			};
+		},
+		exponential: function(start, end, steps)
+		{
+			this.step=0;
+			this.steps=steps;
+			this.increment=5/this.steps;
+			this.c=start;
+			this.m=(end-start);
+			this.next=function()
+			{
+				this.step++;
+				return (1-Math.exp(-this.step*this.increment))*this.m + this.c;
+			};
+		},
+		trigonometric: function(start, end, steps)
+		{
+			this.step=0;
+			this.steps=steps;
+			this.m=(end-start);
+			this.c=start;
+			this.next=function()
+			{
+				this.step++;
+				return (Math.cos((this.step/this.steps - 1)*Math.PI)+1)*this.m/2 + this.c;
+			};
+		},
+		power: function(start, end, steps)
+		{
+			this.step=0;
+			this.steps=steps;
+			this.increment=12/this.steps;
+			this.c=start;
+			this.m=(end-start);
+			this.next=function()
+			{
+				this.step++;
+				var x=this.step*this.increment;
+				return (1-Math.pow(x/2, -x/4))*this.m + this.c;
+			};
+		}
+	}
 };
 
 /**
@@ -65,6 +128,49 @@ aV.Visual.fixedElements = [];
  * );
  */
 aV.Visual.initFunctions = [];
+
+aV.Visual.animationTicker=function(startVal, endVal, tickCallback, type, duration, interval)
+{
+	if (!(type in aV.config.Visual.convergers))
+		type=aV.config.Visual.defaults.converger;
+
+	this.startVal=this.currentVal=startVal;
+	this.endVal=endVal;
+	this.tickCallback=tickCallback;
+	this.interval=interval || aV.config.Visual.defaults.interval;
+	this.duration=duration || aV.config.Visual.defaults.duration;
+	
+	this.diverger=new aV.config.Visual.convergers[type](startVal, endVal, this.duration/this.interval);
+
+	var self=this;
+	
+	this.start=function()
+	{
+		return this.ticker=window.setInterval(this.tickerFunction, this.interval);
+	};
+	
+	this.stop=function()
+	{
+		if (this.ticker) 
+		{
+			window.clearInterval(this.ticker);
+			delete this.ticker;
+		}
+	};
+	
+	this.tickerFunction=function()
+	{
+		self.currentVal=self.diverger.next();
+		if (self.diverger.step==self.diverger.steps)
+		{
+			self.currentVal=self.endVal;
+			self.stop();
+		}
+		self.tickCallback(self);
+	};
+	
+	this.start();
+};
 
 /**
  * Sets the given element's opacity to the given opacity value.
@@ -105,6 +211,107 @@ aV.Visual.getOpacity=function(obj)
 	return opacity;
 };
 
+aV.Visual.composeRGBCode=function(color)
+{
+	var colors=[];
+	colors.push(Math.convertToBase(color.r, 16), Math.convertToBase(color.g, 16), Math.convertToBase(color.b, 16));
+	colors.each(function(x){if (x.length==1) return '0'+x; else if (x.length>2) return '00'; else return x;});
+	return '#%s%s%s'.format(colors);
+};
+
+aV.Visual.decomposeRGBCode=function(colorCode)
+{
+	var colorSeperator=/rgb\(\s*(\d{1,3})\,\s*(\d{1,3})\,\s*(\d{1,3})\)|\#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i
+	
+	var colors=colorSeperator.exec(colorCode);
+	if (!colors)
+		return undefined;
+	
+	var startFrom, base;
+	if (colors[1]!=undefined)
+	{
+		startFrom=1;
+		base=10;
+	}
+	else if (colors[4]!=undefined)
+	{
+		startFrom=4;
+		base=16;
+	}
+	else
+		return undefined;
+
+	return {
+		r: Math.convertToDecimal(colors[startFrom], base),
+		g: Math.convertToDecimal(colors[startFrom+1], base),
+		b: Math.convertToDecimal(colors[startFrom+2], base)
+	};
+};
+
+aV.Visual.HSLtoRGB=function(color)
+/** conversion function taken from 
+ * http://en.wikipedia.org/wiki/HSL_and_HSV
+ */
+{
+	var q=(color.l<0.5)?color.l*(1+color.s):(color.l + color.s - color.l*color.s);
+	var p=2*color.l - q;
+	var hk=color.h/360;
+	var t=[hk + 1/3, hk, hk - 1/3];
+	t.each(function(x){if (x<0) return x+1; else if (x>1) return x-1; else return x});
+	var calculateColorValue=function(x)
+	{
+		var result;
+		if (x<1/6)
+			result=p + (q - p)*6*x;
+		else if (x<0.5)
+			result=q;
+		else if (x<2/3)
+			result=p + (q - p)*6*(2/3 - x);
+		else
+			result=p;
+		
+		return Math.round(result*255);
+	};
+	
+	return {
+		r: calculateColorValue(t[0]),
+		g: calculateColorValue(t[1]),
+		b: calculateColorValue(t[2])
+	};
+};
+
+aV.Visual.RGBtoHSL = function(color)
+/** conversion function taken from 
+ * http://en.wikipedia.org/wiki/HSL_and_HSV
+ */
+{
+	var max=Math.max(Math.max(color.r, color.g), color.b);
+	var min=Math.min(Math.min(color.r, color.g), color.b);
+	var result={};
+	switch(max)
+	{
+		case min:
+			result.h=0;break;
+		case color.r:
+			result.h=(60*(color.g - color.b)/(max - min) + 360)%360;break;
+		case color.g:
+			result.h=60*(color.b - color.r)/(max - min) + 120;break;
+		case color.b:
+			result.h=60*(color.r - color.g)/(max - min) + 240; break;
+	}
+	
+	result.l=(max + min)/510;
+	
+	if (max==min)
+		result.s=0;
+	else if (result.l>0.5)
+		result.s=(max - min)/(510 - max - min);
+	else
+		result.s=(max - min)/(max + min);
+	
+	return result;
+};
+
 /**
  * Fades the given HTML element, to the given opacity value with a slowing fade effect.
  *
@@ -140,6 +347,33 @@ aV.Visual.fade=function(obj, opacity, callback)
 			obj.fadeCallback=undefined;
 		}
 	}
+};
+
+aV.Visual.newFade=function(element, targetOpacity, duration, callback, type, interval, startOpacity)
+{
+	if (!element || typeof targetOpacity!='number')
+		return;
+	
+	if (element.aVfadeTicker) 
+	{
+		element.aVfadeTicker.stop();
+		delete element.aVfadeTicker;
+	}
+	
+	if (typeof startOpacity!='number')
+		startOpacity=aV.Visual.getOpacity(element);
+	
+	var tickFunction=function(ticker)
+	{
+		aV.Visual.setOpacity(element, ticker.currentVal);
+		if (ticker.currentVal==ticker.endVal)
+		{
+			delete element.aVfadeTicker;
+			if (callback)
+				callback(element);
+		}
+	};
+	element.aVfadeTicker=new aV.Visual.animationTicker(startOpacity, targetOpacity, tickFunction, type, duration, interval);
 };
 
 /**
@@ -222,6 +456,38 @@ aV.Visual.fadeNSlide=function(obj, newDimension, opcDirection, horizontalSlide, 
 		window.onscroll({type: "scroll"}); //there might be a scroll change so if a function is assigned to window.onscroll, call it.
 };
 
+aV.Visual.toggle=function(element, display)
+{
+	if (!display)
+		display='';
+
+	if (element.style.display=='none')
+		element.style.display=display;
+	else
+		element.style.display='none';
+};
+
+aV.Visual.slideToggle=function (element, maxHeight, offset, horizontal, callback)
+{
+	var newDimension, direction;
+	var propertyStr=(horizontal)?'Width':'Height';
+	if (!offset)
+		offset=0;
+	if (!maxHeight)
+		maxHeight=element['scroll' + propertyStr];
+	if (element['client' + propertyStr]<maxHeight)
+	{
+		newDimension=maxHeight + offset;
+		direction=1;
+	}
+	else
+	{
+		newDimension=0;
+		direction=-1
+	}
+	aV.Visual.fadeNSlide(element, newDimension, direction, horizontal, callback);
+};
+
 /**
  * Moves the given object to the given postion with a slowing move effect.
  *
@@ -288,10 +554,10 @@ aV.Visual.move=function(obj, xPos, yPos, callback)
 aV.Visual.setFixedElementPositions=function()
 {
 	//below variable definitons are only for not to call the functions repedeatly in the for loop
-	var visiblePageLeftPosition=aV.Visual.scrollLeft();
-	var visiblePageTopPosition=aV.Visual.scrollTop();
-	var visiblePageWidth=aV.Visual.clientWidth();
-	var visiblePageHeight=aV.Visual.clientHeight();	
+	var visiblePageLeftPosition=aV.DOM.windowScrollLeft();
+	var visiblePageTopPosition=aV.DOM.windowScrollTop();
+	var visiblePageWidth=aV.DOM.windowClientWidth();
+	var visiblePageHeight=aV.DOM.windowClientHeight();	
 	var xPosTemp, yPosTemp;
 	for (var i=aV.Visual.fixedElements.length-1; i>=0; i--) //walk throught the fixed elements
 	{
@@ -350,174 +616,6 @@ aV.Visual.initFixedElements=function()
 	aV.Events.add(window, "scroll", aV.Visual.setFixedElementPositions);
 	//call the setFixedElementPositions function to set the initial positions of the elements when the page is loaded
 	aV.Visual.setFixedElementPositions();
-};
-
-/** <a href="http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html">External</a> page&scroll size functions */
-
-/**
- * Returns the internal usable width of the page.
- *
- * @return	{Integer}
- */
-aV.Visual.clientWidth=function()
-{
-	return aV.Visual._filterResults (
-		window.innerWidth ? window.innerWidth : 0,
-		document.documentElement ? document.documentElement.clientWidth : 0,
-		document.body ? document.body.clientWidth : 0
-	);
-};
-
-/**
- * Returns the internal usable height of the page.
- *
- * @return	{Integer}
- */
-aV.Visual.clientHeight=function()
-{
-	return aV.Visual._filterResults (
-		window.innerHeight ? window.innerHeight : 0,
-		document.documentElement ? document.documentElement.clientHeight : 0,
-		document.body ? document.body.clientHeight : 0
-	);
-};
-
-/**
- * Returns the scroll offset of the page from the left.
- *
- * @return	{Integer}
- */
-aV.Visual.scrollLeft=function()
-{
-	return aV.Visual._filterResults (
-		window.pageXOffset ? window.pageXOffset : 0,
-		document.documentElement ? document.documentElement.scrollLeft : 0,
-		document.body ? document.body.scrollLeft : 0
-	);
-};
-
-/**
- * Returns the scroll offset of the page from the top.
- *
- * @return	{Integer}
- */
-aV.Visual.scrollTop=function()
-{
-	return aV.Visual._filterResults (
-		window.pageYOffset ? window.pageYOffset : 0,
-		document.documentElement ? document.documentElement.scrollTop : 0,
-		document.body ? document.body.scrollTop : 0
-	);
-};
-
-/**
- * Filters the given values for a cross-browser compatibility.
- *
- * @private
- * @return	{Integer}
- */
-aV.Visual._filterResults=function(n_win, n_docel, n_body)
-{
-	var n_result = n_win ? n_win : 0;
-	if (n_docel && (!n_result || (n_result > n_docel)))
-		n_result = n_docel;
-	return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
-};
-/** End of external code */
-
-/** External code from unknown author, if you know the author, please notify me */
-
-/**
- * Gets the CSS rule element whose name is given with ruleName parameter or deletes it providing to the deleteFlag's state.
- *
- * @return	{CSSRuleElementObject}
- * @param	{String}	ruleName	The name of the CSS rule which will be returned.
- * @param	{Boolean}	[deleteFlag]	Set to true if you want to delete the CSS rule whose name is given in the ruleName parameter.
- */
-aV.Visual.getCSSRule=function(ruleName, deleteFlag)
-{
-	if (document.styleSheets)
-	{
-		for (var i=0; i<document.styleSheets.length; i++)
-		{
-			var styleSheet=document.styleSheets[i];
-			var ii=0;
-			var cssRule=false;
-			do
-			{
-				if (styleSheet.cssRules)
-					cssRule = styleSheet.cssRules[ii];
-				else
-					cssRule = styleSheet.rules[ii];
-				if (cssRule)
-				{
-					if (cssRule.selectorText==ruleName)
-					{
-						if (deleteFlag)
-						{
-							if (styleSheet.cssRules)
-								styleSheet.deleteRule(ii);
-							else
-								styleSheet.removeRule(ii);
-							return true;
-						}
-						else
-							return cssRule;
-					}
-				}
-				ii++;
-			}
-			while (cssRule)
-		}
-	}
-	return false;
-};
-/** end of unknown author's external code */
-
-
-/**
- * Gathers the REAL position of the given HTML element.
- *
- * @private
- * @deprecated Use {@link aV.Visual.getElementPositionX} and {@link aV.Visual.getElementPositionY} instead.
- * @return	{Integer}
- * @param	{HTMLElementObject}	element	The HTML element whose position to be gathered.
- * @param	{Boolean}	[xPosition]	Set true to get the X coordinate, false for Y coordinate.
- */
-aV.Visual._getElementPosition=function(element, xPosition)
-{
-	if (!element)
-		return;
-	var axis=(xPosition)?'Left':'Top';
-	var position = 0;
-
-	do
-	{
-		position+=element['offset' + axis];
-	}
-	while (element=element.offsetParent)
-	return position;
-};
-
-/**
- * Gets the x position of the element.
- *
- * @return	{Integer}
- * @param	{HTMLElementObject}	element	The HTML element whose x position to be gathered.
- */
-aV.Visual.getElementPositionX=function(element)
-{
-	return aV.Visual._getElementPosition(element, true);
-};
-
-/**
- * Gets the y position of the element.
- * @return	{Integer}
- * @param	{HTMLElementObject}	element	The HTML element whose y position to be gathered.
- */
-aV.Visual.getElementPositionY=function(element)
-{
-	return aV.Visual._getElementPosition(element, false);
 };
 
 /**

@@ -5,31 +5,76 @@
  */
 div.aVdS_container
 {
-	border: 1px solid #67A7E3;
+	border: 1px solid #c7c7c7;
 	overflow: hidden;
 	min-height: 50px;
-	width: auto;
 	font-size: 10pt;
-}
-div.aVdS_tabTitle
-{
-	float: left;
+	margin: 4px;
 	clear: both;
-	margin: 0px;
-	width: 100%;
-	background-color: #67A7E3;
-	color: #000000;
-	font-size: 12px;
-	height: 18px;
-	vertical-align: middle;
 }
-div.aVdS_tabTitle a
+div.aVdS_content
 {
-	text-decoration: none;
-	margin-left: 2px;
-	padding: 2px;
-	background: #efefef;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+div.aVdS_generalHelpBox
+{
+	background: #ededed;
+	overflow: hidden;
+	font-size: 8pt;
+}
+div.aVdS_contextualHelpButton, div.aVdS_generalHelpButton
+{
+	position: absolute;
+	cursor: pointer;
+	top: 0px;
+	right: 0px;
+	font-size: 9pt;
+	color: #9f130e;
+	background: url('/JSLib/images/DynamicSearch/help.gif') right center no-repeat;
+	padding-right: 18px;
+}
+div.aVdS_generalHelpButton
+{
+	right: 105px;
+}
+ul.aVdS_tabTitle
+{
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	background: url('/images/title_back.gif') repeat-x bottom left;
+	border-bottom: 1px solid #c7c7c7;
+	height: 17px;
+	color: #547689;
+	width: 100%;
+	overflow: visible;
+	position: relative;
+}
+ul.aVdS_tabTitle li
+{
+	padding: 0 4px;
+	display: block;
+	height: 17px;
+	float: left;
+	clear: none;
+	margin: 0;
+	border-right: 1px solid #c7c7c7;
+	cursor: pointer;
+}
+ul.aVdS_tabTitle li:hover
+{
+	color: #22354b;
+}
+ul.aVdS_tabTitle li.aVdS_activeTabTitle
+{
+	background: url('/images/tab_selected_back.gif') repeat-x top left;
 	height: 16px;
+	padding-top: 2px;
+	font-weight: bold;
+	color: #22354b;
 }
 form.aVdS_form ul
 {
@@ -40,7 +85,7 @@ form.aVdS_form ul
 }
 form.aVdS_form ul.aVdS_conditions
 {
-	width: 99%;
+	width: 98%;
 	margin: 3px;
 	padding: 3px;
 }
@@ -53,18 +98,59 @@ form.aVdS_form ul li
 	height: 2em;
 	vertical-align: middle;
 }
+form.aVdS_form ul li span.aVdS_fieldAddition
+{
+	float: left;
+}
+div.aVdS_helpEnabled form.aVdS_form ul li
+{
+	height: 5.2em;
+}
+form.aVdS_form ul li div.aVdS_help
+{
+	font-size: 7pt;
+	overflow: hidden;
+	height: 5.6em;
+	display: none;
+	clear: both;
+}
+div.aVdS_helpEnabled form.aVdS_form ul li div.aVdS_help
+{
+	display: block;
+}
+form.aVdS_form ul.aVdS_labels
+{
+	width: 24%;
+}
+form.aVdS_form ul.aVdS_labels a
+{
+	background-color: #ffffbb;
+	font-weight: bold;
+}
+form.aVdS_form ul.aVdS_inputs
+{
+	width: 74%;
+}
 form.aVdS_form ul.aVdS_inputs li
 {
-	width: 170px;
+	width: 100%;
 }
-form.aVdS_form ul.aVdS_inputs li input[type="text"]
+form.aVdS_form ul.aVdS_inputs li input
 {
 	width: 152px;
+	float: left;
 }
 form.aVdS_form ul.aVdS_conditions li
 {
 	width: 100%;
 	background: #ffffff;
+	height: 21px!important;
+	padding: 2px;
+}
+form.aVdS_form ul.aVdS_conditions li:hover
+{
+	background: #ffb;
+	cursor: pointer;
 }
 form.aVdS_form ul.aVdS_conditions li input, form.aVdS_form ul.aVdS_conditions li select
 {
@@ -72,13 +158,30 @@ form.aVdS_form ul.aVdS_conditions li input, form.aVdS_form ul.aVdS_conditions li
 	float: left;
 	clear: none;
 }
-form.aVdS_form ul li.aVdS_controlButtons input
+form.aVdS_form ul li.aVdS_controlButtons input, form.aVdS_form ul li.aVdS_controlButtons select, form.aVdS_form ul li.aVdS_controlButtons label
 {
 	float: right;
 }
+form.aVdS_form ul li.aVdS_controlButtons label
+{
+	margin: 2px 1px;
+}
+form.aVdS_form ul li.aVdS_controlButtons input
+{
+	width: auto;
+}
+form.aVdS_form ul li.aVdS_controlButtons input[type="reset"]
+{
+	float: left;
+}
+form.aVdS_form ul li.aVdS_controlButtons:hover, form.aVdS_form ul li.aVdS_conjunction:hover
+{
+	cursor: default;
+	background: #ffffff;
+}
 form.aVdS_form ul li input[type="text"]
 {
-	background-image: url('../images/DynamicSearch/check.png');
+	background-image: url('/JSLib/images/DynamicSearch/check.png');
 	background-position: right;
 	background-repeat: no-repeat;
 	border: 1px solid #cccccc;
@@ -88,41 +191,55 @@ form.aVdS_form ul li input[type="text"]
 form.aVdS_form ul li input[type="text"].aVdS_error
 {
 	background-color: #efefef;
-	background-image: url('../images/DynamicSearch/error.png')!important;
+	background-image: url('/JSLib/images/DynamicSearch/error.png')!important;
 }
 form.aVdS_form ul li input[type="text"].aVdS_enum
 {
-	background-image: url('../images/DynamicSearch/dropdown.gif');
+	background-image: url('/JSLib/images/DynamicSearch/dropdown.gif');
 }
-.aVdS_loading
+div.aVdS_loading
 {
-	background-image: url('../images/loading.gif');
+	background-image: url('/JSLib/images/loading.gif');
 	background-position: left;
 	background-repeat: no-repeat;
 	height: 16px;
-	width: 50%;
-	float: left;
-	clear: both;
 	padding-left: 16px;	
 	font-style: italic;
 }
 .aVdS_addCondition, .aVdS_removeCondition
 {
-	background-image: url('../images/DynamicSearch/add.png');
+	background-image: url('/JSLib/images/DynamicSearch/add.png');
 	background-position: left;
 	background-repeat: no-repeat;
-	width: 16px;
+/*	width: 16px; */
+	padding-left: 16px;
 	height: 16px;
 	display: block;
 	float: left;
 	clear: none;
+	margin-top: 2px;
+	margin-left: 5px;
+	text-decoration: none;
 }
 .aVdS_removeCondition
 {
-	background-image: url('../images/DynamicSearch/remove.png');
-	margin-left: 5px;
+	background-image: url('/JSLib/images/DynamicSearch/remove.png');
 }
-.aVdS_groupContainer
+div.aVdS_groupButton, div.aVdS_ungroupButton
+{
+	float: right;
+	font-style: italic;
+	font-size: 10pt;
+	cursor: pointer;
+}
+div.aVdS_ungroupButton
+{
+	margin: 0;
+	padding: 1px;
+	background: #ffb;
+	font-size: 8pt;
+}
+div.aVdS_groupContainer
 {
 	border: 2px dashed #000000;
 	padding: 2px;
@@ -131,4 +248,51 @@ form.aVdS_form ul li input[type="text"].aVdS_enum
 	float: left;
 	clear: both;
 	width: 98%;
+	position: relative;
+}
+/* Begin Printer Styles */
+@media print
+{
+	/* hide unnecessary controls */
+	div.aVdS_tabTitle,
+	div.aVdS_groupButton,
+	div.aVdS_ungroupButton,
+	.aVdS_addCondition,
+	.aVdS_removeCondition,
+	form.aVdS_form ul li.aVdS_controlButtons
+	{
+		display: none;
+	}
+	/* Set Page Break Rules */
+	div.aVdS_container
+	{
+		page-break-before: auto;
+		page-break-inside: avoid;
+		page-break-after: auto;
+		overflow: visible;
+	}
+	form.aVdS_form ul li
+	{
+		page-break-before: auto;
+		page-break-inside: avoid;
+		page-break-after: avoid;
+	}
+	form.aVdS_form ul.aVdS_labels
+	{
+		page-break-before: auto;
+		page-break-inside: avoid;
+		page-break-after: avoid;
+	}
+	form.aVdS_form ul.aVdS_inputs, form.aVdS_form ul.aVdS_conditions
+	{
+		page-break-before: avoid;
+		page-break-inside: avoid;
+		page-break-after: avoid;
+	}
+	form.aVdS_form ul li *
+	{
+		page-break-before: avoid;
+		page-break-inside: avoid;
+		page-break-after: avoid;
+	}
 }

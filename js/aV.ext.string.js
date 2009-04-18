@@ -2,16 +2,16 @@
  * @fileOverview A library which extends the String class with some useful functions.
  * @name String Extensions
  *
- * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 1.1
  *
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
 /**
  * Escapes the special characters for a regular expression in the string.
  *
- * @return {String}
+ * @return {String} The escaped string.
  */
 String.prototype.escapeRegExp=function()
 {
@@ -29,10 +29,11 @@ String.prototype.escapeRegExp=function()
 	outText+=this.substr(lastMatch);
 	return outText;
 };
+
 /**
- * Makes the first letters of words uppercase.
+ * Makes the first letters of the words in the string uppercase.
  *
- * @return {String}
+ * @return {String} The "word-uppercased" string.
  * @example
  * var myText="javascript is lovely.";
  * myText.ucWords();
@@ -52,14 +53,15 @@ String.prototype.ucWords=function()
 	}
 	return outText;
 };
+
 /**
  * Replaces the occurences of the strings given in the fromArray with the toArray respectively.
  *
- * @return {String}
- * @param {String[]} fromArray	The string array which holds the strings-to-be-replaced
- * @param {String[]} toArray	The string array which holds the strings-to-be-replaces-with.
- * If the length of this array is smaller than the fromArray, then the last item of this array is used for undefined indexes.
- * @param {Boolean} [dontEscape] If given false the strings in the fromArray are used directly as regular expressions.
+ * @param {String[]} fromArray The string array which holds the strings-to-be-replaced
+ * @param {String[]} toArray The string array which holds the "replacements".
+ * If the length of this array is smaller than the fromArray, the last item of this array is used for undefined indexes.
+ * @param {Boolean} [dontEscape=false] If false, the strings in the fromArray are used directly as/in regular expressions.
+ * @return {String} The replaced string
  *
  * @example
  * var myText="I love Visual Basic, CGI-Script and Ruby very much!";
@@ -97,11 +99,11 @@ String.prototype.arrayReplace=function(fromArray, toArray, dontEscape)
 };
 
 /**
- * Counts and returns the given string's occurances.
+ * Counts and returns the given string's occurances in the current string.
  *
- * @return {integer}
  * @param {String} searchStr The string whose occurenses will be counted.
- * @param {Boolean} [dontEscape] If given false, the searchStr is used directly as a regular expression.
+ * @param {Boolean} [dontEscape=false] If false, the searchStr is used directly as/in a regular expression.
+ * @return {Number} The occurance count.
  */
 String.prototype.strCount=function(searchStr, dontEscape)
 {
@@ -117,7 +119,7 @@ String.prototype.strCount=function(searchStr, dontEscape)
 /**
  * Replaces any line breaks (\n, \r, \r\n) with &lt;br&gt; tags.
  *
- * @return {String}
+ * @return {String} The "html-friendly" string.
  */
 String.prototype.LBtoBR=function()
 {
@@ -128,7 +130,7 @@ String.prototype.LBtoBR=function()
 /**
  * Replaces any &lt;br&gt; or &lt;br /&gt; tags with line breaks(\n). 
  *
- * @return {String}
+ * @return {String} The "native" string.
  */
 String.prototype.BRtoLB=function()
 {
@@ -137,44 +139,57 @@ String.prototype.BRtoLB=function()
 };
 
 /**
- * Trims the string to the given length and puts "..." in the end of the string.
+ * Trims the string to the given length and puts the replacement in the end of the string.
  *
- * @return {String}
- * @param {integer} length The desired maximum length of the string.
+ * @param {Number} length The desired maximum length of the string.
+ * @param {String} [replacement="..."] The replacement which will be added to the end of the trimmed string.
+ * @return {String} The trimmed string.
  */
-String.prototype.trimToLength=function(length)
+String.prototype.trimToLength=function(length, replacement)
 {
-	return (this.length>length)?(this.substr(0, length-3) + "..."):this;
+	if (replacement===undefined)
+		replacement="...";
+
+	return (this.length>length)?(this.substr(0, length-replacement.length) + replacement):this;
 };
 
 /**
- * Trims the whitespaces in the beginning of the text.
+ * Trims the whitespace in the beginning of the text.
  *
- * @return {String}
+ * @return {String} The left-trimmed string.
  */
-String.prototype.trimLeft=function()
+String.prototype.trimLeft=function(trimChars)
 {
-	return this.replace(/^(\s)+/g, "");
+	if (!trimChars)
+		trimChars="\\s";
+	var trimmer=new RegExp("^(" + trimChars + ")+", "g");
+	return this.replace(trimmer, "");
 };
 
 /**
- * Trims the whitespaces in the end of the text.
+ * Trims the whitespace in the end of the text.
  *
- * @return {String}
+ * @return {String} The right-trimmed string.
  */
-String.prototype.trimRight=function()
+String.prototype.trimRight=function(trimChars)
 {
-	return this.replace(/(\s)+$/g, "");
+	if (!trimChars)
+		trimChars="\\s";
+	var trimmer=new RegExp("(" + trimChars + ")+$", "g");
+	return this.replace(trimmer, "");
 };
 
 /**
- * Trims the whitespaces around the text.
+ * Trims the whitespace around the text.
  *
- * @return {String}
+ * @return {String} The trimmed string.
  */
-String.prototype.trim=function()
+String.prototype.trim=function(trimChars)
 {
-	return this.replace(/^(\s)+|(\s)+$/g, "");
+	if (!trimChars)
+		trimChars="\\s";
+	var trimmer=new RegExp("^(" + trimChars + ")+|(" + trimChars + ")+$", "g");
+	return this.replace(trimmer, "");
 };
 
 /**
@@ -182,7 +197,7 @@ String.prototype.trim=function()
  * Removes only the given tags if tags is given
  * 
  * @param {String|Array} [tags] The tags which will be stripped out.
- * @return {String}
+ * @return {String} The "html-free" string.
  */
 String.prototype.stripHTML=function(tags)
 {
@@ -194,17 +209,17 @@ String.prototype.stripHTML=function(tags)
 	var matcher=new RegExp(tags, "gi");
 	return this.replace(matcher, "");
 };
+
 /**
  * Formats a string according to the given parameters.
- * Currently supports only string replacement.
+ * Currently supports only string replacement (%s).
  * 
- * @beta Needs testing and feedback.
- * @param {String|Number} The strings to be replaced, any number of parameters can be given.
+ * @param {String|Number} replacements The strings to be replaced, any number of parameters can be given.
  * @return {String} The formatted string.
  * 
  * @example
  * "%s says this function is great but %2:s claims it's not".format("BYK", "useless", "snlzkn") will give you
- * BYK says this function is great but snlzkn claims it's not
+ * "BYK says this function is great but snlzkn claims it's not"
  */
 String.prototype.format=function()
 {
@@ -215,6 +230,9 @@ String.prototype.format=function()
 	var outText='';
 	var lastMatch=0;
 	
+	if (arguments.length==1 && (arguments[0] instanceof Array))
+		arguments=arguments[0];
+
 	while (result=matcher.exec(this))
 	{
 		outText+=this.substring(lastMatch, result.index);
@@ -224,12 +242,4 @@ String.prototype.format=function()
 	
 	outText+=this.substr(lastMatch);
 	return outText;		
-};
-
-String.prototype.toObject=function(secure)
-{
-	if (!secure)
-		return eval('(' + this + ')');
-	else if (window.JSON)
-		return JSON.parse(this);
 };

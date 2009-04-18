@@ -5,10 +5,10 @@ ul.aCListBox
 	background: #ffffff;
 	margin: 0px;
 	padding: 0px;
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow: auto;
 	max-height: 100px;
 	font-size: 10pt;
+	z-index: 100;
 }
 ul.aCListBox>li
 {
@@ -21,7 +21,7 @@ ul.aCListBox li.selected
 }
 .aCLoading
 {
-	background-image: url('../images/loading.gif')!important;
+	background-image: url('/JSLib/images/loading.gif')!important;
 	background-position: right;
 	background-repeat: no-repeat;
 }

@@ -6,15 +6,16 @@
 }
 #idGender
 {
-	type: 'select',
+	editor: 'select',
 	selectValues: ['Unisex', 'Male', 'Female']
 }
 #idExtraInfo
 {
-	type: 'textarea'
+	editor: 'textarea'
 }
 #idPicture
 {
+	editor: 'image',
 	action: 'change.php',
 	params: 'var=' + element.id + '&val',
 	fade: 0.5,

@@ -1,49 +1,90 @@
 /**
  * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#aV.AJAX.XML.getValue">aV.AJAX.XML.getValue</a> and <a href="#aV.AJAX.XML.setValue">aV.AJAX.XML.setValue</a>.
- * @name Core AJAX and XML Library
+ * @name Core AJAX and XML functions Library
  *
- * @author Burak Yiğit KAYA	byk@amplio-vita.net
- * @version 1.6
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @author Burak Yigit KAYA	<byk@amplio-vita.net>
+ * @version 1.7
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
 
-if (!aV)
+if (!window.aV)
 	var aV={config: {}};
 	
 /**
- * Represents the namespace, aV.AJAX, for the core AJAX functions and global parameters of those functions.
+ * Represents the namespace, aV.AJAX, for the core AJAX functions.
  *
  * @namespace
- * @param {String} [config.noAjax="You need an AJAX supported browser to use this page."] The error message which user will see if his/her browser does not support AJAX.
- * If you want to disable this warning, just set this to false.
- * @param {String} [config.loadImgPath="images/loading_img.gif"] The "loading" gif's path, which might be used in various places. 
- * @param {String} [config.loadingText] The "loading" message which will be placed into a dynamically filled container while the content is being loaded.
- * If you want to disable this text, just set this to false.
- * @param {String} [config.pageLeaveWarning="There are one or more requests in progress. If you exit, there might be data loss."] The warning message which will be displayed to user if (s)he tries to leave the page while an AJAX request is loading.
- * If you want to disable this warning, just set this to false.
+ * @requires Object Extensions (aV.ext.object.js)
+ * @requires Array Extensions (aV.ext.array.js)
+ * @requires String Extensions (aV.ext.string.js)
  */
 aV.AJAX = {};
 
 if (!aV.config.AJAX)
+	/**
+	 * @namespace
+	 * Holds the configuration parameters for aV.AJAX.
+	 */
 	aV.config.AJAX={};
-/**
- * Holds the configuration parameters.
- */
+
 aV.config.AJAX.unite(
 	{
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {String} The error, wchich will be shown to the user if his/her browser does not support XMLHTTPRequest object.
+		 */
 		noAjax: "You need an AJAX supported browser to use this page.",
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {String} The path of the "loading image" which will be used in various places like in the content of loadContent's target.
+		 */
 		loadImgPath: "/JSLib/images/loading.gif",
-		loadingText: "<br><center><img src=\"/JSLib/images/loading.gif\">Loading, please wait...</center>",
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {String} The HTML string which will be placed into the target of loadContent function.
+		 */
+		loadingText: "<img src=\"/JSLib/images/loading.gif\" style=\"border: none\">Loading, please wait...",
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {String} The warning message which will be displayed to the user when (s)he tries to leave the page while an AJAX request is in-progress. Set to false or '' to not to show any message.
+		 */
 		pageLeaveWarning: "There are one or more requests in progress. If you exit, there might be data loss.",
-		blankPageURL: "/JSLib/blank.html"
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {String} The path of the "blank.html" which is need for cross-domain requests.
+		 */
+		blankPageURL: "/JSLib/blank.html",
+		/**
+		 * @memberOf aV.config.AJAX
+		 * @type {Object} Contains the list of the data-parses to process the AJAX result into a native JavaScript object. You can add your data-type and data-parser to this object if you need.
+		 */
+		dataParsers:
+		{
+			'text/xml': function(requestObject)
+			{
+				return Object.fromXML(requestObject.responseXML);
+			},
+			'application/xml': function(requestObject)
+			{
+				return Object.fromXML(requestObject.responseXML);
+			},
+			'application/json': function(requestObject)
+			{
+				return Object.fromJSON(requestObject.responseText);
+			},
+			'application/compressed-json': function(requestObject)
+			{
+				return Object.fromJSON(eval(requestObject.responseText));
+			}
+		}
 	}
-, false);
+);
 
 /**
- * Tries to get an XMLHttpRequest object, returns false if the browser does not support AJAX.
+ * Tries to create an XMLHttpRequest object, returns false if the browser does not support AJAX.
  * 
  * @deprecated You should not need to use this function directly, use {@link aV.AJAX.makeRequest} to make AJAX calls.
- * @return {XMLHttpRequestObject | false} A new XMLHttpRequest object or false
+ * @return {XMLHttpRequestObject | false} A new XMLHttpRequest object or false.
  */
 aV.AJAX.createRequestObject=function()
 {
@@ -78,7 +119,7 @@ aV.AJAX.createRequestObject=function()
 		}
 	}
 	return requestObject;
-};
+}
 
 /**
  * Destroys the given XMLHttpRequest object safely.
@@ -96,6 +137,12 @@ aV.AJAX.destroyRequestObject=function(requestObject)
 	}
 };
 
+/**
+ * Creates an interface which is nearly the same as native XMLHttpRequestObject for a cross-borwser request based on window.name method.
+ * 
+ * @deprecated You should not need to use this function directly, use {@link aV.AJAX.makeRequest} to make AJAX calls.
+ * @return {XDXMLHttpRequestObject}
+ */
 aV.AJAX.createCrossDomainRequestObject=function()
 {
 	var requestObject={};
@@ -197,7 +244,7 @@ aV.AJAX.createCrossDomainRequestObject=function()
 
 /**
  * This function is assigned to the page's onbeforeunload event for pageLeaveWarning feature.
- * See {@link aV.AJAX}.config.pageLeaveWarning
+ * See aV.config.AJAX.pageLeaveWarning
  *
  * @deprecated Should not be called directly, it is for the page's onbeforeunload event.
  * @return {String | null} pageLeaveWarning config variable or null
@@ -214,9 +261,10 @@ aV.AJAX.checkActiveRequests=function()
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
  * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
- * @return {XMLHttpRequestObject}
  * @param {String} address The address of the page which will be connected. Should include the URI encoded GET parameters.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
+ * @param {Boolean} [crossDomain=false] If true, aV.createCrossDomainRequestObject function is used to create the request object.
+ * @return {XMLHttpRequestObject} The created XMLHttpRequest.
  */
 aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
 {
@@ -259,10 +307,11 @@ aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
  * Frees the XMLHttpRequest object automatically after completing the call.
  *
  * @deprecated Generally used internally from other high-level functions. Not very suitable for end-developers.
- * @return {XMLHttpRequestObject}
  * @param {String} address The address of the page which will be connected. Should  NOT include any parameters.
  * @param {String} parameters The URI encoded and merged POST parameters for the HTTP request.
  * @param {Function(XMLHttpRequestObject)} [changeFunction] The function which will be assigned to the newly created XMLHttpRequest object's onreadystatechange event.
+ * @param {Boolean} [crossDomain=false] If true, aV.createCrossDomainRequestObject function is used to create the request object.
+ * @return {XMLHttpRequestObject} The created request object.
  */
 aV.AJAX.makePostRequest=function(address, parameters, changeFunction, crossDomain)
 {
@@ -307,6 +356,12 @@ aV.AJAX.makePostRequest=function(address, parameters, changeFunction, crossDomai
 	return requestObject; //return the created XMLHttpRequest object for any further use
 };
 
+/**
+ * Determines wheter the given URL is outside of the current domain or not.
+ * 
+ * @param {String} url The URL to be tested.
+ * @return {Boolean} Returns true if the URL is outside of the current domain.
+ */
 aV.AJAX.isCrossDomain=function(url)
 {
 	var matchResult=url.match(/^\w+:\/\/([^\/@ ]+)/i);
@@ -319,12 +374,12 @@ aV.AJAX.isCrossDomain=function(url)
  * XMLHttpRequest object using internal makeGetRequest or makePostRequest according to the method parameter.
  * Developers are strongly recommended to use THIS function instead of the above POST and GET specific functions.
  *
- * @return {XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
- * @param {String} method Should be either POST or GET according to the type of the HTTP request.
+ * @param {String} method Should be either "POST" or "GET" according to the type of the HTTP request.
  * @param {String} address The address of the page which will be connected. Should  NOT include any parameters.
  * @param {String | Object} parameters The parameters which are either URI encoded and merged or given in the JSON format
  * @param {Function(XMLHttpRequestObject)} [completedFunction] The function which will be called when the HTTP call is completed. (readyState==4)
  * @param {Function(XMLHttpRequestObject)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
+ * @return {XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
  */
 aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loadingFunction)
 {
@@ -350,22 +405,70 @@ aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loa
 		return false;
 };
 
-aV.AJAX.isResponseOK=function(requestObject, responseType)
+/**
+ * Tries to extract the mime-type from the requestObjects "Content-type" header.
+ * 
+ * @param {XMLHttpRequestObject} requestObject The request object which contains the data.
+ * @return {String} The extracted mime type or 'text/plain' as default.
+ */
+aV.AJAX.getMimeType=function(requestObject)
 {
-	if (!responseType)
-		responseType='Text';
-	return (requestObject.status==200 && requestObject["response" + responseType]);
+	var responseMimeType=("getResponseHeader" in requestObject)?requestObject.getResponseHeader("Content-Type"):'text/plain';
+	return responseMimeType.substring(0, (responseMimeType.indexOf(';') + responseMimeType.length + 1) % (responseMimeType.length + 1)).toLowerCase();	
+};
+
+/**
+ * Tries to extract the encoding from the requestObjects "Content-type" header.
+ * 
+ * @param {XMLHttpRequestObject} requestObject The request object which contains the data.
+ * @return {String} The extracted encoding or 'utf-8' as default.
+ */
+aV.AJAX.getEncoding=function(requestObject)
+{
+	var result=requestObject.getResponseHeader("Content-Type").match(/charset=(.+)/i);
+	return (result)?result[1].toLowerCase():'utf-8';	
+};
+
+/**
+ * Checks the given requestObject for successfull return by means of HTTP status, non-empty responseText and if given mime-type.
+ * 
+ * @param {XMLHttpRequestObject} requestObject The request object which contains the data.
+ * @param {String} [mimeType] The mime-type which will be checked on.
+ * @return {Boolean} Returns true if all the conditions are staisfied for a successfull response, false otherwise.
+ */
+aV.AJAX.isResponseOK=function(requestObject, mimeType)
+{
+	var result=(requestObject.status==200 && requestObject.responseText);
+	if (mimeType && result) 
+	{
+		if (!(mimeType instanceof Array))
+			mimeType=[mimeType];
+		result = (mimeType.indexOf(aV.AJAX.getMimeType(requestObject)) > -1);
+	}
+	return result;
+};
+
+/**
+ * AUto parses the given requestObject's data using the dataParsers available in the config according to the response's mime-type.
+ * 
+ * @param {XMLHttpRequestObject} requestObject The request object which contains the data.
+ * @return {Object} The native JAvaScript object which is parsed via the appropriate data parser.
+ */
+aV.AJAX.getResponseAsObject=function(requestObject)
+{
+	var mimeType=aV.AJAX.getMimeType(requestObject);
+	return aV.config.AJAX.dataParsers[(mimeType in aV.config.AJAX.dataParsers)?mimeType:'application/json'](requestObject);
 };
 
 /**
  * Loads content to the given container element using an asynchronous HTTP GET call.
- * If the config.loadingText is defined, target container element's innerHTML is filled with its valye while the content is loading.
+ * If the aV.config.AJAX.loadingText is defined, target container element's innerHTML is filled with its valye while the content is loading.
  *
- * @result {XMLHttpRequestObject}
  * @param {String} address The URL of the content which will be loaded dynamically into the given container.
  * @param {String|Object} element The container element itself or its id, which the dynamic content will be loaded into.
  * @param {Function(Object, String)} [completedFunction] The function which will be called when the loading of the content is finished. It is called with the target container element and the URL as parameters.
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
+ * @return {XMLHttpRequestObject} The created XMLHttoRequestObject.
  */
 aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction)
 {
@@ -395,13 +498,11 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
  * Loads an external style-sheet or Javascript file on-demand.
  * Removes the old node if a resourceId is given.
  * 
- * @return {HTMLElementObject} The newly added script or link DOM node.
  * @param {String} address The address of the resource-to-be-loaded.
- * @param {String} [type="js"] The type of the resource.
- * Should be either js or css.
- * @param {String} [resourceId]	The id which will be assigned to newly created DOM node.
- * If not given, no id is assigned to the created node.
- * @param {Boolean} [forceRefresh] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
+ * @param {String} [type="js"] The type of the resource. Should be either js or css.
+ * @param {String} [resourceId]	The id which will be assigned to newly created DOM node. If not given, no id is assigned to the created node.
+ * @param {Boolean} [forceRefresh=false] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
+ * @return {HTMLElementObject} The newly added script or link DOM node.
  */
 aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh)
 {
@@ -451,8 +552,10 @@ aV.AJAX.loadSelectOptions=function(address, parameters, element, incremental, co
 
 /**
  * Sends the form data using AJAX when the form's onSubmit event is triggered.
- * @return {Boolean} Returns always false to prevent "real" submission.
+ * 
+ * @ignore
  * @param {Object} event
+ * @return {Boolean} Returns always false to prevent "real" submission.
  */
 aV.AJAX.sendForm=function(event)
 {
@@ -485,15 +588,18 @@ aV.AJAX.sendForm=function(event)
 };
 
 /**
- * The current active requests number.
- * Changing this value is highly discouraged.
- *
- * @type integer
+ * @ignore
  */
 aV.AJAX.activeRequestCount=0;
 
+/**
+ * @ignore
+ */
 aV.AJAX._crossDomainRequestLastGuid=1;
 
+/**
+ * @ignore
+ */
 aV.AJAX.headerTranslations=
 {
 	'content-type': 'enctype',
@@ -506,13 +612,14 @@ aV.AJAX.headerTranslations=
  * @namespace
  */
 aV.AJAX.XML = {};
+
 /**
  * Tries to extract the node value whose name is given with nodeName and is contained by mainItem node. Returns the defaultVal if any error occurs.
  *
- * @return {String} The value of the node whose name is given with nodeName and which is contained by mainItem node.
  * @param {Object} mainItem The main node item which holds the sub nodes and their values.
  * @param {String} nodeName Name of the sub node whose value will be extracted from the mainItem.
  * @param {String} [defaultVal] The default value which will be returned if the sub node whose name is given in nodeName is not found.
+ * @return {String} The value of the node whose name is given with nodeName and which is contained by mainItem node.
  */
 aV.AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 {
@@ -536,10 +643,10 @@ aV.AJAX.XML.getValue=function(mainItem, nodeName, defaultVal)
 /**
  * Tries to set the node value whose name is given with nodeName and is contained by mainItem node. Returns false if any error occurs.
  *
- * @return {String} The value set by the function is returned. If an error occures, the function returns false.
  * @param {Object} mainItem The main node item which holds the sub nodes and their values.
  * @param {String} nodeName Name of the sub node whose value will be set.
  * @param {String} val The new value of the sub node whose name is given in nodeName.
+ * @return {String} The value set by the function is returned. If an error occures, the function returns false.
  */
 aV.AJAX.XML.setValue=function(mainItem, nodeName, val)
 {
@@ -557,8 +664,8 @@ aV.AJAX.XML.setValue=function(mainItem, nodeName, val)
 /**
  * Converts an element/node collection, which acts as an array usually, to an actual array and returns it, which allows developers to use array-spesific functions.
  *
- * @return {HTMLElementObject[]} The array version of the given collection.
  * @param {HTMLCollectionObject} collection The collection which will be converted to array.
+ * @return {HTMLElementObject[]} The array version of the given collection.
  */
 aV.AJAX.XML.toArray=function(collection)
 {
@@ -568,33 +675,7 @@ aV.AJAX.XML.toArray=function(collection)
 	return result;
 };
 
-aV.AJAX.XML.toObject=function(source, includeRoot)
-{
-	var result={};
-	if (source.nodeType==9)
-		source=source.firstChild;
-	if (!includeRoot)
-		source=source.firstChild;
-	
-	while (source) 
-	{
-		if (source.childNodes.length) 
-		{
-			if (source.tagName in result) 
-			{
-				if (result[source.tagName].constructor != Array)
-					result[source.tagName] = [result[source.tagName]];
-				result[source.tagName].push(aV.AJAX.XML.toObject(source));
-			}
-			else
-				result[source.tagName] = aV.AJAX.XML.toObject(source);
-		}
-		else 
-			result = source.nodeValue;
-		source=source.nextSibling;
-	}
-
-	return result;
-};
-
+/**
+ * @ignore
+ */
 window.onbeforeunload=aV.AJAX.checkActiveRequests;

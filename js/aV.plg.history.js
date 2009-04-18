@@ -1,6 +1,6 @@
 /**
  * @fileOverview Simple history manager
- * @name aV.main.history
+ * @name aV.plg.history
  *
  * @author Burak Yiğit KAYA byk@amplio-vita.net
  * @version 1.1

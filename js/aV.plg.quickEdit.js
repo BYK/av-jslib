@@ -262,7 +262,7 @@ aV.config.QuickEdit=
 					if (temp)
 						event.responseText=temp[1];
 
-					var responseObject=event.responseText.toObject();
+					var responseObject=Object.fromJSON(event.responseText);
 					if (!responseObject || responseObject.type=='error')
 					{
 						//enable the "file" input box again for a retry

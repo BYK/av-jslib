@@ -24,7 +24,7 @@
 		</style>
 	</head>
 	<body>
-		<div class="aVodometerContainer">123</div><br />
+		<div class="aVodometerContainer" id="myOdo">123</div><br />
 		<label for="newOdoVal">Set To:</label> <input type="text" id="newOdoVal" value="9016" /><input type="button" value="Set!" onclick="document.getElementById('myOdo').aVodometer.number=parseInt(document.getElementById('newOdoVal').value); aV.Odometer.setNumber(document.getElementById('myOdo'));" />
 		<label for="effectSelector">Effect Type: </label> <select id="effectSelector" onchange="aV.config.Odometer.transition.type=this.value"><option>linear</option><option>exponential</option><option>trigonometric</option><option selected>power</option></select>
 	</body>

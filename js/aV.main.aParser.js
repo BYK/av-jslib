@@ -58,7 +58,7 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 
 /**
  * Collects the elements which satisfies the CSS query given in queryString and
- * assigns them the attributes given in attributeStr as text. If attributeStr
+ * assigns their propertyName attribute the attributes given in attributeStr as text. If attributeStr
  * is *, then it uses the elements' inline attribute whose name is given in
  * propertyName to gather the element spesific attributeStr.
  * 
@@ -66,11 +66,11 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
  * @param {String} queryStr The CSS query string for determination of the proper elements.
  * @param {String} propertyName The name of the property which the parsed attributes will be assigned to.
  * @param {String} attributeStr The string which containts the attributes.
- * @param {Function(HTMLElement)} [beforeSet] The function, which will be called for each found element before
+ * @param {Function(HTMLElement)} [beforeSet] The function, which will be called for each element before
  * setting its attributes. If the function returns false, the element is skipped. You may use this parameter to
- * do additional checks on the found elements.
- * @param {Function(HTMLElement)} [afterSet] The function, which will be called for each found element after
- * successfully setting the attributes. You may do additional operations on the found elements by giving a
+ * do additional checks on the gathered elements.
+ * @param {Function(HTMLElement)} [afterSet] The function, which will be called for each element after
+ * successfully setting its attributes. You may do additional operations on the elements by giving a
  * proper function to this paramter.
  */
 aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, attributeStr, beforeSet, afterSet)
@@ -91,8 +91,8 @@ aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, att
 };
 
 /**
- * Assigns the elements' attributes rules from the ruleText
- * See {@link aV.aParser.retrieveElementsAndSetAttributes} for other parameters.
+ * Assigns the elements' attributes rules from the ruleText which should be in a very CSS-like structure.
+ * See aV.aParser.retrieveElementsAndSetAttributes for other parameters.
  * 
  * @param {String} ruleText The text which contains the rules in an external CSS file like structure.
  */
@@ -111,9 +111,8 @@ aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, 
 
 /**
  * Assigns the elements' attributes using the rules from the given text file.
- * Loads the file and then calls the assignAttributesFromText to
- * parse its text content.
- * See {@link aV.aParser.retrieveElementsAndSetAttributes} for other parameters.
+ * Loads the file and then calls the assignAttributesFromText to parse its text content.
+ * See aV.aParser.retrieveElementsAndSetAttributes for other parameters.
  * 
  * @method
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
@@ -144,7 +143,8 @@ aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSe
  * Assigns the element's attributes using the inline style elements defined in the document.
  * The style elements' types should be "text/propertyName" for aV.aParser to recognize them.
  * propertyName in "text/propertyName" refers to the given parameter's value.
- * See {@link aV.aParser.retrieveElementsAndSetAttributes} for parameters.
+ * 
+ * See aV.aParser.retrieveElementsAndSetAttributes for parameters.
  */
 aV.aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterSet)
 {

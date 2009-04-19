@@ -1,28 +1,47 @@
 <?php
-    function queryToOutput($query,$tableName,$setName,$distinct_field=NULL)
+    function queryToOutput($query,$tableName,$setName,$outputType='json')
 	{
-		require_once("../../../JSLib/php/DBGrid_conf.php");
+		require_once("../../php/DBGrid_conf.php");
 		$qResult = mysql_query($query,$GLOBALS['link']);
 		$parameters = returnParameters($tableName,$setName,$_REQUEST['columns']);
 		if (!$_REQUEST['export'])
 		{
-			Header('Content-type: application/json; charset=UTF-8');
-			return queryResultToJSON($qResult,$parameters,$distinct_field,returnParameters($tableName));
-			exit;
+			if ($outputType=='xml')
+			{
+				require_once('../../php/xml_functions.php');
+				Header("Content-type: application/xml; charset=UTF-8;");
+				return qResultToSXML($qResult,$parameters);
+			}
+			else
+			{
+				Header("Content-type: application/json; charset=UTF-8;");
+				return queryResultToJSON($qResult,$parameters,returnParameters($tableName));
+			}	
 		};
 		$fields = extractFields($parameters);
-		require_once("../../../JSLib/php/excel_functions.php");
+		require_once("../../php/excel_functions.php");
 		switch ($_REQUEST['export'])
 		{
 			case 'xls':
 				header("Content-type: application/x-msexcel");
 				header('Content-Disposition: attachment; filename="'.$parameters['tableName'].'.xls"');
-				return resultToExcel($qResult,$fields,$parameters['tableName'],$distinct_field);
+				return resultToExcel($qResult,$fields,$parameters['tableName']);
 			break;
 			case 'xlsb':
 				header("Content-type: application/x-msexcel");
 				header('Content-Disposition: attachment; filename="'.$parameters['tableName'].'.xls"'); 
-				return resultToExcel($qResult,$fields,$parameters['tableName'],$distinct_field,false);
+				return resultToExcel($qResult,$fields,$parameters['tableName'],false);
+			break;
+			case 'xml':
+				require_once('../../php/xml_functions.php');
+				header("Content-type: application/xml; charset=UTF-8;");
+				header('Content-Disposition: attachment; filename="'.$parameters['tableName'].'.xml"'); 
+				return qResultToSXML($qResult,$parameters);
+			break;
+			case 'json':
+				header("Content-type: application/json;  charset=UTF-8;");
+				header('Content-Disposition: attachment; filename="'.$parameters['tableName'].'.json"'); 
+				return queryResultToJSON($qResult,$parameters);
 			break;
 		}
 	}
@@ -32,7 +51,7 @@
 	 * @param $query String 
 	 * @param $parameters Array[optional] parameters related to that table. i.e. Columns or sort info...
 	 */
-	function queryResultToJSON($qResult,$parameters=NULL,$distinct_field,$allFields=NULL)
+	function queryResultToJSON($qResult,$parameters=NULL,$allFields=NULL)
 	{
 //If configuration is not defined we add the fields in the result of the query by default.
 		if (!is_array($parameters['columns']))
@@ -41,7 +60,7 @@
 			for ($i=0; $i<$fieldNum; $i++)
 				$parameters['columns'][mysql_field_name($qResult,$i)]['title']='';
 		}
-		return resultToJSON($qResult,$parameters,$distinct_field,$allFields);
+		return resultToJSON($qResult,$parameters,$allFields);
 	}
 	/**
 	 * json_encode function is preferred now. This is obsolete and will be removed when the places where this function is used 
@@ -112,20 +131,13 @@
 	 * 
 	 * @param mysql_resource $result a query result that will be processed for the DBGrid
 	 * @param array $fields the fields wanted from the query result. It should be an associated array with field names adn their aliases.
-	 * @param string $distinct_field this field is related to the id. It provides the uniqueness (not certain please contact Ilter Tolga Dogan)
 	 * @return array $result_array = Array that will be used in order to convert to JSON.
 	 */
-	function resultToArray($result,$fields,$distinct_field=NULL,$encoding='')
+	function resultToArray($result,$fields,$encoding='')
 	{
-		$previous_ids=array();
 		$i=0;
 		while ($one_row=mysql_fetch_assoc($result)) 
 		{
-			if($distinct_field)
-				if(in_array($one_row[$distinct_field],$previous_ids))
-					continue;
-				else
-					$previous_ids[]=$one_row[$distinct_field];
 			foreach ($fields as $field_name=>$field_title)
 				$result_array[$i][$field_name]=mb_convert_encoding($one_row[$field_name],$encoding);
 			$i++;
@@ -140,9 +152,9 @@
 	 * @param string $distinct_field 
 	 * @see resultToArray
 	 */
-	function resultToJSON($result,$parameters,$distinct_field=NULL,$allFields=null)
+	function resultToJSON($result,$parameters,$allFields=null)
 	{
-		$array=resultToArray($result,extractFields($parameters),$distinct_field,'UTF-8');
+		$array=resultToArray($result,extractFields($parameters));
 		return arrayToJSON($array,$parameters,$allFields);
 	}
 	/**

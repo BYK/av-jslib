@@ -73,7 +73,7 @@ aV.config.DBGrid.unite(
 		exportTypeId: 'export',
 		paths:
 		{
-			css: ['/JSLib/css/aV.module.DBGrid-css.php', '/css/file_types.css']
+			css: ['/JSLib/css/aV.module.DBGrid-css.php']
 		},
 		texts:
 		{
@@ -513,6 +513,7 @@ aV.DBGrid.prototype.onfetcherror=null;
 aV.DBGrid.prototype.onfetchend=null;
 aV.DBGrid.prototype.onparseerror=null;
 aV.DBGrid.prototype.onprintbegin=null;
+aV.DBGrid.prototype.onrowprint=null;
 aV.DBGrid.prototype.onprintend=null;
 aV.DBGrid.prototype.onsortbegin=null;
 aV.DBGrid.prototype.onsortend=null;
@@ -658,10 +659,10 @@ aV.DBGrid.prototype.refreshData=function(fullRefresh, preserveState)
 				delete self.fetcher;
 				return;
 			}
+			self.triggerEvent("fetchend", {status: 'info'});
+
 			self.parseData(fullRefresh, preserveState);
 			delete self.fetcher;
-			
-			self.triggerEvent("fetchend", {status: 'info'});
 		}
 	);
 };

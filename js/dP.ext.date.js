@@ -1,18 +1,1051 @@
-/**
- * @fileOweview DP_DateExtensions adds features to the JavaScript "Date" datatype.
- * @name  DepressedPress.com DP_DateExtensions
- * @author Jim Davis, the Depressed Press of Boston webmaster@depressedpress.com
- * @version 2008-04-15
- * Full documentation can be found at:
- * http://www.depressedpress.com/Content/Development/JavaScript/Extensions/
- * 
- * @copyright &copy; 1996-2006, The Depressed Press of Boston (depressedpress.com)
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * +) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * +) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * +) Neither the name of the DEPRESSED PRESS OF BOSTON (DEPRESSEDPRESS.COM) nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*  DepressedPress.com DP_DateExtensions
+
+Author: Jim Davis, the Depressed Press of Boston
+Date: June 20, 2006
+Contact: webmaster@depressedpress.com
+Website: www.depressedpress.com
+
+Full documentation can be found at:
+http://www.depressedpress.com/Content/Development/JavaScript/Extensions/
+
+DP_DateExtensions adds features to the JavaScript "Date" datatype.
+
+Copyright (c) 1996-2006, The Depressed Press of Boston (depressedpress.com)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
++) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
++) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
++) Neither the name of the DEPRESSED PRESS OF BOSTON (DEPRESSEDPRESS.COM) nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 */
 
-eval(function(p,a,c,k,e,r){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('B.2A=L(a){2B{v(1a a=="2C"){v(a.2D==B){F 1b}}}2E(2F){};F 1o};B.22=L(a,b,c){v(1a a!="1u"||a==""){F C};v(1a b!="1u"||b==""){F C};v(1a c!=0&&c!=1&&c!=2){c=0};w d="2G";w e="^$.*+?=!:|\\\\/()[]{}-";w f={23:0,24:1,25:2,26:3,1U:4,27:5,28:6,2a:7,2b:8,2c:9,2d:10,2e:11};w g="";b+=" ";w h=[C,C,C,C,C,C,C,C];w i;w j="";w k=1;1B(w l=0;l<b.14;l++){i=b.1p(l);v((d.1i(i)==-1)||(j!=""&&i!=j.1p(j.14-1))){v(j!=""){15(j){u"1C":u"Q":h[0]=k;x;u"M":u"1c":u"1q":u"1v":h[1]=k;x;u"D":u"1j":u"1w":u"1D":h[2]=k;x;u"h":u"1V":u"H":u"1d":h[3]=k;x;u"m":u"U":h[4]=k;x;u"s":u"16":h[5]=k;x;u"l":h[6]=k;x;u"t":u"T":u"1k":u"1W":h[7]=k;x;u"z":h[8]=k;x};15(j){u"h":g+="(1[0-2]|[1-9])";x;u"1V":g+="(1[0-2]|0[1-9])";x;u"H":g+="(2[0-4]|1[0-9]|[0-9])";x;u"1d":g+="(2[0-4]|1[0-9]|0[0-9])";x;u"s":u"m":g+="([0-5]?[0-9])";x;u"16":u"U":g+="([0-5]?[0-9])";x;u"l":g+="([0-9]+)";x;u"t":u"T":g+="(a|p)";x;u"1k":u"1W":g+="(2f|2g)";x;u"D":g+="((?:3[1E])|(?:[12][0-9])|(?:0[1-9])|[1-9])";x;u"1j":g+="((?:3[1E])|(?:[12][0-9])|(?:0[1-9]))";x;u"1w":g+="(2H|2I|2J|2K|2L|2M|2N)";x;u"1D":g+="(2O|2P|2Q|2R|2S|2T|2U)";x;u"M":g+="((?:1[1r])|(?:0[1-9])|[1-9])";x;u"1c":g+="((?:1[1r])|(?:0[1-9]))";x;u"1q":g+="(23|24|25|26|1U|27|28|2a|2b|2c|2d|2e)";x;u"1v":g+="(2V|2W|2X|2Y|1U|2Z|30|31|32|33|34|35)";x;u"1C":g+="([0-9]{2})";x;u"Q":g+="((?:1[6-9]|[2-9][0-9])[0-9]{2})";x;u"z":g+="(Z|1X|[\\+\\-](?:1[1r]|[0]?[0-9])(?::?[0-5]?[0-9]))";x};j="";k++};v(d.1i(i)>-1){j=i}E{v(e.1i(i)>=0){g+="\\\\"};g+=i}}E{j+=i}};g=g.1x(0,g.14-1);w m;v(m=G 1F("^"+g+"$","i").1G(a)){};v(!m){F C};1B(w l=0;l<h.14;l++){v(h[l]!=C){h[l]=m[h[l]]}};v(h[1]!=C){w n=f[h[1].1x(0,3).1y()];v(n!=C){h[1]=n}E{h[1]=h[1]-1}};v(h[7]!=C&&h[3]!=C&&h[3]<13){w o=h[7].1x(0,1).1y();v(o=="p"){h[3]=h[3]+12}};v(c==0){}E v(c==1){w p=G B();v(h[0]==C){h[0]=p.1l()};v(h[1]==C){h[1]=p.W()};v(h[2]==C){h[2]=p.1H()};v(h[3]==C){h[3]=p.19()};v(h[4]==C){h[4]=p.1Y()};v(h[5]==C){h[5]=p.1Z()};v(h[6]==C){h[6]=p.2h()}}E v(c==2){w p=G B();v(h[0]==C){h[0]=p.36()};v(h[1]==C){h[1]=p.37()};v(h[2]==C){h[2]=p.38()};v(h[3]==C){h[3]=p.39()};v(h[4]==C){h[4]=p.3a()};v(h[5]==C){h[5]=p.3b()};v(h[6]==C){h[6]=p.3c()}};v(h[8]==C){F G B(h[0],h[1],h[2],h[3],h[4],h[5],h[6])}E{v(h[8]=="Z"||h[8]=="1X"){F G B(B.2i(h[0],h[1],h[2],h[3],h[4],h[5],h[6]))}E{w q=G 1F("^([\\+\\-])(1[1r]|[0]?[0-9])(?::?)([0-5]?[0-9])$").1G(h[8]);w r=G B().1I();w s=q[1]+q[2]-((r>=0?"-":"+")+J.1s(J.17(r)/1e));w t=q[1]+q[3]-((r>=0?"-":"+")+(J.17(r)%1e));F G B(h[0],h[1],h[2],h[3]-s,h[4]-t,h[5],h[6])}};F C};B.3d=L(a){v(1a a!="1u"||a==""){F C};F B.22(a,"1w, D 1q Q 1d:U:16 z")};B.3e=L(a){v(1a a!="1u"||a==""){F C};w S="[\\\\-/:.]";w b="((?:1[6-9]|[2-9][0-9])[0-9]{2})";w c=S+"((?:1[1r])|(?:0[1-9])|[1-9])";w d=S+"((?:3[1E])|(?:[12][0-9])|(?:0[1-9])|[1-9])";w e="(2[0-4]|[1E]?[0-9])";w f=S+"([0-5]?[0-9])";w g="(?:"+S+"([0-5]?[0-9])(?:[.,]([0-9]+))?)?";w h="(?:(Z)|(?:([\\+\\-])(1[1r]|[0]?[0-9])(?::?([0-5]?[0-9]))?))?";w i;v(i=G 1F("^"+b+"(?:"+c+"(?:"+d+")?)?"+"$").1G(a)){}E v(i=G 1F("^"+b+c+d+"[3f ]"+e+f+g+h+"$").1G(a)){};v(!i){F C};v(!i[2]){i[2]=1}E{i[2]=i[2]-1};v(!i[3]){i[3]=1};v(!i[4]){i[4]=0};v(!i[5]){i[5]=0};v(!i[6]){i[6]=0};v(!i[7]){i[7]=0};v(!i[8]){i[8]=C};v(i[9]!="-"&&i[9]!="+"){i[9]=C};v(!i[10]){i[10]=0}E{i[10]=i[9]+i[10]};v(!i[11]){i[11]=0}E{i[11]=i[9]+i[11]};v(!i[8]&&!i[9]){F G B(i[1],i[2],i[3],i[4],i[5],i[6],i[7])};v(i[8]=="Z"){F G B(B.2i(i[1],i[2],i[3],i[4],i[5],i[6],i[7]))};v(i[9]=="-"||i[9]=="+"){w j=G B().1I();w k=i[10]-((j>=0?"-":"+")+J.1s(J.17(j)/1e));w l=i[11]-((j>=0?"-":"+")+(J.17(j)%1e));F G B(i[1],i[2],i[3],i[4]-k,i[5]-l,i[6],i[7])};F C};B.X.3g=L(){v(y.N()!=0&&y.N()!=6){F 1b}E{F 1o}};B.X.3h=L(){w a=y.1l();v(a%3i==0){F 1b}E v(a%3j==0){F 1o}E v(a%4==0){F 1b}E{F 1o}};B.X.1f=L(a){w b="";w c="3k";w d=["3l","3m","3n","3o","2j","3p","3q","3r","3s","3t","3u","3v"];w e=["3w","3x","3y","3z","2j","3A","3B","3C","3D","3E","3F","3G"];w f=["3H","3I","3J","3K","3L","3M","3N"];w g=["3O","3P","3Q","3R","3S","3T","3U"];15(a){u"2k":a="M/D/1C";x;u"2l":a="1q D, Q";x;u"2m":a="1v D, Q";x;u"2n":a="1D, 1v D, Q";x};a+=" ";w h;w i="";1B(w j=0;j<a.14;j++){h=a.1p(j);v((c.1i(h)==-1)||(i!=""&&h!=i.1p(i.14-1))){v(i!=""){15(i){u"D":b+=y.1H();x;u"1j":b+=("0"+y.1H()).R(-2);x;u"1w":b+=g[y.N()];x;u"1D":b+=f[y.N()];x;u"M":b+=y.W()+1;x;u"1c":b+=("0"+(y.W()+1)).R(-2);x;u"1q":b+=e[y.W()];x;u"1v":b+=d[y.W()];x;u"1C":b+=("0"+y.1l()).R(-2);x;u"Q":b+=("3V"+y.1l()).R(-4);x};i=""};v(c.1i(h)>-1){i=h}E{b+=h}}E{i+=h}};b=b.1x(0,b.14-1);F b};B.X.1z=L(a){w b="";w c="3W";15(a){u"2k":a="h:U 1k";x;u"2l":a="h:U:16 1k";x;u"2m":a="h:U:16.l 1k";x;u"2n":a="h:U:16.l 1k";x};a+=" ";w d;w e="";1B(w f=0;f<a.14;f++){d=a.1p(f);v((c.1i(d)==-1)||(e!=""&&d!=e.1p(e.14-1))){v(e!=""){15(e){u"h":w g=y.19();v(g>12){g=g-12};b+=g;x;u"1V":w g=y.19();v(g>12){g=g-12};b+=("0"+g).R(-2);x;u"H":b+=("0"+y.19()).R(-2);x;u"1d":b+=("0"+y.19()).R(-2);x;u"m":b+=y.1Y();x;u"U":b+=("0"+y.1Y()).R(-2);x;u"s":b+=y.1Z();x;u"16":b+=("0"+y.1Z()).R(-2);x;u"l":b+=("20"+y.2h()).R(-3);x;u"t":v(y.19()>12){b+="p"}E{b+="a"};x;u"1k":v(y.19()>12){b+="2g"}E{b+="2f"};x;u"T":v(y.19()>12){b+="P"}E{b+="A"};x;u"1W":v(y.19()>12){b+="3X"}E{b+="3Y"};x};e=""};v(c.1i(d)>-1){e=d}E{b+=d}}E{e+=d}};b=b.1x(0,b.14-1);F b};B.X.3Z=L(a,b){v(1a a!="1u"&&1a a!="40"){w a="2o"};w c="";w d=1o;15(a){u"Y":u 1:c+=y.1f("Q");x;u"41":u 2:c+=y.1f("Q-1c");x;u"42":u 3:c+=y.1f("Q-1c-1j");x;u"43":u 4:c+=y.1f("Q-1c-1j")+"T"+y.1z("1d:U");d=1b;x;u"44":u 5:c+=y.1f("Q-1c-1j")+"T"+y.1z("1d:U:16");d=1b;x;u"2o":u 6:c+=y.1f("Q-1c-1j")+"T"+y.1z("1d:U:16.l");d=1b;x};v(d){v(b){c+="Z"}E{w e=y.1I();w f=(e>=0?"-":"+")+("0"+(J.1s(J.17(e)/1e))).R(-2)+":"+("20"+(J.17(e)%1e)).R(-2);c+=f}};F c};B.X.45=L(a){w b="";b+=y.1f("1w, D 1q Q ");b+=y.1z("1d:U:16 ");v(a){b+="1X"}E{w c=y.1I();w d=(c>=0?"-":"+")+("0"+(J.1s(J.17(c)/1e))).R(-2)+("20"+(J.17(c)%1e)).R(-2);b+=d};F b};B.X.46=L(){w a=G B(y.1l(),0,1);F y.1m(a,"O")+1};B.X.47=L(){w a=G B(y.1l(),0,1);F y.1m(a,"1g")+1};B.X.I=L(a,b,c){b=b.1y();w d=G B(y);w e=J.17(a);w f=G 2p();f.1J=1;f.1K=2q;f.1L=2r;f.1M=1N;f.1O=1N;f.1P=2s;f.1Q=2t;f.O=2u;f.1g=2v;15(b){u"1J":u"1K":u"1L":u"1M":u"1O":u"1P":u"1Q":u"O":u"1g":d=G B(y.K()+(a*f[b]));x;u"1R":v(e>5){w g=J.1s(e/5);w h=e%5;v(a<0){g=-g;h=-h}}E{w g=0;w h=a};d=d.I(g,"1g");d=d.I(h,"O");v(d.N()==0){v(a<0){d=d.I(-2,"O")}E{d=d.I(1,"O")}};v(d.N()==6){v(a<0){d=d.I(-1,"O")}E{d=d.I(2,"O")}};x;u"2w":d=d.I(a*5,"1R");x;u"2x":v(a<0){d=d.I(-(d.N()),"O")}E{d=d.I(d.N()+(6-d.N()),"O")};d=d.I(a,"1g");x;u"1S":v(e>11){w i=J.1s(e/12);w j=e%12;v(a<0){i=-i;j=-j}}E{w i=0;w j=a};d=d.I(i,"1A");w k=G B(d);k.1n(1);k=G B(G B(k).1T(k.W()+j));d=G B(G B(d).1T(d.W()+j));v(d.W()!=k.W()){d.1n(0)};x;u"1A":w l=1o;v(d.W()==1&&d.1H()==29){l=1b};d=G B(G B(y).48(y.1l()+a));v(l){v(d.W!=1){d.1n(0)}};x};v(!c){F d}E{y.49(d.K());F y}};B.X.1m=L(a,b){b=b.1y();w c;v(y.K()<=a.K()){w d=G B(y);w e=G B(a)}E{w d=G B(a);w e=G B(y)};w f=G 2p();f.1J=1;f.1K=2q;f.1L=2r;f.1M=1N;f.1O=1N;f.1P=2s;f.1Q=2t;f.O=2u;f.1g=2v;15(b){u"1J":u"1K":u"1L":u"1M":u"1O":u"1P":u"1Q":u"O":u"1g":w g=d.K()-e.K();c=2y(g/f[b]);x;u"1R":w h=0;21(d.K()<e.K()){d=d.I(1,"O");v(d.N()>0&&d.N()<6){h++}};v(e.N()==0||e.N()==6){c=h}E{v(d.1m(e,"O")>0){c=h}E{c=h-1}};x;u"2w":c=2y(d.1m(e,"1R")/5);x;u"2x":d=d.I(d.N()+(6-d.N()),"O");c=d.1m(e,"1g");x;u"1S":w i=d.1m(e,"1A")*12;d=d.I(i,"1S");21(d.K()<e.K()){d=d.I(1,"1S");i++};c=i-1;x;u"1A":w j=0;21(d.K()<e.K()){d=d.I(1,"1A");j++};c=j-1;x};F J.17(c)};B.X.4a=L(a,b){v(!b){w b="2z"};b=b.1y();w c=G B(y);w d=G B(a);w e;15(b){u"2z":x;u"4b":c.V(1);d.V(1);x;u"4c":c.V(1);d.V(1);c.18(1);d.18(1);x;u"4d":c.V(1);d.V(1);c.18(1);d.18(1);c.1h(1);d.1h(1);x;u"4e":c.V(1);d.V(1);c.18(1);d.18(1);c.1h(1);d.1h(1);c.1t(1);d.1t(1);x;u"4f":c.V(1);d.V(1);c.18(1);d.18(1);c.1h(1);d.1h(1);c.1t(1);d.1t(1);c.1n(1);d.1n(1);x;u"4g":c.V(1);d.V(1);c.18(1);d.18(1);c.1h(1);d.1h(1);c.1t(1);d.1t(1);c.1n(1);d.1n(1);c.1T(1);d.1T(1);x};v(c.K()==d.K()){e=0}E v(c.K()<d.K()){e=-1}E{e=1};F e};',62,265,'||||||||||||||||||||||||||||||case|if|var|break|this|||Date|null||else|return|new||add|Math|getTime|function||getDay|days||YYYY|slice|||mm|setMilliseconds|getMonth|prototype|||||||length|switch|ss|abs|setSeconds|getHours|typeof|true|MM|HH|60|dateFormat|weeks|setMinutes|indexOf|DD|tt|getFullYear|diff|setDate|false|charAt|MMM|012|floor|setHours|string|MMMM|DDD|substring|toLowerCase|timeFormat|years|for|YY|DDDD|01|RegExp|exec|getDate|getTimezoneOffset|milliseconds|seconds|minutes|quarterhours|900000|warhols|halfhours|hours|businessdays|months|setMonth|may|hh|TT|UT|getMinutes|getSeconds|00|while|parseFormat|jan|feb|mar|apr|jun|jul||aug|sep|oct|nov|dec|am|pm|getMilliseconds|UTC|May|short|medium|long|full|YMDHMSM|Object|1000|60000|1800000|3600000|86400000|604800000|businessweeks|wholeweeks|parseInt|millisecond|is|try|object|constructor|catch|CurError|DMYhHmsltTz|sun|mon|tue|wed|thu|fri|sat|sunday|monday|tuesday|wednesday|thursday|friday|saturday|january|february|march|april|june|july|august|september|october|november|december|getUTCFullYear|getUTCMonth|getUTCDate|getUTCHours|getUTCMinutes|getUTCSeconds|getUTCMilliseconds|parseHttpTimeFormat|parseIso8601|Tt|isWeekday|isLeapYear|400|100|DMY|January|February|March|April|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sun|Mon|Tue|Wed|Thu|Fri|Sat|000|hHmsltT|PM|AM|iso8601Format|number|YM|YMD|YMDHM|YMDHMS|httpTimeFormat|dayOfYear|weekOfYear|setFullYear|setTime|compare|second|minute|hour|day|month|year'.split('|'),0,{}))
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* "Date" Object Extensions */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+	// is
+	// Checks if an object is a Date object
+Date.is = function(Ob) {
+	try {
+		if ( typeof Ob == "object" ) {
+			if ( Ob.constructor == Date ) {
+				return true;
+			};
+		};
+	} catch (CurError) { };
+	return false;
+};
+
+
+	// parseFormat
+	// Accepts a date/time format and a string and returns either a date (if the format matches) or null
+Date.parseFormat = function(CurDate, Mask, DefaultTo) {
+
+		// Check the input parameters
+	if ( typeof CurDate != "string" || CurDate == "" ) {
+		return null;
+	};
+	if ( typeof Mask != "string" || Mask == "" ) {
+		return null;
+	};
+	if ( typeof DefaultTo != 0 && DefaultTo != 1 && DefaultTo != 2 ) {
+		DefaultTo = 0;
+	};
+
+		// Set Mask Characters
+	var MaskChars = "DMYhHmsltTz";
+		// SetRegEx chars (these need to be escaped in the Mask)
+	var RegExChars = "^$.*+?=!:|\\/()[]{}-";
+		// Set a reference object for month names
+	var MonthRef = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11}
+		// Begin the RegEx
+	var RegEx = "";
+		// Tack a temporary space at the end of the mask to ensure that the last character isn't a mask character
+	Mask += " ";
+
+		// Default the positions of the date fragments
+		// 0 = year, 1 = month, 2 = day, 3 = hour, 4 = minute, 5 = second, 6 = millisecond, 7 = ampmind, 8 = TimeZone
+	var DF = [null,null,null,null,null,null,null, null];
+
+		// Parse the Mask
+	var CurChar;
+	var MaskPart = "";
+	var MaskPartCnt = 1;
+		// Loop over the mask, character by character
+	for ( var Cnt = 0; Cnt < Mask.length; Cnt++ ) {
+			// Get the character
+		CurChar = Mask.charAt(Cnt);
+			// Determine if the character is a mask element
+		if ( ( MaskChars.indexOf(CurChar) == -1 ) || ( MaskPart != "" && CurChar != MaskPart.charAt(MaskPart.length - 1) ) ) {
+				// Determine if we need to parse a MaskPart or not
+			if ( MaskPart != "" ) {
+					// Set the position of the mask part
+				switch (MaskPart) {
+					case "YY":
+					case "YYYY":
+						DF[0] = MaskPartCnt;
+						break;
+					case "M":
+					case "MM":
+					case "MMM":
+					case "MMMM":
+						DF[1] = MaskPartCnt;
+						break;
+					case "D":
+					case "DD":
+					case "DDD":
+					case "DDDD":
+						DF[2] = MaskPartCnt;
+						break;
+					case "h":
+					case "hh":
+					case "H":
+					case "HH":
+						DF[3] = MaskPartCnt;
+						break;
+					case "m":
+					case "mm":
+						DF[4] = MaskPartCnt;
+						break;
+					case "s":
+					case "ss":
+						DF[5] = MaskPartCnt;
+						break;
+					case "l":
+						DF[6] = MaskPartCnt;
+						break;
+					case "t":
+					case "T":
+					case "tt":
+					case "TT":
+						DF[7] = MaskPartCnt;
+						break;
+					case "z":
+						DF[8] = MaskPartCnt;
+						break;
+				};
+ 					// Convert the mask part to a regex fragment
+				switch (MaskPart) {
+					case "h":
+						RegEx += "(1[0-2]|[1-9])";
+						break;
+					case "hh":
+						RegEx += "(1[0-2]|0[1-9])";
+						break;
+					case "H":
+						RegEx += "(2[0-4]|1[0-9]|[0-9])";
+						break;
+					case "HH":
+						RegEx += "(2[0-4]|1[0-9]|0[0-9])";
+						break;
+					case "s":
+					case "m":
+						RegEx += "([0-5]?[0-9])";
+						break;
+					case "ss":
+					case "mm":
+						RegEx += "([0-5]?[0-9])";
+						break;
+					case "l":
+						RegEx += "([0-9]+)";
+						break;
+					case "t":
+					case "T":
+						RegEx += "(a|p)";
+						break;
+					case "tt":
+					case "TT":
+						RegEx += "(am|pm)";
+						break;
+					case "D":
+						RegEx += "((?:3[01])|(?:[12][0-9])|(?:0[1-9])|[1-9])";
+						break;
+					case "DD":
+						RegEx += "((?:3[01])|(?:[12][0-9])|(?:0[1-9]))";
+						break;
+					case "DDD":
+						RegEx += "(sun|mon|tue|wed|thu|fri|sat)";
+						break;
+					case "DDDD":
+						RegEx += "(sunday|monday|tuesday|wednesday|thursday|friday|saturday)";
+						break;
+					case "M":
+						RegEx += "((?:1[012])|(?:0[1-9])|[1-9])";
+						break;
+					case "MM":
+						RegEx += "((?:1[012])|(?:0[1-9]))";
+						break;
+					case "MMM":
+						RegEx += "(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)";
+						break;
+					case "MMMM":
+						RegEx += "(january|february|march|april|may|june|july|august|september|october|november|december)";
+						break;
+					case "YY":
+						RegEx += "([0-9]{2})";
+						break;
+					case "YYYY":
+						RegEx += "((?:1[6-9]|[2-9][0-9])[0-9]{2})";
+						break;
+					case "z":
+						RegEx += "(Z|UT|[\+\-](?:1[012]|[0]?[0-9])(?::?[0-5]?[0-9]))";
+						break;
+				};
+					// Reset the MaskPart to nothing
+				MaskPart = "";
+					// Increment the count of discovered mask parts
+				MaskPartCnt++;
+			};
+				// If the char is a mask char, start a new mask part, otherwise, dump it to the output
+			if ( MaskChars.indexOf(CurChar) > -1 ) {
+				MaskPart = CurChar;
+			} else {
+					// The character isn't a mask character
+				if ( RegExChars.indexOf(CurChar) >= 0 ) {
+					RegEx += "\\";
+				};
+				RegEx += CurChar;
+			};
+		} else {
+				// Add the current mask character to the MaskPart
+			MaskPart += CurChar;
+		};
+	};
+		// Remove the temporary space from the end of the formatted date
+	RegEx = RegEx.substring(0,RegEx.length - 1);
+
+		// Try to parse the input
+	var ParsedDF;
+	if (ParsedDF = new RegExp("^" + RegEx + "$", "i").exec(CurDate)) {};
+		// If the date couldn't be parsed, return null
+	if ( !ParsedDF ) { return null };
+		// Replace the date fragment positions with the actual dates
+
+	for (var Cnt = 0; Cnt < DF.length; Cnt++) {
+		if ( DF[Cnt] != null ) {
+			DF[Cnt] = ParsedDF[DF[Cnt]];
+		};
+	};
+
+		// Set Month, if present
+	if ( DF[1] != null ) {
+		var CurDF = MonthRef[DF[1].substring(0,3).toLowerCase()];
+		if ( CurDF != null ) {
+			DF[1] = CurDF;
+		} else {
+			DF[1] = DF[1]-1;
+		};
+	};
+		// Set AM/PM, if present (Hours must be present and less than 12 for it to matter)
+	if ( DF[7] != null && DF[3] != null && DF[3] < 13 ) {
+		var CurAP = DF[7].substring(0,1).toLowerCase();
+		if ( CurAP == "p" ) {
+			DF[3] = DF[3] + 12;
+		};
+	};
+
+		// Set defaults is current time, set the values
+	if ( DefaultTo == 0 ) {
+		// No changes needed for this default
+	} else if ( DefaultTo == 1 ) {
+			// Set the Current Date Parts
+		var NowDate = new Date();
+		if ( DF[0] == null ) { DF[0] = NowDate.getFullYear() };
+		if ( DF[1] == null ) { DF[1] = NowDate.getMonth() };
+		if ( DF[2] == null ) { DF[2] = NowDate.getDate() };
+		if ( DF[3] == null ) { DF[3] = NowDate.getHours() };
+		if ( DF[4] == null ) { DF[4] = NowDate.getMinutes() };
+		if ( DF[5] == null ) { DF[5] = NowDate.getSeconds() };
+		if ( DF[6] == null ) { DF[6] = NowDate.getMilliseconds() };
+	} else if ( DefaultTo == 2 ) {
+		var NowDate = new Date();
+		if ( DF[0] == null ) { DF[0] = NowDate.getUTCFullYear() };
+		if ( DF[1] == null ) { DF[1] = NowDate.getUTCMonth() };
+		if ( DF[2] == null ) { DF[2] = NowDate.getUTCDate() };
+		if ( DF[3] == null ) { DF[3] = NowDate.getUTCHours() };
+		if ( DF[4] == null ) { DF[4] = NowDate.getUTCMinutes() };
+		if ( DF[5] == null ) { DF[5] = NowDate.getUTCSeconds() };
+		if ( DF[6] == null ) { DF[6] = NowDate.getUTCMilliseconds() };
+	};
+
+		// If there's no timezone info the data is local time
+	if (DF[8] == null) {
+		return new Date(DF[0], DF[1], DF[2], DF[3], DF[4], DF[5], DF[6]);
+	} else {
+			// If Timezone indicator is "Z" or "UT", it's UTC, otherwise it's an offset and needs to be figured out
+		if (DF[8] == "Z" || DF[8] == "UT") {
+			return new Date(Date.UTC(DF[0], DF[1], DF[2], DF[3], DF[4], DF[5], DF[6]));
+		} else {
+				// Regex value to split the parts
+			var ParsedTZ = new RegExp("^([\+\-])(1[012]|[0]?[0-9])(?::?)([0-5]?[0-9])$").exec(DF[8])
+				// Get current Timezone information
+			var CurTZ = new Date().getTimezoneOffset();
+			var CurTZh = ParsedTZ[1] + ParsedTZ[2] - ((CurTZ >= 0 ? "-" : "+") + Math.floor(Math.abs(CurTZ) / 60))
+			var CurTZm = ParsedTZ[1] + ParsedTZ[3] - ((CurTZ >= 0 ? "-" : "+") + (Math.abs(CurTZ) % 60))
+				// Return the date
+			return new Date(DF[0], DF[1], DF[2], DF[3] - CurTZh, DF[4] - CurTZm, DF[5], DF[6]);
+		};
+	};
+		// If we've reached here we couldn't deal with the input, return null
+	return null;
+
+};
+
+	// parseHttpTimeFormat
+	// Converts a string formated as a date using RFC 822 specification
+Date.parseHttpTimeFormat = function(CurDate) {
+
+		// Check the input parameters
+	if ( typeof CurDate != "string" || CurDate == "" ) {
+		return null;
+	};
+
+	return Date.parseFormat(CurDate, "DDD, D MMM YYYY HH:mm:ss z");
+
+};
+
+	// parseIso8601
+	// Attempts to convert ISO8601 input to a date
+Date.parseIso8601 = function(CurDate) {
+
+		// Check the input parameters
+	if ( typeof CurDate != "string" || CurDate == "" ) {
+		return null;
+	};
+		// Set the fragment expressions
+	var S = "[\\-/:.]";
+	var Yr = "((?:1[6-9]|[2-9][0-9])[0-9]{2})";
+	var Mo = S + "((?:1[012])|(?:0[1-9])|[1-9])";
+	var Dy = S + "((?:3[01])|(?:[12][0-9])|(?:0[1-9])|[1-9])";
+	var Hr = "(2[0-4]|[01]?[0-9])";
+	var Mn = S + "([0-5]?[0-9])";
+	var Sd = "(?:" + S + "([0-5]?[0-9])(?:[.,]([0-9]+))?)?";
+	var TZ = "(?:(Z)|(?:([\+\-])(1[012]|[0]?[0-9])(?::?([0-5]?[0-9]))?))?";
+		// RegEx the input
+		// First check: Just date parts (month and day are optional)
+		// Second check: Full date plus time (seconds, milliseconds and TimeZone info are optional)
+	var TF;
+	if ( TF = new RegExp("^" + Yr + "(?:" + Mo + "(?:" + Dy + ")?)?" + "$").exec(CurDate) ) {} else if ( TF = new RegExp("^" + Yr + Mo + Dy + "[Tt ]" + Hr + Mn + Sd + TZ + "$").exec(CurDate) ) {};
+		// If the date couldn't be parsed, return null
+	if ( !TF ) { return null };
+		// Default the Time Fragments if they're not present
+	if ( !TF[2] ) { TF[2] = 1 } else { TF[2] = TF[2] - 1 };
+	if ( !TF[3] ) { TF[3] = 1 };
+	if ( !TF[4] ) { TF[4] = 0 };
+	if ( !TF[5] ) { TF[5] = 0 };
+	if ( !TF[6] ) { TF[6] = 0 };
+	if ( !TF[7] ) { TF[7] = 0 };
+	if ( !TF[8] ) { TF[8] = null };
+	if ( TF[9] != "-" && TF[9] != "+" ) { TF[9] = null };
+	if ( !TF[10] ) { TF[10] = 0 } else { TF[10] = TF[9] + TF[10] };
+	if ( !TF[11] ) { TF[11] = 0 } else { TF[11] = TF[9] + TF[11] };
+		// If there's no timezone info the data is local time
+	if ( !TF[8] && !TF[9] ) {
+		return new Date(TF[1], TF[2], TF[3], TF[4], TF[5], TF[6], TF[7]);
+	};
+		// If the UTC indicator is set the date is UTC
+	if ( TF[8] == "Z" ) {
+		return new Date(Date.UTC(TF[1], TF[2], TF[3], TF[4], TF[5], TF[6], TF[7]));
+	};
+		// If the date has a timezone offset
+	if ( TF[9] == "-" || TF[9] == "+" ) {
+			// Get current Timezone information
+		var CurTZ = new Date().getTimezoneOffset();
+		var CurTZh = TF[10] - ((CurTZ >= 0 ? "-" : "+") + Math.floor(Math.abs(CurTZ) / 60))
+		var CurTZm = TF[11] - ((CurTZ >= 0 ? "-" : "+") + (Math.abs(CurTZ) % 60))
+			// Return the date
+		return new Date(TF[1], TF[2], TF[3], TF[4] - CurTZh, TF[5] - CurTZm, TF[6], TF[7]);
+	};
+		// If we've reached here we couldn't deal with the input, return null
+	return null;
+
+};
+
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* "Date" Object Prototype Extensions */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+	// isWeekday
+	// Returns "true" if the date is Monday-Friday, inclusive
+Date.prototype.isWeekday = function() {
+
+	if ( this.getDay() != 0 && this.getDay() != 6 ) {
+		return true;
+	} else {
+		return false;
+	};
+
+};
+
+	// isLeapYear
+	// Returns "true" if the date is contained within a leap year
+Date.prototype.isLeapYear = function() {
+
+	var CurYear = this.getFullYear();
+	if ( CurYear % 400 == 0 ) {
+		return true;
+	} else if ( CurYear % 100 == 0 ) {
+		return false;
+	} else if ( CurYear % 4 == 0 ) {
+		return true;
+	} else {
+		return false;
+	};
+
+};
+
+	// dateFormat
+	// Formats the date portion of a date object for display
+Date.prototype.dateFormat = function(Mask) {
+
+	var FormattedDate = "";
+	var MaskChars = "DMY";
+	var Ref_MonthFullName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var Ref_MonthAbbreviation = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	var Ref_DayFullName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	var Ref_DayAbbreviation = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+		// Convert any supported simple masks into "real" masks
+	switch (Mask) {
+		case "short":
+			Mask = "M/D/YY";
+		break;
+		case "medium":
+			Mask = "MMM D, YYYY";
+		break;
+		case "long":
+			Mask = "MMMM D, YYYY";
+		break;
+		case "full":
+			Mask = "DDDD, MMMM D, YYYY";
+		break;
+	};
+
+		// Tack a temporary space at the end of the mask to ensure that the last character isn't a mask character
+	Mask += " ";
+
+		// Parse the Mask
+	var CurChar;
+	var MaskPart = "";
+	for ( var Cnt = 0; Cnt < Mask.length; Cnt++ ) {
+			// Get the character
+		CurChar = Mask.charAt(Cnt);
+			// Determine if the character is a mask element
+		if ( ( MaskChars.indexOf(CurChar) == -1 ) || ( MaskPart != "" && CurChar != MaskPart.charAt(MaskPart.length - 1) ) ) {
+				// Determine if we need to parse a MaskPart or not
+			if ( MaskPart != "" ) {
+					// Convert the mask part to the date value
+				switch (MaskPart) {
+					case "D":
+						FormattedDate += this.getDate();
+						break;
+					case "DD":
+						FormattedDate += ("0" + this.getDate()).slice(-2);
+						break;
+					case "DDD":
+						FormattedDate += Ref_DayAbbreviation[this.getDay()];
+						break;
+					case "DDDD":
+						FormattedDate += Ref_DayFullName[this.getDay()];
+						break;
+					case "M":
+						FormattedDate += this.getMonth() + 1;
+						break;
+					case "MM":
+						FormattedDate += ("0" + (this.getMonth() + 1)).slice(-2);
+						break;
+					case "MMM":
+						FormattedDate += Ref_MonthAbbreviation[this.getMonth()];
+						break;
+					case "MMMM":
+						FormattedDate += Ref_MonthFullName[this.getMonth()];
+						break;
+					case "YY":
+						FormattedDate += ("0" + this.getFullYear()).slice(-2);
+						break;
+					case "YYYY":
+						FormattedDate += ("000" + this.getFullYear()).slice(-4);
+						break;
+				};
+					// Reset the MaskPart to nothing
+				MaskPart = "";
+			};
+				// If the char is a mask char, start a new mask part, otherwise, dump it to the output
+			if ( MaskChars.indexOf(CurChar) > -1 ) {
+				MaskPart = CurChar;
+			} else {
+				FormattedDate += CurChar;
+			};
+		} else {
+				// Add the current mask character to the MaskPart
+			MaskPart += CurChar;
+		};
+	};
+
+		// Remove the temporary space from the end of the formatted date
+	FormattedDate = FormattedDate.substring(0,FormattedDate.length - 1);
+
+		// Return the formatted date
+	return FormattedDate;
+
+};
+
+
+	// timeFormat
+	// Formats the time portion of a Date object for display
+Date.prototype.timeFormat = function(Mask) {
+
+	var FormattedTime = "";
+	var MaskChars = "hHmsltT";
+
+		// Convert any supported simple masks into "real" masks
+	switch (Mask) {
+		case "short":
+			Mask = "h:mm tt";
+		break;
+		case "medium":
+			Mask = "h:mm:ss tt";
+		break;
+		case "long":
+			Mask = "h:mm:ss.l tt";
+		break;
+		case "full":
+			Mask = "h:mm:ss.l tt";
+		break;
+	};
+
+		// Tack a temporary space at the end of the mask to ensure that the last character isn't a mask character
+	Mask += " ";
+
+		// Parse the Mask
+	var CurChar;
+	var MaskPart = "";
+	for ( var Cnt = 0; Cnt < Mask.length; Cnt++ ) {
+			// Get the character
+		CurChar = Mask.charAt(Cnt);
+			// Determine if the character is a mask element
+		if ( ( MaskChars.indexOf(CurChar) == -1 ) || ( MaskPart != "" && CurChar != MaskPart.charAt(MaskPart.length - 1) ) ) {
+				// Determine if we need to parse a MaskPart or not
+			if ( MaskPart != "" ) {
+					// Convert the mask part to the date value
+				switch (MaskPart) {
+					case "h":
+						var CurValue = this.getHours();
+						if ( CurValue >  12 ) {
+							CurValue = CurValue - 12;
+						};
+						FormattedTime += CurValue;
+						break;
+					case "hh":
+						var CurValue = this.getHours();
+						if ( CurValue >  12 ) {
+							CurValue = CurValue - 12;
+						};
+						FormattedTime += ("0" + CurValue).slice(-2);
+						break;
+					case "H":
+						FormattedTime += ("0" + this.getHours()).slice(-2);
+						break;
+					case "HH":
+						FormattedTime += ("0" + this.getHours()).slice(-2);
+						break;
+					case "m":
+						FormattedTime += this.getMinutes();
+						break;
+					case "mm":
+						FormattedTime += ("0" + this.getMinutes()).slice(-2);
+						break;
+					case "s":
+						FormattedTime += this.getSeconds();
+						break;
+					case "ss":
+						FormattedTime += ("0" + this.getSeconds()).slice(-2);
+						break;
+					case "l":
+						FormattedTime += ("00" + this.getMilliseconds()).slice(-3);
+						break;
+					case "t":
+						if ( this.getHours() > 12 ) {
+							FormattedTime += "p";
+						} else {
+							FormattedTime += "a";
+						};
+						break;
+					case "tt":
+						if ( this.getHours() > 12 ) {
+							FormattedTime += "pm";
+						} else {
+							FormattedTime += "am";
+						};
+						break;
+					case "T":
+						if ( this.getHours() > 12 ) {
+							FormattedTime += "P";
+						} else {
+							FormattedTime += "A";
+						};
+						break;
+					case "TT":
+						if ( this.getHours() > 12 ) {
+							FormattedTime += "PM";
+						} else {
+							FormattedTime += "AM";
+						};
+						break;
+				};
+					// Reset the MaskPart to nothing
+				MaskPart = "";
+			};
+				// If the char is a mask char, start a new mask part, otherwise, dump it to the output
+			if ( MaskChars.indexOf(CurChar) > -1 ) {
+				MaskPart = CurChar;
+			} else {
+				FormattedTime += CurChar;
+			};
+		} else {
+				// Add the current mask character to the MaskPart
+			MaskPart += CurChar;
+		};
+	};
+
+		// Remove the temporary space from the end of the formatted date
+	FormattedTime = FormattedTime.substring(0,FormattedTime.length - 1);
+
+		// Return the formatted date
+	return FormattedTime;
+
+};
+
+
+	// iso8601Format
+	// Formats a date using an ISO8601-compliant format
+Date.prototype.iso8601Format = function(Style, isUTC) {
+
+		// Set the default
+	if ( typeof Style != "string" && typeof Style != "number" ) {
+		var Style = "YMDHMSM";
+	};
+
+	var FormattedDate = "";
+	var AddTZ = false;
+
+	switch (Style) {
+		case "Y":
+		case 1:
+			FormattedDate += this.dateFormat("YYYY");
+			break;
+		case "YM":
+		case 2:
+			FormattedDate += this.dateFormat("YYYY-MM");
+			break;
+		case "YMD":
+		case 3:
+			FormattedDate += this.dateFormat("YYYY-MM-DD");
+			break;
+		case "YMDHM":
+		case 4:
+			FormattedDate += this.dateFormat("YYYY-MM-DD") + "T" + this.timeFormat("HH:mm");
+			AddTZ = true;
+			break;
+		case "YMDHMS":
+		case 5:
+			FormattedDate += this.dateFormat("YYYY-MM-DD") + "T" + this.timeFormat("HH:mm:ss");
+			AddTZ = true;
+			break;
+		case "YMDHMSM":
+		case 6:
+			FormattedDate += this.dateFormat("YYYY-MM-DD") + "T" + this.timeFormat("HH:mm:ss.l");
+			AddTZ = true;
+			break;
+	};
+
+	if ( AddTZ ) {
+		if ( isUTC ) {
+			FormattedDate += "Z";
+		} else {
+				// Get TimeZone Information
+			var TimeZoneOffset = this.getTimezoneOffset();
+			var TimeZoneInfo = (TimeZoneOffset >= 0 ? "-" : "+") + ("0" + (Math.floor(Math.abs(TimeZoneOffset) / 60))).slice(-2) + ":" + ("00" + (Math.abs(TimeZoneOffset) % 60)).slice(-2);
+			FormattedDate += TimeZoneInfo;
+		};
+	};
+
+		// Return the date
+	return FormattedDate;
+
+};
+
+	// httpTimeFormat
+	// Formats a date using the specification in RFC 822-defined format
+Date.prototype.httpTimeFormat = function(isUTC) {
+
+	var FormattedDate = "";
+	FormattedDate += this.dateFormat("DDD, D MMM YYYY ");
+	FormattedDate += this.timeFormat("HH:mm:ss ");
+
+	if ( isUTC ) {
+		FormattedDate += "UT";
+	} else {
+			// Get TimeZone Information
+		var TimeZoneOffset = this.getTimezoneOffset();
+		var TimeZoneInfo = (TimeZoneOffset >= 0 ? "-" : "+") + ("0" + (Math.floor(Math.abs(TimeZoneOffset) / 60))).slice(-2) + ("00" + (Math.abs(TimeZoneOffset) % 60)).slice(-2);
+		FormattedDate += TimeZoneInfo;
+	};
+
+		// Return the date
+	return FormattedDate;
+
+};
+
+
+	// dayOfYear
+	// Returns the day of the year
+Date.prototype.dayOfYear = function() {
+
+	var FirstOfYear = new Date(this.getFullYear(), 0, 1);
+	return this.diff(FirstOfYear, "days") + 1;
+
+};
+
+	// weekOfYear
+	// Returns the week of the year
+Date.prototype.weekOfYear = function() {
+
+	var FirstOfYear = new Date(this.getFullYear(), 0, 1);
+	return this.diff(FirstOfYear, "weeks") + 1;
+
+};
+
+	// add
+	// Adds a specified number of a specified date unit to a date
+Date.prototype.add = function(Amount, DatePart, Destructive) {
+
+	DatePart = DatePart.toLowerCase();
+
+	var ReturnDate = new Date(this);
+	var CurAbsAmount = Math.abs(Amount);
+
+		// Set the Multiplication factors for unambigiuos times (MS times these will result in the appropriate data part)
+	var Factors = new Object();
+	Factors.milliseconds = 1;	// 1 ms to the ms (1 * 1000)
+	Factors.seconds = 1000;		// 1000 ms to the second (1 * 1000)
+	Factors.minutes = 60000;	// 60 seconds to the minute (1 * 1000 * 60)
+	Factors.quarterhours = 900000;	// 15 minutes to the quarter hour (1 * 1000 * 60 * 15)
+	Factors.warhols = 900000;	// 15 minutes of fame (1 * 1000 * 60 * 15)
+	Factors.halfhours = 1800000;	// 30 minutes to the half hour (1 * 1000 * 60 * 15)
+	Factors.hours = 3600000;	// 60 minutes to the hour (1 * 1000 * 60 * 60)
+	Factors.days = 86400000;	// 24 hours to the day (1 * 1000 * 60 * 60 * 24)
+	Factors.weeks = 604800000;	// 7 days per week (1 * 1000 * 60 * 60 * 24 * 7)
+
+		// Do the math
+	switch (DatePart) {
+			// The following are all unambigously convertable to ms equivalents
+		case "milliseconds":
+		case "seconds":
+		case "minutes":
+		case "quarterhours":
+		case "warhols":
+		case "halfhours":
+		case "hours":
+		case "days":
+		case "weeks":
+			ReturnDate = new Date( this.getTime() + (Amount * Factors[DatePart]) );
+			break;
+		case "businessdays":
+			if ( CurAbsAmount > 5 ) {
+				var CurWeeks = Math.floor(CurAbsAmount / 5);
+				var CurDays = CurAbsAmount % 5;
+				if ( Amount < 0 ) {
+					CurWeeks = -CurWeeks;
+					CurDays = -CurDays;
+				};
+			} else {
+				var CurWeeks = 0;
+				var CurDays = Amount;
+			};
+				// Add the number of weeks to the date
+			ReturnDate = ReturnDate.add(CurWeeks, "weeks");
+				// Now add the days
+			ReturnDate = ReturnDate.add(CurDays, "days");
+				// If we've landed on a weekend push us
+			if ( ReturnDate.getDay() == 0  ) {
+				if ( Amount < 0 ) {
+					ReturnDate = ReturnDate.add(-2, "days");
+				} else {
+					ReturnDate = ReturnDate.add(1, "days");
+				};
+			};
+			if ( ReturnDate.getDay() == 6  ) {
+				if ( Amount < 0 ) {
+					ReturnDate = ReturnDate.add(-1, "days");
+				} else {
+					ReturnDate = ReturnDate.add(2, "days");
+				};
+			};
+            break;
+		case "businessweeks":
+			ReturnDate = ReturnDate.add(Amount * 5, "businessdays");
+			break;
+		case "wholeweeks":
+				// Move to the nearest Sunday
+			if ( Amount < 0 ) {
+				ReturnDate = ReturnDate.add(-(ReturnDate.getDay()), "days");
+			} else {
+				ReturnDate = ReturnDate.add(ReturnDate.getDay() + (6 - ReturnDate.getDay()), "days");
+			};
+				// Now add the weeks
+			ReturnDate = ReturnDate.add(Amount, "weeks");
+			break;
+		case "months":
+				// Months are tricky - they have different number of days
+				// First split the amount into the number of years and months
+			if ( CurAbsAmount > 11 ) {
+				var CurYears = Math.floor(CurAbsAmount / 12);
+				var CurMonths = CurAbsAmount % 12;
+				if ( Amount < 0 ) {
+					CurYears = -CurYears;
+					CurMonths = -CurMonths;
+				};
+			} else {
+				var CurYears = 0;
+				var CurMonths = Amount;
+			};
+				// Add the number of years to the date
+			ReturnDate = ReturnDate.add(CurYears, "years");
+				// Now add the months
+			var TempReturnDate = new Date(ReturnDate);
+			TempReturnDate.setDate(1);
+			TempReturnDate = new Date( new Date(TempReturnDate).setMonth(TempReturnDate.getMonth() + CurMonths) );
+			ReturnDate = new Date( new Date(ReturnDate).setMonth(ReturnDate.getMonth() + CurMonths) );
+				// Determine if the months got thrown off (due to too many days in the current month compared to the target)
+			if ( ReturnDate.getMonth() != TempReturnDate.getMonth() ) {
+					// Set the date to the last day of the previous month
+				ReturnDate.setDate(0)
+			};
+
+			break;
+		case "years":
+				// February 29th may cause problems
+			var Feb29 = false;
+			if ( ReturnDate.getMonth() == 1 && ReturnDate.getDate() == 29 ) {
+				Feb29 = true;
+			};
+				// Add Years directly as a data part
+			ReturnDate = new Date( new Date(this).setFullYear(this.getFullYear() + Amount) );
+				// If Feb29th then check to ensure that the date hasn't changed the month
+			if ( Feb29 ) {
+				if ( ReturnDate.getMonth != 1 ) {
+					ReturnDate.setDate(0);
+				};
+			};
+			break;
+	};
+
+		// Return the time
+	if ( !Destructive ) {
+		return ReturnDate;
+	} else {
+		this.setTime(ReturnDate.getTime());
+		return this;
+	};
+
+};
+
+
+	// diff
+	// Returns the difference between two dates.
+Date.prototype.diff = function(CompareDate, DatePart) {
+
+	DatePart = DatePart.toLowerCase();
+
+	var Diff;
+		// Set the dates in order, Date1 previous
+	if ( this.getTime() <= CompareDate.getTime() ) {
+		var Date1 = new Date(this);
+		var Date2 = new Date(CompareDate);
+	} else {
+		var Date1 = new Date(CompareDate);
+		var Date2 = new Date(this);
+	};
+
+		// Set the Multiplication factors for unambigiuos times (MS times, these will result in the appropriate data part)
+	var Factors = new Object();
+	Factors.milliseconds = 1;	// 1 ms to the ms (1 * 1000)
+	Factors.seconds = 1000;		// 1000 ms to the second (1 * 1000)
+	Factors.minutes = 60000;	// 60 seconds to the minute (1 * 1000 * 60)
+	Factors.quarterhours = 900000;	// 15 minutes to the quarter hour (1 * 1000 * 60 * 15)
+	Factors.warhols = 900000;	// 15 minutes of fame (1 * 1000 * 60 * 15)
+	Factors.halfhours = 1800000;	// 30 minutes to the half hour (1 * 1000 * 60 * 15)
+	Factors.hours = 3600000;	// 60 minutes to the hour (1 * 1000 * 60 * 60)
+	Factors.days = 86400000;	// 24 hours to the day (1 * 1000 * 60 * 60 * 24)
+	Factors.weeks = 604800000;	// 7 days per week (1 * 1000 * 60 * 60 * 24 * 7)
+
+		// Do the math
+	switch (DatePart) {
+			// The following are all unambigously convertable to ms equivalents
+		case "milliseconds":
+		case "seconds":
+		case "minutes":
+		case "quarterhours":
+		case "warhols":
+		case "halfhours":
+		case "hours":
+		case "days":
+		case "weeks":
+				// Get the Base Difference (the difference in ms)
+			var BaseDiff = Date1.getTime() - Date2.getTime();
+				// Set the Diff
+			Diff = parseInt( BaseDiff / Factors[DatePart] );
+			break;
+		case "businessdays":
+				// Count through the business days
+			var BDaysCnt = 0;
+			while ( Date1.getTime() < Date2.getTime() ) {
+				Date1 = Date1.add(1, "days");
+				if ( Date1.getDay() > 0 && Date1.getDay() < 6 ) {
+					BDaysCnt++;
+				};
+			};
+			if ( Date2.getDay() == 0 || Date2.getDay() == 6 ) {
+				Diff = BDaysCnt;
+			} else {
+					// Determine if the two partial days equal a whole day
+				if ( Date1.diff(Date2, "days") > 0 ) {
+					Diff = BDaysCnt;
+				} else {
+					Diff = BDaysCnt - 1;
+				};
+			};
+            break;
+		case "businessweeks":
+			Diff = parseInt( Date1.diff(Date2, "businessdays") / 5 );
+			break;
+		case "wholeweeks":
+				// Move Date1 to the nearest Sunday
+			Date1 = Date1.add(Date1.getDay() + (6 - Date1.getDay()), "days");
+				// Now get the number of weeks between the new dates
+			Diff = Date1.diff(Date2, "weeks");
+			break;
+		case "months":
+				// Get the months for years (if any)
+			var MonthsCnt = Date1.diff(Date2, "years") * 12;
+				// Add the months from the years
+			Date1 = Date1.add(MonthsCnt, "months");
+				// Finish adding up the count of months
+			while ( Date1.getTime() < Date2.getTime() ) {
+				Date1 = Date1.add(1, "months");
+				MonthsCnt++;
+			};
+			Diff = MonthsCnt - 1;
+			break;
+		case "years":
+			var YearsCnt = 0;
+				// Count up the years
+			while ( Date1.getTime() < Date2.getTime() ) {
+				Date1 = Date1.add(1, "years");
+				YearsCnt++;
+			};
+			Diff = YearsCnt - 1;
+			break;
+	};
+
+		// Return the time
+	return Math.abs(Diff);
+
+};
+
+
+	// compare
+	// Compares two dates (optionally using a specific datepart precision)
+Date.prototype.compare = function(CompareDate, DatePart) {
+
+	if ( !DatePart ) {
+		var DatePart = "millisecond";
+	};
+	DatePart = DatePart.toLowerCase();
+
+	var Date1 = new Date(this);
+	var Date2 = new Date(CompareDate);
+
+	var Result;
+		// Set the precision by equalizing higher precision elements
+	switch (DatePart) {
+		case "millisecond":
+			break;
+		case "second":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			break;
+		case "minute":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			Date1.setSeconds(1);
+			Date2.setSeconds(1);
+			break;
+		case "hour":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			Date1.setSeconds(1);
+			Date2.setSeconds(1);
+			Date1.setMinutes(1);
+			Date2.setMinutes(1);
+			break;
+		case "day":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			Date1.setSeconds(1);
+			Date2.setSeconds(1);
+			Date1.setMinutes(1);
+			Date2.setMinutes(1);
+			Date1.setHours(1);
+			Date2.setHours(1);
+			break;
+		case "month":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			Date1.setSeconds(1);
+			Date2.setSeconds(1);
+			Date1.setMinutes(1);
+			Date2.setMinutes(1);
+			Date1.setHours(1);
+			Date2.setHours(1);
+			Date1.setDate(1);
+			Date2.setDate(1);
+			break;
+		case "year":
+			Date1.setMilliseconds(1);
+			Date2.setMilliseconds(1);
+			Date1.setSeconds(1);
+			Date2.setSeconds(1);
+			Date1.setMinutes(1);
+			Date2.setMinutes(1);
+			Date1.setHours(1);
+			Date2.setHours(1);
+			Date1.setDate(1);
+			Date2.setDate(1);
+			Date1.setMonth(1);
+			Date2.setMonth(1);
+			break;
+	};
+
+		// Do the comparison
+	if ( Date1.getTime() == Date2.getTime() ) {
+		Result = 0;
+	} else if ( Date1.getTime() < Date2.getTime() ) {
+		Result = -1;
+	} else {
+		Result = 1;
+	};
+
+		// Return the results
+	return Result;
+
+};

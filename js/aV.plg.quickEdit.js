@@ -69,9 +69,9 @@ aV.config.QuickEdit=
 		{
 			constructor: function(element)
 			{
+				element.aVquickEdit.oldInnerHTML=element.innerHTML;
 				var editor=document.createElement("INPUT");
 				editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
-				element.aVquickEdit.oldInnerHTML=element.innerHTML;
 				element.innerHTML='';
 				return element.appendChild(editor);			
 			},
@@ -132,9 +132,9 @@ aV.config.QuickEdit=
 			constructor: function(element)
 			{
 				var editor=document.createElement("TEXTAREA");
+				element.aVquickEdit.oldInnerHTML=element.innerHTML;
 				editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
 				editor.style.height=(element.scrollHeight - 4) + "px";
-				element.aVquickEdit.oldInnerHTML=element.innerHTML;
 				element.innerHTML='';
 				return element.appendChild(editor);
 			},
@@ -296,8 +296,11 @@ aV.config.QuickEdit=
 		{
 			"default": function(element)
 			{
-				element.innerHTML=element.innerHTML.BRtoLB();
-				return (element.textContent || element.innerText || '');
+				var temp=element.innerHTML;
+				element.innerHTML=temp.BRtoLB();
+				var result=(element.textContent || element.innerText || '');
+				element.innerHTML=temp;
+				return result;
 			},
 			html: function(element)
 			{

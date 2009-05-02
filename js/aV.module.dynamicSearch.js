@@ -3,8 +3,8 @@
  * @name Dynamic Search
  * 
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 1.2
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
+ * @version 2.0
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
 /**
@@ -44,8 +44,16 @@ aV.DynamicSearch=function (name, element, guid)
 	//create the inner container for the object
 	this._createContainer();
 
-	if (!aV.DynamicSearch.historyList[this.$$guid])
-		aV.DynamicSearch.historyList[this.$$guid]={name: this.name, element: element.id, form: 0};
+	if (!aV.DynamicSearch.historyList[this.$$guid]) 
+	{
+		aV.DynamicSearch.historyList[this.$$guid] = 
+		{
+			name: this.name,
+			element: element.id,
+			form: 0
+		};
+		aV.DynamicSearch.updateHistory();
+	}
 
 	//create and initialize the basic and the advanced search forms
 	this._initialize();
@@ -105,14 +113,24 @@ aV.DynamicSearch.prototype._initialize=function()
 			if (!(self.properties.fieldList[fieldName].checkFunction instanceof Function))
 				self.properties.fieldList[fieldName].checkFunction = aV.config.DynamicSearch.checkFunctions['dt_' + self.properties.fieldList[fieldName].dataType] || aV.config.DynamicSearch.checkFunctions.dt_default;
 		}
+		
+		//add the extra help items if there are any
+		if (self.properties.helpBoxItems)
+			for (var i=0; i<self.properties.helpBoxItems.length; i++)
+			{
+				var newHelpItem = document.createElement("LI");
+				newHelpItem.appendChild(document.createTextNode(self.properties.helpBoxItems[i]));
+				aV.DOM.addClass(newHelpItem, aV.config.DynamicSearch.classNames.customHelpBoxItem);
+				self.container.content.helpList.appendChild(newHelpItem);
+			}
 
 		self._createDBGrid(true);
 		self._createBasicForm(true);
 		self._createAdvancedForm(true);
-		aV.AutoComplete.init();
+		aV.Events.trigger(window, 'domready', {caller: self});
 		self.setActiveForm(aV.DynamicSearch.historyList[self.$$guid].form, false);
 	};
-	this.loader=aV.AJAX.makeRequest('GET', aV.config.DynamicSearch.paths.fields, {name: this.name}, initializer);
+	this.loader=aV.AJAX.makeRequest('GET', aV.config.DynamicSearch.paths.fields, {search: {name: this.name}}, initializer);
 };
 
 /**
@@ -204,14 +222,6 @@ aV.DynamicSearch.prototype.setActiveForm=function(which)
 	}
 };
 
-aV.DynamicSearch.prototype.toggleContextualHelp=function()
-{
-	if (aV.DOM.hasClass(this.container, aV.config.DynamicSearch.classNames.helpEnabled))
-		aV.DOM.removeClass(this.container, aV.config.DynamicSearch.classNames.helpEnabled);
-	else
-		aV.DOM.addClass(this.container, aV.config.DynamicSearch.classNames.helpEnabled);
-}
-
 /**
  * Creates a new container if there isn't an already created container.
  * If there is already another container created, returns or renews it according to the destructive parameter.
@@ -254,16 +264,10 @@ aV.DynamicSearch.prototype._createContainer=function(destructive)
 		newLi.appendChild(document.createTextNode(aV.config.DynamicSearch.texts.forms[i]));
 	}
 	
-	var contextualHelpButton = this.container.tabsTitle.appendChild(document.createElement("DIV"));
-	contextualHelpButton.className = aV.config.DynamicSearch.classNames.contextualHelpButton;
-	contextualHelpButton.appendChild(document.createTextNode(aV.config.DynamicSearch.texts.contextualHelpButton));
-	aV.Events.add(contextualHelpButton, "click", aV.DynamicSearch._contextualHelpClickHandler);
-
 	var generalHelpButton = this.container.tabsTitle.appendChild(document.createElement("DIV"));
 	generalHelpButton.className = aV.config.DynamicSearch.classNames.generalHelpButton;
 	generalHelpButton.appendChild(document.createTextNode(aV.config.DynamicSearch.texts.generalHelpButton));
 	aV.Events.add(generalHelpButton, "click", aV.DynamicSearch._generalHelpClickHandler);
-
 	
 	this.container.content = this.container.appendChild(document.createElement("DIV"));
 	this.container.content.className = aV.config.DynamicSearch.classNames.content;
@@ -272,14 +276,14 @@ aV.DynamicSearch.prototype._createContainer=function(destructive)
 	this.container.content.generalHelpBox = this.container.content.appendChild(document.createElement("DIV"));
 	this.container.content.generalHelpBox.id = aV.config.DynamicSearch.idFormats.generalHelpBox.format(this.$$guid);
 	this.container.content.generalHelpBox.className = aV.config.DynamicSearch.classNames.generalHelpBox;
-	var helpList = this.container.content.generalHelpBox.appendChild(document.createElement("UL"));
+	this.container.content.helpList = this.container.content.generalHelpBox.appendChild(document.createElement("UL"));
 	var newHelpItem;
 	for (var i=0; i<aV.config.DynamicSearch.texts.generalHelpBoxItems.length; i++)
 	{
 		newHelpItem = document.createElement("LI");
 		newHelpItem.appendChild(document.createTextNode(aV.config.DynamicSearch.texts.generalHelpBoxItems[i]));
-		helpList.appendChild(newHelpItem);
-	}	
+		this.container.content.helpList.appendChild(newHelpItem);
+	}
 	
 	//add the tab related objects to the container's content
 	this.element.appendChild(this.container);
@@ -421,10 +425,11 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 		};
 		
 		this._initNewCondition(newLi.condition, fieldName);
-		var helpDiv=newLi.appendChild(document.createElement("DIV"));
-		helpDiv.className=aV.config.DynamicSearch.classNames.help;
-//		helpDiv.appendChild(document.createTextNode(this.properties.fieldList[fieldName].helpText || aV.config.DynamicSearch.texts.defaultHelpText));
-		helpDiv.innerHTML=this.properties.fieldList[fieldName].helpText || aV.config.DynamicSearch.texts.defaultHelpText;
+		var helpIcon=document.createElement("span");
+		helpIcon.innerHTML='&nbsp;';
+		helpIcon.className=aV.config.DynamicSearch.classNames.helpIcon;
+		helpIcon.setAttribute("hint", this.properties.fieldList[fieldName].helpText || aV.config.DynamicSearch.texts.defaultHelpText);
+		newLi.insertBefore(helpIcon, newLi.condition.nextSibling);
 
 		this.container.content.formBasic.list.appendChild(newLi);
 		
@@ -668,6 +673,7 @@ aV.DynamicSearch._DBGridFormReleaseEvent=function(event)
 
 aV.DynamicSearch._DBGridOnPrintEndHandler=function(event)
 {
+	setTimeout("aV.DBGrid.list[" + event.target.guid + "tableElement.scrollIntoView()", 0);
 	var ownerObject=aV.DynamicSearch.list[event.target.aVdSGuid];
 	try
 	{
@@ -707,7 +713,7 @@ aV.DynamicSearch._onFieldSelect=function(event)
 	}
 
 	DynamicSearchObject._initNewCondition(event.target.condition, event.target.value);
-	aV.AutoComplete.init();
+	aV.Events.trigger(window, 'domready', {caller: DynamicSearchObject});
 	if (event.target.condition.aVautoComplete)
 		event.target.condition.aVautoComplete.list=null;
 };
@@ -865,11 +871,7 @@ aV.DynamicSearch._onFormSubmit=function(event)
 	{
 		while (
 			element &&
-			(element.tagName=='LI' || element.tagName=="DIV") && 
-			(
-				element.className!=aV.config.DynamicSearch.classNames.controlButtons &&
-				element.className!=aV.config.DynamicSearch.classNames.help
-			)
+			(element.tagName=='LI' || element.tagName=="DIV") && element.className!=aV.config.DynamicSearch.classNames.controlButtons
 		)			 
 		{
 			if (element.tagName != 'LI') 
@@ -1013,12 +1015,6 @@ aV.DynamicSearch.getOwnerObject=function(element)
 	return aV.DynamicSearch.list[element.aVdSGuid];
 };
 
-aV.DynamicSearch._contextualHelpClickHandler=function(event)
-{
-	var DynamicSearchObject=aV.DynamicSearch.getOwnerObject(event.target);
-	DynamicSearchObject.toggleContextualHelp();
-};
-
 aV.DynamicSearch._generalHelpClickHandler=function(event)
 {
 	var DynamicSearchObject=aV.DynamicSearch.getOwnerObject(event.target);
@@ -1063,12 +1059,11 @@ aV.config.DynamicSearch.unite(
 			groupContainer: 'aVdS_groupContainer',
 			conjunction: 'aVdS_conjunction',
 			noAC: 'aVdS_noAC',
-			help: 'aVdS_help',
-			helpEnabled: 'aVdS_helpEnabled',
-			contextualHelpButton: 'aVdS_contextualHelpButton',
 			generalHelpBox: 'aVdS_generalHelpBox',
 			generalHelpButton: 'aVdS_generalHelpButton',
-			fieldAddition: 'aVdS_fieldAddition'
+			fieldAddition: 'aVdS_fieldAddition',
+			helpIcon: 'aVdS_helpIcon',
+			customHelpBoxItem: 'aVdS_customHelpBoxItem'
 		},
 		paths:
 		{
@@ -1098,7 +1093,6 @@ aV.config.DynamicSearch.unite(
 			emptyFieldinAdvanced: 'You have one or more empty fields. Remove or fill them to perform the search.',
 			noCriteria: 'You did not define any search criteria.',
 			columnSet: 'Result Set: ',
-			contextualHelpButton: 'Content Help',
 			generalHelpButton: 'General Help',
 			defaultHelpText: '(No help text available)',
 			responseNotValid: 'Cannot build search interface since the server response is invalid.',

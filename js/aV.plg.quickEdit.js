@@ -2,7 +2,7 @@
  * @fileOverview	Allows non obtrusive in-place-editing functionality for both images and text based elements.
  * @name aV.QuickEdit
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
+ * @author	Burak Yiğit KAYA	<byk@amplio-vita.net>
  * @version	2.2
  *
  * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
@@ -112,7 +112,7 @@ aV.config.QuickEdit=
 					if (responseObject && responseObject.type!='error')
 					{
 						editee.aVquickEdit.active=false;
-						delete event.target.editee;
+						event.target.editee=undefined;
 						if (aV.QuickEdit.triggerEvent("endedit", {target: editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, editee)===false)
 							return false;
 						aV.QuickEdit.setElementValue(editee, responseObject.value);
@@ -249,7 +249,7 @@ aV.config.QuickEdit=
 				var editor=document.getElementById(aV.config.QuickEdit.idFormats.uploadBox.format(editorGuid));
 				editor.editee.aVquickEdit.active=false;
 				editor.editee.onmouseout({type: "mouseout",	target: editor.editee});
-				delete editor.editee;
+				editor.editee=undefined;
 				editor.parentNode.removeChild(editor);
 			},
 			eventHandlers:
@@ -296,6 +296,7 @@ aV.config.QuickEdit=
 		{
 			"default": function(element)
 			{
+				element.innerHTML=element.innerHTML.BRtoLB();
 				return (element.textContent || element.innerText || '');
 			},
 			html: function(element)
@@ -308,7 +309,14 @@ aV.config.QuickEdit=
 			"default": function(element, value)
 			{
 				element.innerHTML='';
-				return element.appendChild(document.createTextNode(value));
+				var lines=value.split(/\r\n|\r|\n/g);
+				element.appendChild(document.createTextNode(lines[0]));
+				for (var i=1; i<lines.length; i++)
+				{
+					element.appendChild(document.createElement('br'));
+					element.appendChild(document.createTextNode(lines[i]));
+				}
+				return element.innerHTML;
 			},
 			html: function(element, value)
 			{
@@ -339,7 +347,7 @@ aV.QuickEdit.triggerEvent=function(type, parameters, element)
 {
 	if (!parameters)
 		parameters={};
-	parameters.unite({type: type});
+	parameters=({type: type}).unite(parameters, false);
 	var result=true;
 
 	if (aV.QuickEdit["on" + type])
@@ -473,6 +481,7 @@ aV.QuickEdit._startEdit=function(element)
 		editor.select();
 	
 	aV.QuickEdit.triggerEvent("startedit", {target: element, editor: editor}, element);
+	aV.Events.trigger(window, 'domready', {caller: element});
 };
 
 aV.QuickEdit._makeSetRequest=function(editor, value)
@@ -491,6 +500,7 @@ aV.QuickEdit._makeSetRequest=function(editor, value)
 	{
 		delete editor.editee.aVquickEdit.requestObject;
 		editor.onsetresponse({type: 'setresponse', target: editor, requestObject: requestObject});
+		aV.Events.trigger(window, 'domready');
 	};
 
 	editor.editee.aVquickEdit.requestObject=aV.AJAX.makeRequest(
@@ -552,7 +562,7 @@ aV.QuickEdit.init=function()
 				aV.config.QuickEdit.editors[editorId].eventHandlers=aV.config.QuickEdit.editors["default"].eventHandlers;
 
 	aV.aParser.assignAttributesFromFile(
-		aV.config.QuickEdit['ruleFile'],
+		aV.config.QuickEdit.ruleFile,
 		'aVquickEdit',
 		aV.QuickEdit._checkElement,
 		aV.QuickEdit._setEditableElement
@@ -562,4 +572,4 @@ aV.QuickEdit.init=function()
 };
 
 aV.AJAX.loadResource("/JSLib/css/aV.plg.quickEdit.css", "css", "aVquickEditCSS");
-aV.Events.add(window, 'load', aV.QuickEdit.init);
+aV.Events.add(window, 'domready', aV.QuickEdit.init);

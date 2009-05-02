@@ -2,7 +2,7 @@
  * @fileOverview Simple history manager
  * @name aV.plg.history
  *
- * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 1.1
  */
 
@@ -123,4 +123,4 @@ aV.History.stopListener=function()
 aV.AJAX.loadResource("/JSLib/js/webtoolkit.base64.js", "js", "base64Library");
 aV.AJAX.loadResource("/JSLib/js/ulzss.js", "js", "ulzssCompressionLibrary");
 if (aV.config.History.startOnLoad)
-	aV.Events.add(window, "load", aV.History.startListener);
+	aV.Events.add(window, 'domready', aV.History.startListener);

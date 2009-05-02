@@ -120,23 +120,28 @@ aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, 
  */
 aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags, includeInnerDefinitions)
 {
-	aV.AJAX.makeRequest(
-		'GET',
-		fileAddress,
-		'',
-		function(requestObject)
-		{
-			var ruleText='';
-			if (aV.AJAX.isResponseOK(requestObject, 'text/plain'))
-				ruleText=requestObject.responseText;
-			
-			aV.aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
-			if (includeStyleTags || includeStyleTags===undefined)
-				aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
-			if (includeInnerDefinitions || includeInnerDefinitions===undefined)
-				aV.aParser.assignAttributesFromInnerDefinitions(propertyName, beforeSet, afterSet);
-		}
-	);
+	var secondaryInitializer=function()
+	{
+		if (includeStyleTags || includeStyleTags===undefined)
+			aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
+		if (includeInnerDefinitions || includeInnerDefinitions===undefined)
+			aV.aParser.assignAttributesFromInnerDefinitions(propertyName, beforeSet, afterSet);
+	};
+
+	var initializer=function(requestObject)
+	{
+		var ruleText='';
+		if (aV.AJAX.isResponseOK(requestObject, 'text/plain'))
+			ruleText=requestObject.responseText;
+		
+		aV.aParser.assignAttributesFromText(ruleText, propertyName, beforeSet, afterSet);
+		secondaryInitializer();
+	};
+	
+	if (fileAddress)
+		aV.AJAX.makeRequest('GET', fileAddress, '',	initializer);
+	else
+		secondaryInitializer();
 };
 
 /**

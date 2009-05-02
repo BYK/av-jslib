@@ -123,7 +123,7 @@ String.prototype.strCount=function(searchStr, dontEscape)
  */
 String.prototype.LBtoBR=function()
 {
-	var outText=this.replace(/(\r|\n)/g, "<br>");
+	var outText=this.replace(/\r\n|\r|\n/g, "<br>");
 	return outText;
 };
 

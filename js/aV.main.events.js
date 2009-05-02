@@ -4,17 +4,17 @@
  *
  * @author 
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
- * <br />Adomas Paltanavičius adomas.paltanavicius@gmail.com
- * <br />Burak Yiğit Kaya byk@amplio-vita.net
- * @version 1.2.2
- * @copyright &copy;2005 - 2008
+ * <br />Adomas Paltanavicius adomas.paltanavicius@gmail.com
+ * <br />Burak Yigit Kaya byk@amplio-vita.net
+ * @version 1.3
+ * @copyright &copy;2005 - 2009
  */
 
 if (!aV)
 	var aV={config: {}};
 
 /**
- * Represents the namespace, aV.Events, for creating and managing event handler queues for any element.
+ * Represents the namespace, aV.Events, for creating and managing event handler queues for any object.
  *
  * @namespace
  */
@@ -32,7 +32,7 @@ aV.Events.guid=1;
  * Adds the given event handler to element's the on-type event's event handler queue.
  *
  * @return {Function(EventObject)} The assigned function
- * @param {Object} element The element which the event handler will be added
+ * @param {Object} target The object which the event handler will be added
  * @param {String} type The name of the event without the "on" prefix
  * @param {Function(EventObject)} handler The event handler function
  *
@@ -43,67 +43,67 @@ aV.Events.guid=1;
  * }
  * aV.Events.add(window, "resize", resizeAlert);
  */
-aV.Events.add=function(element, type, handler)
+aV.Events.add=function(target, type, handler)
 {
 	// assign each event handler a unique ID
 	if (!handler.$$guid) handler.$$guid = aV.Events.guid++;
-	// create a hash table of event types for the element
-	if (!element.events) element.events = {};
-	// create a hash table of event handlers for each element/event pair
-	var handlers = element.events[type];
+	// create a hash table of event types for the target
+	if (!target.events) target.events = {};
+	// create a hash table of event handlers for each target/event pair
+	var handlers = target.events[type];
 	if (!handlers) {
-		handlers = element.events[type] = {};
+		handlers = target.events[type] = {};
 		// store the existing event handler (if there is one)
-		if (element["on" + type]) {
-			handlers[0] = element["on" + type];
+		if (target["on" + type]) {
+			handlers[0] = target["on" + type];
 		}
 	}
 	// store the event handler in the hash table
 	handlers[handler.$$guid] = handler;
 	// assign a global event handler to do all the work
-	element["on" + type] = aV.Events._handle;
+	target["on" + type] = aV.Events._handle;
 	return handler;
 };
 
 /**
- * Removes the given event handler from element's the on-type event's event handler queue.
+ * Removes the given event handler from target's the on-type event's event handler queue.
  *
- * @param {Object} element The element which the event handler will be removed
+ * @param {Object} target The target which the event handler will be removed
  * @param {String} type The name of the event without the "on" prefix
  * @param {Function(EventObject)} handler The event handler function
  *
  * @example
  * aV.Events.remove(window, "resize", resizeAlert);
  */
-aV.Events.remove=function(element, type, handler)
+aV.Events.remove=function(target, type, handler)
 {
 	// delete the event handler from the hash table
-	if (element.events && element.events[type]) {
-		delete element.events[type][handler.$$guid];
+	if (target.events && target.events[type]) {
+		delete target.events[type][handler.$$guid];
 	}
 };
 
 /**
- * Clears all the event handlers attached to the given element.
+ * Clears all the event handlers attached to the given target.
  * 
- * @param {Object} element
+ * @param {Object} target
  */
-aV.Events.clear=function(element)
+aV.Events.clear=function(target)
 {
-	if (!element.events)
+	if (!target.events)
 		return;
-	for (var event in element.events)
+	for (var event in target.events)
 	{
-		if (!element.events.hasOwnProperty(event))
+		if (!target.events.hasOwnProperty(event))
 			continue;
 
-		for (var guid in element.events[event]) 
-			if (element.events[event].hasOwnProperty(guid))
-				delete element.events[event][guid];
-		delete element.events[event];
-		element["on" + event]=null;
+		for (var guid in target.events[event]) 
+			if (target.events[event].hasOwnProperty(guid))
+				delete target.events[event][guid];
+		delete target.events[event];
+		target["on" + event]=null;
 	}
-	element.events=undefined;
+	target.events=undefined;
 }
 
 /**
@@ -149,9 +149,23 @@ aV.Events.fix=function(event)
 	return event;
 },
 
+aV.Events.trigger=function(target, type, parameters)
+{
+	if (!parameters)
+		parameters={};
+
+	parameters=({type: type,	target: target}).unite(parameters, false);
+	var result=true;
+
+	if (target["on" + type])
+		result=target["on" + type](parameters);
+
+	return result;
+};
+
 /**
  * Handles the mouse wheel event and iterprets it for a browser independent usage.
- * <br />Adds support for the new event <b>onwheel</b> for all applicable elements.
+ * <br />Adds support for the new event <b>onwheel</b> for all applicable objects.
  *
  * @private
  * @return {Boolean}
@@ -198,3 +212,47 @@ if (window.addEventListener)
 	window.addEventListener('DOMMouseScroll', aV.Events._handleMouseWheelEvent, false);
 // IE/Opera
 window.onmousewheel = document.onmousewheel = aV.Events._handleMouseWheelEvent;
+
+aV.Events._handleDOMReadyEvent=function(event)
+{
+	aV.Events.trigger(window, 'domready', event);
+};
+
+/* for Mozilla/Opera9 */
+if (document.addEventListener)
+{
+	document.addEventListener("DOMContentLoaded", aV.Events._handleDOMReadyEvent, false);
+	aV.Events._onDOMReadyEventBinded=true;
+}
+
+//The cross-browser binding coes below are adapted from http://dean.edwards.name/weblog/2006/06/again/
+
+// for Internet Explorer (using conditional comments)
+/*@cc_on @*/
+/*@if (@_win32)
+document.write("<script id=__ie_onload defer src=javascript:void(0)><\/script>");
+var script = document.getElementById("__ie_onload");
+script.onreadystatechange = function()
+{
+	if (this.readyState == "complete")
+		aV.Events._handleDOMReadyEvent(); // call the onload handler
+};
+aV.Events._onDOMReadyEventBinded=true;
+/*@end @*/
+
+if (/WebKit/i.test(navigator.userAgent)) // sniff
+{
+  var _timer = setInterval(
+		function()
+		{
+			if (/loaded|complete/.test(document.readyState))
+			{
+				clearInterval(_timer);
+				aV.Events._handleDOMReadyEvent(); // call the onload handler
+			}
+		}, 10);
+	aV.Events._onDOMReadyEventBinded=true;
+}
+
+if (!aV.Events._onDOMReadyEventBinded)
+	aV.Events.add(window, "load", aV.Events._handleDOMReadyEvent);

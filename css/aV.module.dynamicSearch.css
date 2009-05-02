@@ -25,7 +25,11 @@ div.aVdS_generalHelpBox
 	overflow: hidden;
 	font-size: 8pt;
 }
-div.aVdS_contextualHelpButton, div.aVdS_generalHelpButton
+div.aVdS_generalHelpBox ul li.aVdS_customHelpBoxItem
+{
+	font-weight: bold;
+}
+div.aVdS_generalHelpButton
 {
 	position: absolute;
 	cursor: pointer;
@@ -35,10 +39,6 @@ div.aVdS_contextualHelpButton, div.aVdS_generalHelpButton
 	color: #9f130e;
 	background: url('/JSLib/images/DynamicSearch/help.gif') right center no-repeat;
 	padding-right: 18px;
-}
-div.aVdS_generalHelpButton
-{
-	right: 105px;
 }
 ul.aVdS_tabTitle
 {
@@ -101,22 +101,6 @@ form.aVdS_form ul li
 form.aVdS_form ul li span.aVdS_fieldAddition
 {
 	float: left;
-}
-div.aVdS_helpEnabled form.aVdS_form ul li
-{
-	height: 5.2em;
-}
-form.aVdS_form ul li div.aVdS_help
-{
-	font-size: 7pt;
-	overflow: hidden;
-	height: 5.6em;
-	display: none;
-	clear: both;
-}
-div.aVdS_helpEnabled form.aVdS_form ul li div.aVdS_help
-{
-	display: block;
 }
 form.aVdS_form ul.aVdS_labels
 {
@@ -196,6 +180,12 @@ form.aVdS_form ul li input[type="text"].aVdS_error
 form.aVdS_form ul li input[type="text"].aVdS_enum
 {
 	background-image: url('/JSLib/images/DynamicSearch/dropdown.gif');
+}
+form.aVdS_form ul li span.aVdS_helpIcon
+{
+	float: left;
+	padding-left: 18px;
+	background: transparent url(/JSLib/images/DynamicSearch/help.gif) no-repeat scroll left center;
 }
 div.aVdS_loading
 {

@@ -470,7 +470,7 @@ aV.AJAX.getResponseAsObject=function(requestObject)
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  * @return {XMLHttpRequestObject} The created XMLHttoRequestObject.
  */
-aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction)
+aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction, cancelDOMReady)
 {
 	var crossDomain=aV.AJAX.isCrossDomain(address);
 	if (typeof(element)=='string') //if id of the object is given instead of the object itself
@@ -482,6 +482,8 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
 			element.innerHTML=requestObject.responseText; //fill the element's innerHTML with the returning data
 			if (completedFunction) //if a callback function assigned to *callbackFunc*
 				completedFunction(element, address); //call it with the element object and the given URL as its parameters
+			if (!cancelDOMReady)
+				aV.Events.trigger(window, 'domready', {caller: element});
 		}
 		else
 		{

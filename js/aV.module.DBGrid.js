@@ -4,57 +4,10 @@
  * The generated tables have native sort, filter and grouping support.
  * @name aV.DBGrid
  *
- * @author Burak Yigit KAYA byk@amplio-vita.net
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 2.1
  * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
-
-/**
- * @classDescription A dynamically filled DBGrid class
- * @constructor
- * @requires {@link String} (aV.ext.string.js)
- * @requires {@link Object} (aV.ext.object.js)
- * @requires {@link aV.Events} (aV.main.events.js)
- * @requires {@link aV.AJAX} (aV.main.ajax.js)
- * @requires {@link aV.Visual} (aV.main.visual.js)
- * @requires {@link aV.Visual.customHint} (aV.plg.customHint.js)
- * @requires {@link aV.Visual.infoBox} (aV.plg.infoBox.js)
- * 
- * @param	 {String} sourceURL The address to the data XML
- * @param {String | Object} parameters Parameters for the POST call to the *sourceURL*
- * @param {HTMLObject} printElement The HTML container element where the created table will be placed
- * @param {Boolean} fetch Set true to fetch immediately when the object is created
- * @param {Boolean} print Set true to print the table immediately after the data is fetched.
- */
-aV.DBGrid=function(sourceURL, parameters, printElement, fetch, print)
-{
-	/**
-	 * Holds the unique identifier and index of the DBGrid object.
-	 * @type	{integer}
-	 */
-	this.guid=aV.DBGrid._lastGuid++;
-	
-	aV.DBGrid.list[this.guid]=this;
-	
-	/**
-	 * Holds the address of the XML table data.
-	 * @type {String}
-	 */
-	this.sourceURL=sourceURL;
-	
-	/**
-	 * Holds the POST parameters for the data source page whoese
-	 * address is given in the sourceURL property.
-	 * @type {String|Object}
-	 */
-	this.parameters=(parameters)?parameters:{};
-	
-	this.printElement=printElement;
-	this.printAfterParse=print;
-	
-	if (fetch)
-		this.refreshData();
-};
 
 if (!aV.config.DBGrid)
 	aV.config.DBGrid={};
@@ -217,6 +170,53 @@ aV.config.DBGrid.unite(
 		}
 	}
 , false);
+
+/**
+ * @classDescription A dynamically filled DBGrid class
+ * @constructor
+ * @requires {@link String} (aV.ext.string.js)
+ * @requires {@link Object} (aV.ext.object.js)
+ * @requires {@link aV.Events} (aV.main.events.js)
+ * @requires {@link aV.AJAX} (aV.main.ajax.js)
+ * @requires {@link aV.Visual} (aV.main.visual.js)
+ * @requires {@link aV.Visual.customHint} (aV.plg.customHint.js)
+ * @requires {@link aV.Visual.infoBox} (aV.plg.infoBox.js)
+ * 
+ * @param	 {String} sourceURL The address to the data XML
+ * @param {String | Object} parameters Parameters for the POST call to the *sourceURL*
+ * @param {HTMLObject} printElement The HTML container element where the created table will be placed
+ * @param {Boolean} fetch Set true to fetch immediately when the object is created
+ * @param {Boolean} print Set true to print the table immediately after the data is fetched.
+ */
+aV.DBGrid=function(sourceURL, parameters, printElement, fetch, print)
+{
+	/**
+	 * Holds the unique identifier and index of the DBGrid object.
+	 * @type	{integer}
+	 */
+	this.guid=aV.DBGrid._lastGuid++;
+	
+	aV.DBGrid.list[this.guid]=this;
+	
+	/**
+	 * Holds the address of the XML table data.
+	 * @type {String}
+	 */
+	this.sourceURL=sourceURL;
+	
+	/**
+	 * Holds the POST parameters for the data source page whoese
+	 * address is given in the sourceURL property.
+	 * @type {String|Object}
+	 */
+	this.parameters=(parameters)?parameters:{};
+	
+	this.printElement=printElement;
+	this.printAfterParse=print;
+	
+	if (fetch)
+		this.refreshData();
+};
 
 /**
  * The guid counter for Window.DBGrids array, do not touch.
@@ -549,7 +549,7 @@ aV.DBGrid.prototype.triggerEvent=function(type, parameters)
 {
 	if (!parameters)
 		parameters={};
-	parameters.unite({type: type,	target: this});
+	parameters=({type: type,	target: this}).unite(parameters);
 	var result=true;
 
 	if (this["on" + type])
@@ -633,7 +633,7 @@ aV.DBGrid.prototype.refreshData=function(fullRefresh, preserveState)
 		//collect visible columns
 		var activeColumns=[];
 		for (var column in this.properties.columns)
-			if (this.properties.columns.hasOwnProperty(column) && !this.properties.columns.hidden)
+			if (this.properties.columns.hasOwnProperty(column) && !this.properties.columns[column].hidden)
 				activeColumns.push(column);
 
 		if (typeof this.parameters=="string")
@@ -1220,6 +1220,7 @@ aV.DBGrid.prototype._printRows=function(clear, i, count, insertBefore)
 		this._groupRows(lastKeyRow);
 
 	setTimeout("aV.DBGrid.list[%s]._adjustHeight();".format(this.guid),0);
+	setTimeout("aV.Events.trigger(window, 'domready');",0);
 
 	this._printFooter(originalStart);
 

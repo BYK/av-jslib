@@ -2,7 +2,7 @@
  * @fileOverview A visual effects function library.
  * @name Visual Effects and Functions Library
  *
- * @author Burak Yiðit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiï¿½it KAYA <byk@amplio-vita.net>
  * @version 1.7
  *
  * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
@@ -633,4 +633,4 @@ aV.Visual.init=function()
 		aV.Visual.initFunctions[i]();
 };
 
-aV.Events.add(window, 'load', aV.Visual.init);
+aV.Events.add(window, 'domready', aV.Visual.init);

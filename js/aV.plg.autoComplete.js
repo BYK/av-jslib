@@ -2,7 +2,7 @@
  * @fileOverview Allows non obtrusive auto complete functionality for text inputs.
  * @name Auto Complete
  * 
- * @author Burak Yigit KAYA byk@amplio-vita.net
+ * @author Burak Yigit KAYA <byk@amplio-vita.net>
  * @version 1.3.1
  * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
@@ -343,4 +343,4 @@ aV.AutoComplete.init=function()
 };
 
 aV.AJAX.loadResource("/JSLib/css/aV.plg.autoComplete.css", "css", "aVautoCompleteCSS");
-aV.Events.add(window, 'load', aV.AutoComplete.init);
+aV.Events.add(window, 'domready', aV.AutoComplete.init);

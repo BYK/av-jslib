@@ -15,7 +15,7 @@
  */
 String.prototype.escapeRegExp=function()
 {
-	matcher=new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi');
+	var matcher=new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi');
 	var result;
 	var outText='';
 	var lastMatch=0;
@@ -25,7 +25,6 @@ String.prototype.escapeRegExp=function()
 		outText+='\\' + result[0];
 		lastMatch=result.index+1;
 	}
-	delete matcher;
 	outText+=this.substr(lastMatch);
 	return outText;
 };
@@ -134,7 +133,7 @@ String.prototype.LBtoBR=function()
  */
 String.prototype.BRtoLB=function()
 {
-	outText=this.replace(/(<br>|<br \/>)/gi, "\n");
+	outText=this.replace(/<br>|<br\s\/>/gi, "\n");
 	return outText;
 };
 

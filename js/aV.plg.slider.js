@@ -190,6 +190,9 @@ aV.Visual.initFunctions.push(
 		aV.Visual.slider.activeSlider=false;
 		aV.Events.add(document, "mousemove", aV.Visual.slider._moveSlider);
 		aV.Events.add(document, "mouseup", aV.Visual.slider._unlockSlider);
+		/**
+		 * @ignore
+		 */
 		document.onselectstart=function() {return !aV.Visual.slider.activeSlider};
 		aV.Events.add(document, "dragstart", function() {return !aV.Visual.slider.activeSlider});
 	}

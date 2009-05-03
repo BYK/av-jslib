@@ -296,6 +296,9 @@ function _toStream($selector) {
 
 var WHITESPACE = /\s*([\s>+~(),]|^|$)\s*/g;
 var IMPLIED_ALL = /([\s>+~,]|[^(]\+|^)([#.:@])/g;
+/**
+ * @ignore
+ */
 var parseSelector = function($selector) {
 	return $selector
 	// trim whitespace

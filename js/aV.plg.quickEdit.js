@@ -296,11 +296,17 @@ aV.config.QuickEdit=
 		{
 			"default": function(element)
 			{
-				var temp=element.innerHTML;
-				element.innerHTML=temp.BRtoLB();
-				var result=(element.textContent || element.innerText || '');
-				element.innerHTML=temp;
-				return result;
+				var result;
+				if (element.innerText) 
+					result = element.innerText;
+				else 
+				{
+					var temp = element.innerHTML;
+					element.innerHTML = temp.BRtoLB();
+					result = element.textContent;
+					element.innerHTML = temp;
+				}
+				return result || '';
 			},
 			html: function(element)
 			{
@@ -312,7 +318,18 @@ aV.config.QuickEdit=
 			"default": function(element, value)
 			{
 				element.innerHTML='';
-				var lines=value.split(/\r\n|\r|\n/g);
+
+				var lines=[];
+				var matcher=new RegExp('\\r\\n|\\r|\\n', 'g');
+				var result;
+				var lastMatch=0;
+				while (result=matcher.exec(value))
+				{
+					lines.push(value.substring(lastMatch, result.index));
+					lastMatch=result.index+1;
+				}
+				lines.push(value.substr(lastMatch));
+
 				element.appendChild(document.createTextNode(lines[0]));
 				for (var i=1; i<lines.length; i++)
 				{
@@ -353,11 +370,19 @@ aV.QuickEdit.triggerEvent=function(type, parameters, element)
 	parameters=({type: type}).unite(parameters, false);
 	var result=true;
 
-	if (aV.QuickEdit["on" + type])
-		result=aV.QuickEdit["on" + type](parameters);
-	
-	if (result!==false && element && element.aVquickEdit["on" + type])
-		result=element.aVquickEdit["on" + type](parameters);
+	try 
+	{
+		if (aV.QuickEdit["on" + type]) 
+			result = aV.QuickEdit["on" + type](parameters);
+		
+		if (result !== false && element && element.aVquickEdit["on" + type]) 
+			result = element.aVquickEdit["on" + type](parameters);
+	}
+	catch(error)
+	{
+		if (window.onerror)
+			window.onerror(error.message, error.fileName, error.lineNumber);
+	}
 
 	/*else*/
 	aV.QuickEdit.defaultEventHandler(parameters);

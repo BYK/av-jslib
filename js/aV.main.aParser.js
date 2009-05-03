@@ -78,6 +78,9 @@ aV.aParser.retrieveElementsAndSetAttributes=function(queryStr, propertyName, att
 	var elements=cssQuery(queryStr);
 
 	if (!beforeSet)
+		/**
+		 * @ignore
+		 */
 		beforeSet=function(){return true;};
 	
 	for (var i=elements.length-1; i>=0; i--)

@@ -552,8 +552,16 @@ aV.DBGrid.prototype.triggerEvent=function(type, parameters)
 	parameters=({type: type,	target: this}).unite(parameters);
 	var result=true;
 
-	if (this["on" + type])
-		result=this["on" + type](parameters);
+	try 
+	{
+		if (this["on" + type]) 
+			result = this["on" + type](parameters);
+	}
+	catch(error)
+	{
+		if (window.onerror)
+			window.onerror(error.message, error.fileName, error.lineNumber);
+	}
 
 	/*else*/
 	aV.config.DBGrid.defaultEventHandler(parameters);

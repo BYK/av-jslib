@@ -70,6 +70,9 @@ aV.Odometer.setNumber=function(element, animation)
 	{
 		for (var i = 0; i < digits.length; i++) 
 		{
+			/**
+			 * @ignore
+			 */
 			digits[i].tickFunction=function(ticker)
 			{
 				ticker.element.style.backgroundPosition = "0 " + Math.round(ticker.currentVal) + "px";

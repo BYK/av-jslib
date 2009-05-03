@@ -25,7 +25,10 @@ if (Array.prototype.indexOf)
 Array.prototype.indexOf=function(element, strictMatch, startFrom, compareFunction)
 {
 	if (!compareFunction)
-	compareFunction=(strictMatch)?function(hay, needle){return (hay===needle)}:function(hay, needle){return (hay==needle)};
+		/**
+		 * @ignore
+		 */
+		compareFunction=(strictMatch)?function(hay, needle){return (hay===needle)}:function(hay, needle){return (hay==needle)};
 	if (!(startFrom>0))
 		startFrom=0;
 	for (; startFrom<this.length; startFrom++)

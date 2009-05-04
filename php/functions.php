@@ -1,5 +1,5 @@
 <?php
-    function queryToOutput($query,$tableName,$setName,$outputType='json')
+    function queryToOutput($query,$tableName=NULL,$setName=Null,$outputType='json')
 	{
 		require_once("../../php/DBGrid_conf.php");
 		$qResult = mysql_query($query,$GLOBALS['link']);
@@ -75,10 +75,10 @@
 	 * @param string[optional] $setName Name of the columnSet
 	 * @param array[optional] $columnList If a column configuration that is not a set is wanted, this array is used. List of colunmNames.
 	 */
-	function returnParameters($tableName,$setName,$columns=NULL)
+	function returnParameters($tableName=NULL,$setName=NULL,$columns=NULL)
 	{
-		require_once('DBGrid_conf.php');
 		$result = $GLOBALS['DBGridSettings'];
+		if (!isset($tableName)) return $result;
 		$result = array_merge((array)$GLOBALS['DBGridColumnSets'][$tableName][$setName],$result);
 		if ($columns)
 		{//We are asked for specific columns not the all columns defined in DBGrid_conf. So we shall send them only!

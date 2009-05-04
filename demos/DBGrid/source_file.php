@@ -1,8 +1,11 @@
 <?php
 	require_once("../../php/functions.php");
+//Project specific database connection code, update this according to your website
 	$GLOBALS['link'] = mysql_connect('mysql300.ixwebhosting.com', 'snlBYK_jsltest', 'jsltestpwd');
 	if (!$GLOBALS['link']) {echo "Connection Failed";exit;};
 	mysql_select_db('snlBYK_jslib');
 	mysql_query('SET NAMES utf8');
-    echo queryToOutput('SELECT * FROM City LIMIT 100','test','Basic',$_REQUEST['outputType']);
+	$query = 'SELECT * FROM City LIMIT 100';
+//Now function that creates DBGrid compatible output.
+    echo queryToOutput($query,'test','Basic');
 ?>

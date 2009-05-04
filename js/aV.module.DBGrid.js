@@ -540,6 +540,7 @@ aV.DBGrid.prototype.destroy=function()
 aV.DBGrid.prototype.getFullSourceURL=function()
 {
 	var params=this.parameters || {};
+	this._addStateToParameters();
 	if (typeof params!="string")
 		params=params.toQueryString();
 	return this.sourceURL + '?' + params;
@@ -621,6 +622,23 @@ aV.DBGrid.prototype._addExportButton=function(type)
 	return this.tableElement.caption.appendChild(button);
 };
 
+aV.DBGrid.prototype._addStateToParameters=function()
+{
+	if (this.properties)
+	{
+		//collect visible columns
+		var activeColumns=[];
+		for (var column in this.properties.columns)
+			if (this.properties.columns.hasOwnProperty(column) && !this.properties.columns[column].hidden)
+				activeColumns.push(column);
+
+		if (typeof this.parameters=="string")
+			this.parameters+='&' + activeColumns.toQueryString("columns[%s]");
+		else
+			this.parameters.columns=activeColumns;
+	}
+};
+
 /**
  * Fetches the data from the address given in sourceURL
  * property, with posting the parameters given in
@@ -636,19 +654,8 @@ aV.DBGrid.prototype.refreshData=function(fullRefresh, preserveState)
 	var self=this;
 	
 	this.triggerEvent("fetchbegin", {status: 'loading'});
-	if (!(preserveState!==undefined) && this.properties)
-	{
-		//collect visible columns
-		var activeColumns=[];
-		for (var column in this.properties.columns)
-			if (this.properties.columns.hasOwnProperty(column) && !this.properties.columns[column].hidden)
-				activeColumns.push(column);
-
-		if (typeof this.parameters=="string")
-			this.parameters+='&' + activeColumns.toQueryString("columns[%s]");
-		else
-			this.parameters.columns=activeColumns;
-	}
+	if (preserveState!==false)
+		this._addStateToParameters();
 	 
 	this.fetcher=aV.AJAX.makeRequest(
 		"POST",
@@ -731,6 +738,9 @@ aV.DBGrid.prototype.parseData=function(fullRefresh, preserveState)
 				this.properties.columns[column].filterFunction=new Function("value", "filter", this.properties.columns[column].filterFunction);
 			if (!(this.properties.columns[column].filterFunction instanceof Function))
 				this.properties.columns[column].filterFunction = aV.config.DBGrid.filterFunctions["dt_" + this.properties.columns[column].dataType] || aV.config.DBGrid.filterFunctions.dt_default;
+			
+			if (!this.properties.columns[column].title)
+				this.properties.columns[column].title = column.replace(/_/g, " ").ucWords();
 		}
 		
 		//add dynamic event handlers

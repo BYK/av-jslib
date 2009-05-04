@@ -12,47 +12,11 @@
 		<script src="../../js/aV.plg.customHint.js" type="text/javascript"></script>
 		<script src="../../js/aV.plg.infoBox.js" type="text/javascript"></script>
 		<script src="../../js/aV.module.DBGrid.js" type="text/javascript"></script>
-		<script src="../firebug-lite.js" type="text/javascript"></script>
 		<link href="file_types.css" type="text/css" rel="stylesheet" />
-		<script type="text/javascript">
-			function logEvent(event)
-			{
-				console.log(event, "on%s event fired. Event parameter dump is below: ".format(event.type));
-				for (var property in event)
-					if (event.hasOwnProperty(property))
-						console.log("\t", property, ": ", event[property]);
-			}
-			function prepareDBGrid()
-			{
-				window.table = new aV.DBGrid('source_file.php', {}, document.getElementById('tableDiv'));
-				window.table.printAfterParse = window.table.parseDataAfterFetch = true;
-				aV.Events.add(window.table,'fetchend',showSource)
-				var matcher = /on([^\s.]+)/;
-				var result;
-				for (var property in window.table) 
-				{
-					if (!window.table.hasOwnProperty(property)) 
-						continue;
-					if (result = property.match(matcher)) 
-						aV.Events.add(window.table, result[1], logEvent);
-				}
-				matcher = null;
-				result = null;
-			}
-			function showSource(event)
-			{
-				var textNode = document.createTextNode(event.target.fetcher.responseText);
-				document.getElementById("sourceDiv").innerHTML = "<hr/>";
-				document.getElementById("sourceDiv").appendChild(textNode);
-			}
-			aV.Events.add(window, "load", prepareDBGrid);
-		</script>
 	</head>
 	<body>
-		<h4>You can track the events in the Firebug Console. The table has also a "rowclick" event, so <u>do</u> click on some rows ;)</h4>
-		<input type="button" value="Show Demo Table Using JSON source" onclick="window.table.parameters.outputType='json';window.table.refreshData();"/>
-		<input type="button" value="Show Demo Table Using XML source" onclick="window.table.parameters.outputType='xml';window.table.refreshData();"/>
+		<h4>Very very basic demo Click to see the Table :).</h4>
+		<input type="button" value="Show Demo Table" onclick="if (this.table) this.table.destroy();this.table = new aV.DBGrid('source_file.php',{},document.getElementById('tableDiv'), true, true);"/>
 		<div id="tableDiv"></div>
-		<div id="sourceDiv"></div>
 	</body>
 </html>

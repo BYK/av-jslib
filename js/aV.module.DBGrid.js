@@ -1279,7 +1279,7 @@ aV.DBGrid.prototype._groupRows=function(groupHeader)
 			if (!this.properties.columns.hasOwnProperty(column))
 				continue;
 			
-			if (column==this.properties.sort[0].column || this.properties.columns[column].hidden)
+			if (column==this.properties.sort[0].column/* || this.properties.columns[column].hidden*/)
 				continue;
 
 			var columnIndex=this.properties.columns[column].index;
@@ -1288,7 +1288,7 @@ aV.DBGrid.prototype._groupRows=function(groupHeader)
 			{
 				case 'int':
 				case 'real':
-					groupHeader.cells[columnIndex].firstChild.nodeValue=parseFloat(groupHeader.cells[columnIndex].textContent || groupHeader.cells[columnIndex].innerText) + parseFloat(currentRow.childNodes[i].textContent || currentRow.childNodes[i].innerText);
+					groupHeader.cells[columnIndex].firstChild.nodeValue=parseFloat(groupHeader.cells[columnIndex].textContent || groupHeader.cells[columnIndex].innerText) + parseFloat(currentRow.cells[columnIndex].textContent || currentRow.cells[columnIndex].innerText);
 					break;
 				default:
 					groupHeader.cells[columnIndex].appendChild(document.createElement('br'));

@@ -139,7 +139,7 @@
 		while ($one_row=mysql_fetch_assoc($result)) 
 		{
 			foreach ($fields as $field_name=>$field_title)
-				$result_array[$i][$field_name]=mb_convert_encoding($one_row[$field_name],$encoding);
+				$result_array[$i][$field_name]=(is_numeric($one_row[$field_name]))?$one_row[$field_name]:mb_convert_encoding($one_row[$field_name],$encoding);
 			$i++;
 		}
 		return $result_array;

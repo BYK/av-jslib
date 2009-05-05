@@ -6,8 +6,8 @@
 		'ID','Name','CountryCode','Population'
 	));
 	$columnSets['test']['allFields']=array(
-		'ID'=>array('visible'=>'0','dontSum'=>'1'),'Name'=>array('title'=>'City Name','type'=>'string','visible'=>'1','dontSum'=>'1'),
-		'CountryCode'=>array('title'=>'Country Code','type'=>'string'),'Population'=>array('type'=>'real','dontSum'=>'0')
+		'ID'=>array('visible'=>'0','dontSum'=>'1', 'dataType'=>'int'),'Name'=>array('title'=>'City Name','dataType'=>'string','visible'=>'1','dontSum'=>'1'),
+		'CountryCode'=>array('title'=>'Country Code','dataType'=>'string'),'Population'=>array('dataType'=>'int')
 	);
 	$GLOBALS['DBGridColumnSets']=$columnSets;
 	$GLOBALS['DBGridSettings']['exports']=array(

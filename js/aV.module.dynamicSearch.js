@@ -673,7 +673,7 @@ aV.DynamicSearch._DBGridFormReleaseEvent=function(event)
 
 aV.DynamicSearch._DBGridOnPrintEndHandler=function(event)
 {
-	setTimeout("aV.DBGrid.list[" + event.target.guid + "tableElement.scrollIntoView()", 0);
+	setTimeout("aV.DBGrid.list[" + event.target.guid + "].tableElement.scrollIntoView()", 0);
 	var ownerObject=aV.DynamicSearch.list[event.target.aVdSGuid];
 	try
 	{

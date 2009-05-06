@@ -35,319 +35,324 @@ if (!aV.Visual)
  */
 aV.QuickEdit = {};
 
-aV.config.QuickEdit=
-{
-	texts: 
+if (!aV.config.QuickEdit)
+	aV.config.QuickEdit={};
+
+aV.config.QuickEdit.unite(
 	{
-		closeButtonHTML: '<sup>x</sup>',
-		loadingDivHTML: '<img src="/JSLib/images/loading.gif" alt="Uploading..." />',
-		imgUploadTitle: "Please select new image",
-		defaultErrorMessage: "An error occurred sending the changes you have made. Please try again."
-	},
-	classNames:
-	{
-		editableElement: 'aVqE_editable',
-		editee: 'aVqE_editee',
-		editor: 'aVqE_editor',
-		uploadBox: 'aVqE_uploadBox',
-		uploadBoxTitle: 'aVqE_uploadBoxTitle',
-		uploadBoxTitleText: 'aVqE_uploadBoxTitleText',
-		uploadBoxCloseButton: 'aVqE_uploadBoxCloseButton',
-		uploadBoxForm: 'aVqE_uploadBoxForm',
-		uploadBoxLoadingDiv: 'aVqE_uploadBoxLoadingDiv'
-	},
-	idFormats:
-	{
-		uploadBox: 'aVqE_uploadBox-%s',
-		uploadBoxIFrame: 'aVqE_uploadBoxIFrame-%s',
-		uploadBoxForm: 'aVqE_uploadBoxForm-%s',
-		uploadBoxLoadingDiv: 'aVqE_uploadBoxLoadingDiv-%s'
-	},
-	editors:
-	{
-		"default": 
+		texts: 
 		{
-			constructor: function(element)
+			closeButtonHTML: '<sup>x</sup>',
+			loadingDivHTML: '<img src="/JSLib/images/loading.gif" alt="Uploading..." />',
+			imgUploadTitle: "Please select new image",
+			defaultErrorMessage: "An error occurred sending the changes you have made. Please try again."
+		},
+		classNames:
+		{
+			editableElement: 'aVqE_editable',
+			editee: 'aVqE_editee',
+			editor: 'aVqE_editor',
+			uploadBox: 'aVqE_uploadBox',
+			uploadBoxTitle: 'aVqE_uploadBoxTitle',
+			uploadBoxTitleText: 'aVqE_uploadBoxTitleText',
+			uploadBoxCloseButton: 'aVqE_uploadBoxCloseButton',
+			uploadBoxForm: 'aVqE_uploadBoxForm',
+			uploadBoxLoadingDiv: 'aVqE_uploadBoxLoadingDiv'
+		},
+		idFormats:
+		{
+			uploadBox: 'aVqE_uploadBox-%s',
+			uploadBoxIFrame: 'aVqE_uploadBoxIFrame-%s',
+			uploadBoxForm: 'aVqE_uploadBoxForm-%s',
+			uploadBoxLoadingDiv: 'aVqE_uploadBoxLoadingDiv-%s'
+		},
+		editors:
+		{
+			"default": 
 			{
-				element.aVquickEdit.oldInnerHTML=element.innerHTML;
-				var editor=document.createElement("INPUT");
-				editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
-				element.innerHTML='';
-				return element.appendChild(editor);			
-			},
-			eventHandlers:
-			{
-				blur: function(event) 
+				constructor: function(element)
 				{
-					if (event.target.value == event.target.originalValue/* || !event.target.value*/) 
+					element.aVquickEdit.oldInnerHTML=element.innerHTML;
+					var editor=document.createElement("INPUT");
+					editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
+					element.innerHTML='';
+					return element.appendChild(editor);			
+				},
+				eventHandlers:
+				{
+					blur: function(event) 
 					{
-						event.target.editee.aVquickEdit.active = false;
-						event.target.editee.onmouseout({type: "mouseout",	target: event.target.editee});
-						event.target.editee.innerHTML = event.target.editee.aVquickEdit.oldInnerHTML;
+						if (event.target.value == event.target.originalValue/* || !event.target.value*/) 
+						{
+							event.target.editee.aVquickEdit.active = false;
+							event.target.editee.onmouseout({type: "mouseout",	target: event.target.editee});
+							event.target.editee.innerHTML = event.target.editee.aVquickEdit.oldInnerHTML;
+						}
+						else 
+						{
+							event.target.disabled=true;
+							aV.QuickEdit._makeSetRequest(event.target, event.target.value);
+						}
+					},
+					keydown: function(event)
+					{
+						var key = event.keyCode;
+						if (key == 27) 
+						{
+							event.target.value = event.target.originalValue;
+							event.target.blur();
+						}
+						else if (key == 13 && event.target.tagName.toLowerCase()=='input') 
+						{
+							event._type='blur';
+							event.target.onblur(event);
+						}
+					},
+					setresponse: function(event)
+					{
+						var responseObject=aV.AJAX.getResponseAsObject(event.requestObject);
+						var editee=event.target.editee;
+						if (responseObject && responseObject.type!='error')
+						{
+							editee.aVquickEdit.active=false;
+							event.target.editee=undefined;
+							if (aV.QuickEdit.triggerEvent("endedit", {target: editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, editee)===false)
+								return false;
+							aV.QuickEdit.setElementValue(editee, responseObject.value);
+							editee.onmouseout({type: "mouseout", target: editee});
+							aV.QuickEdit.triggerEvent("afteredit", {target: editee}, editee);
+						}
+						else
+						{
+							event.target.disabled=false;
+							aV.QuickEdit.triggerEvent("editerror", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target});
+						}
 					}
+				}
+			},
+			textarea:
+			{
+				constructor: function(element)
+				{
+					var editor=document.createElement("TEXTAREA");
+					element.aVquickEdit.oldInnerHTML=element.innerHTML;
+					editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
+					editor.style.height=(element.scrollHeight - 4) + "px";
+					element.innerHTML='';
+					return element.appendChild(editor);
+				},
+				eventHandlers:
+				{
+					blur: function(event)
+					{
+						return aV.config.QuickEdit.editors['default'].eventHandlers.blur(event);
+					},
+					keydown: function(event)
+					{
+						return aV.config.QuickEdit.editors['default'].eventHandlers.keydown(event);
+					},
+					keyup: function(event)
+					{
+						if (event.target.scrollHeight>event.target.clientHeight)
+							event.target.style.height=(event.target.scrollHeight) + "px";
+					},
+					setresponse: function(event)
+					{
+						return aV.config.QuickEdit.editors['default'].eventHandlers.setresponse(event);
+					}
+				}
+			},
+			select: 
+			{
+				constructor: function(element)
+				{
+					if ((typeof element.aVquickEdit.selectValues != "string") && !(element.aVquickEdit.selectValues instanceof Array) && !(element.aVquickEdit.selectValues instanceof Object)) 
+						return false;
+					var editor = document.createElement("SELECT");
+					var selectValues = element.aVquickEdit.selectValues;
+	
+					if (typeof selectValues == "string")
+						selectValues=Object.fromJSON(selectValues);
+	
+					if (selectValues instanceof Array) 
+					{
+						var temp={};
+						for (var i = 0; i < selectValues.length; i++) 
+							temp[selectValues[i]] = selectValues[i];
+						selectValues = temp;
+					}
+					
+					for (var value in selectValues) 
+						if (selectValues.hasOwnProperty(value)) 
+							editor.add(new Option(value, selectValues[value]), undefined);
+					
+					editor.value = editor.originalValue = aV.QuickEdit.getElementValue(element);
+					element.aVquickEdit.oldInnerHTML = element.innerHTML;
+					element.innerHTML = '';
+					return element.appendChild(editor);
+				}
+			},
+			image:
+			{
+				constructor: function(element)
+				{
+					var editor=document.createElement("div");
+					editor.className=aV.config.QuickEdit.classNames.uploadBox;
+					element.aVquickEdit.editorGuid=aV.QuickEdit.uploadBoxCount++;
+					editor.id=aV.config.QuickEdit.idFormats.uploadBox.format(element.aVquickEdit.editorGuid); //assign the unique upload div id
+					
+					//start defining the onload function of the upcoming iframe in text format for compatibility with IE
+					var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;if(!responseText)return;var destroyContainer=true;if(this.parentNode.onsetresponse)destroyContainer=this.parentNode.onsetresponse({type: 'setresponse', target: this.parentNode, responseText: responseText});if(destroyContainer)setTimeout('aV.config.QuickEdit.editors.image.destructor(' + this.parentNode.editee.aVquickEdit.editorGuid + ')', 0);";
+	
+					//prepare the inner visual structure of the uploadBox container div - this part might be customized
+					var inHTML='<div class="%s">'.format(aV.config.QuickEdit.classNames.uploadBoxTitle);
+					inHTML+='<div class="%s">%s</div>'.format(aV.config.QuickEdit.classNames.uploadBoxTitleText, aV.config.QuickEdit.texts.imgUploadTitle);
+					inHTML+='<div class="%s" onclick="aV.config.QuickEdit.editors.image.destructor(%s)">%s</div>'.format(aV.config.QuickEdit.classNames.uploadBoxCloseButton, element.aVquickEdit.editorGuid, aV.config.QuickEdit.texts.closeButtonHTML);
+					inHTML+='</div>';
+					
+					//add the necessary hidden iframe code
+					inHTML+='<iframe id="%0:s" name="%0:s" style="display:none" src="about:blank" onload="%1:s"></iframe>'.format(aV.config.QuickEdit.idFormats.uploadBoxIFrame.format(element.aVquickEdit.editorGuid), onloadFunc);
+					
+					//add the necessary form code to the container div. Keeping this part as is, is strongly recommended but might be customized
+					inHTML+='<form action="%0:s" id="%1:s" class="%2:s" method="post" enctype="multipart/form-data" target="%3:s">'.format(element.aVquickEdit.action, aV.config.QuickEdit.idFormats.uploadBoxForm.format(element.aVquickEdit.editorGuid), aV.config.QuickEdit.classNames.uploadBoxForm, aV.config.QuickEdit.idFormats.uploadBoxIFrame.format(element.aVquickEdit.editorGuid));
+					
+					var params;
+					try
+					{
+						params=eval("(" + element.aVquickEdit.params + ")");
+					}
+					catch (error)
+					{
+						params=(typeof element.aVquickEdit.params=="string")?element.aVquickEdit.params:element.aVquickEdit.params.toQueryString();
+					}
+					
+					var paramList=params.split('&');
+					for (var i=0; i<paramList.length-1; i++)
+					{
+						var tempArray=paramList[i].split('=');
+						inHTML+='<input type="hidden" name="%s" value="%s" />'.format(tempArray);
+					}
+					//inHTML+='<input type="hidden" name="MAX_FILE_SIZE" value="500000" />';
+					inHTML+='<input type="file" name="%s" onchange="if(this.value){this.form.submit();this.disabled=true;document.getElementById(\'%s\').style.display=\'\'}" />'.format(paramList[paramList.length-1], aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(element.aVquickEdit.editorGuid));
+					inHTML+='<div id="%s" class="%s" style="display: none">%s</div>'.format(aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(element.aVquickEdit.editorGuid), aV.config.QuickEdit.classNames.uploadBoxLoadingDiv, aV.config.QuickEdit.texts.loadingDivHTML);
+					inHTML+='</form>';
+					//assign the dynamically generated HTML code to the container div's innerHTML property
+					editor.innerHTML=inHTML;
+					document.body.appendChild(editor); //add the container div to the document
+	
+					//position the upload box, in the middle of the image
+					var elementCoordinates=aV.DOM.getElementCoordinates(element);
+					editor.style.top=Math.round(elementCoordinates.y + (element.offsetHeight - editor.offsetHeight)/2) + "px";
+					editor.style.left=Math.round(elementCoordinates.x + (element.offsetWidth - editor.offsetWidth)/2) + "px";	
+					
+					return editor;
+				},
+				destructor: function(editorGuid)
+				{
+					var editor=document.getElementById(aV.config.QuickEdit.idFormats.uploadBox.format(editorGuid));
+					editor.editee.aVquickEdit.active=false;
+					editor.editee.onmouseout({type: "mouseout",	target: editor.editee});
+					editor.editee=undefined;
+					editor.parentNode.removeChild(editor);
+				},
+				eventHandlers:
+				{
+					setresponse: function(event)
+					{
+						event.responseText=event.responseText.trim();
+	
+						var temp=event.responseText.match(/<pre>(.*)<\/pre>/i);
+						if (temp)
+							event.responseText=temp[1];
+	
+						var responseObject=Object.fromJSON(event.responseText);
+						if (!responseObject || responseObject.type=='error')
+						{
+							//enable the "file" input box again for a retry
+							var inputAreas=event.target.getElementsByTagName("input");
+							for (var i=0; i<inputAreas.length; i++)
+								inputAreas[i].disabled=false;
+			
+							//reset the form and hide the "in-progress" image
+							document.getElementById(aV.config.QuickEdit.idFormats.uploadBoxForm.format(event.target.editee.aVquickEdit.editorGuid)).reset();
+							document.getElementById(aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(event.target.editee.aVquickEdit.editorGuid)).style.display="none";
+							
+							aV.QuickEdit.triggerEvent("editerror", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target});
+							return false;
+						}
+						if (aV.QuickEdit.triggerEvent("endedit", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, event.target.editee)===false)
+							return false;
+						var now=new Date();
+						if (!responseObject.path)
+							responseObject.path=event.target.editee.src;
+						
+						event.target.editee.src=responseObject.path + ((responseObject.path.indexOf('?')>=0)?'&':'?') + now.getTime();
+						aV.QuickEdit.triggerEvent("afteredit", {target: event.target.editee}, event.target.editee);
+						return true;
+					}
+				}
+			}
+		},
+		valueHandlers:
+		{
+			get:
+			{
+				"default": function(element)
+				{
+					var result;
+					if (element.innerText) 
+						result = element.innerText;
 					else 
 					{
-						event.target.disabled=true;
-						aV.QuickEdit._makeSetRequest(event.target, event.target.value);
+						var temp = element.innerHTML;
+						element.innerHTML = temp.BRtoLB();
+						result = element.textContent;
+						element.innerHTML = temp;
 					}
+					return result || '';
 				},
-				keydown: function(event)
+				html: function(element)
 				{
-					var key = event.keyCode;
-					if (key == 27) 
+					return element.innerHTML;
+				}
+			},
+			set:
+			{
+				"default": function(element, value)
+				{
+					element.innerHTML='';
+	
+					var lines=[];
+					var matcher=new RegExp('\\r\\n|\\r|\\n', 'g');
+					var result;
+					var lastMatch=0;
+					while (result=matcher.exec(value))
 					{
-						event.target.value = event.target.originalValue;
-						event.target.blur();
+						lines.push(value.substring(lastMatch, result.index));
+						lastMatch=result.index+1;
 					}
-					else if (key == 13 && event.target.tagName.toLowerCase()=='input') 
+					lines.push(value.substr(lastMatch));
+	
+					element.appendChild(document.createTextNode(lines[0]));
+					for (var i=1; i<lines.length; i++)
 					{
-						event._type='blur';
-						event.target.onblur(event);
+						element.appendChild(document.createElement('br'));
+						element.appendChild(document.createTextNode(lines[i]));
 					}
+					return element.innerHTML;
 				},
-				setresponse: function(event)
+				html: function(element, value)
 				{
-					var responseObject=aV.AJAX.getResponseAsObject(event.requestObject);
-					var editee=event.target.editee;
-					if (responseObject && responseObject.type!='error')
-					{
-						editee.aVquickEdit.active=false;
-						event.target.editee=undefined;
-						if (aV.QuickEdit.triggerEvent("endedit", {target: editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, editee)===false)
-							return false;
-						aV.QuickEdit.setElementValue(editee, responseObject.value);
-						editee.onmouseout({type: "mouseout", target: editee});
-						aV.QuickEdit.triggerEvent("afteredit", {target: editee}, editee);
-					}
-					else
-					{
-						event.target.disabled=false;
-						aV.QuickEdit.triggerEvent("editerror", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target});
-					}
+					return element.innerHTML=value;
 				}
 			}
 		},
-		textarea:
-		{
-			constructor: function(element)
-			{
-				var editor=document.createElement("TEXTAREA");
-				element.aVquickEdit.oldInnerHTML=element.innerHTML;
-				editor.value=editor.originalValue=aV.QuickEdit.getElementValue(element);
-				editor.style.height=(element.scrollHeight - 4) + "px";
-				element.innerHTML='';
-				return element.appendChild(editor);
-			},
-			eventHandlers:
-			{
-				blur: function(event)
-				{
-					return aV.config.QuickEdit.editors['default'].eventHandlers.blur(event);
-				},
-				keydown: function(event)
-				{
-					return aV.config.QuickEdit.editors['default'].eventHandlers.keydown(event);
-				},
-				keyup: function(event)
-				{
-					if (event.target.scrollHeight>event.target.clientHeight)
-						event.target.style.height=(event.target.scrollHeight) + "px";
-				},
-				setresponse: function(event)
-				{
-					return aV.config.QuickEdit.editors['default'].eventHandlers.setresponse(event);
-				}
-			}
-		},
-		select: 
-		{
-			constructor: function(element)
-			{
-				if ((typeof element.aVquickEdit.selectValues != "string") && !(element.aVquickEdit.selectValues instanceof Array) && !(element.aVquickEdit.selectValues instanceof Object)) 
-					return false;
-				var editor = document.createElement("SELECT");
-				var selectValues = element.aVquickEdit.selectValues;
-
-				if (typeof selectValues == "string")
-					selectValues=Object.fromJSON(selectValues);
-
-				if (selectValues instanceof Array) 
-				{
-					var temp={};
-					for (var i = 0; i < selectValues.length; i++) 
-						temp[selectValues[i]] = selectValues[i];
-					selectValues = temp;
-				}
-				
-				for (var value in selectValues) 
-					if (selectValues.hasOwnProperty(value)) 
-						editor.add(new Option(value, selectValues[value]), undefined);
-				
-				editor.value = editor.originalValue = aV.QuickEdit.getElementValue(element);
-				element.aVquickEdit.oldInnerHTML = element.innerHTML;
-				element.innerHTML = '';
-				return element.appendChild(editor);
-			}
-		},
-		image:
-		{
-			constructor: function(element)
-			{
-				var editor=document.createElement("div");
-				editor.className=aV.config.QuickEdit.classNames.uploadBox;
-				element.aVquickEdit.editorGuid=aV.QuickEdit.uploadBoxCount++;
-				editor.id=aV.config.QuickEdit.idFormats.uploadBox.format(element.aVquickEdit.editorGuid); //assign the unique upload div id
-				
-				//start defining the onload function of the upcoming iframe in text format for compatibility with IE
-				var onloadFunc="var responseText=(this.contentDocument)?this.contentDocument.body.innerHTML:this.contentWindow.document.body.innerHTML;if(!responseText)return;var destroyContainer=true;if(this.parentNode.onsetresponse)destroyContainer=this.parentNode.onsetresponse({type: 'setresponse', target: this.parentNode, responseText: responseText});if(destroyContainer)setTimeout('aV.config.QuickEdit.editors.image.destructor(' + this.parentNode.editee.aVquickEdit.editorGuid + ')', 0);";
-
-				//prepare the inner visual structure of the uploadBox container div - this part might be customized
-				var inHTML='<div class="%s">'.format(aV.config.QuickEdit.classNames.uploadBoxTitle);
-				inHTML+='<div class="%s">%s</div>'.format(aV.config.QuickEdit.classNames.uploadBoxTitleText, aV.config.QuickEdit.texts.imgUploadTitle);
-				inHTML+='<div class="%s" onclick="aV.config.QuickEdit.editors.image.destructor(%s)">%s</div>'.format(aV.config.QuickEdit.classNames.uploadBoxCloseButton, element.aVquickEdit.editorGuid, aV.config.QuickEdit.texts.closeButtonHTML);
-				inHTML+='</div>';
-				
-				//add the necessary hidden iframe code
-				inHTML+='<iframe id="%0:s" name="%0:s" style="display:none" src="about:blank" onload="%1:s"></iframe>'.format(aV.config.QuickEdit.idFormats.uploadBoxIFrame.format(element.aVquickEdit.editorGuid), onloadFunc);
-				
-				//add the necessary form code to the container div. Keeping this part as is, is strongly recommended but might be customized
-				inHTML+='<form action="%0:s" id="%1:s" class="%2:s" method="post" enctype="multipart/form-data" target="%3:s">'.format(element.aVquickEdit.action, aV.config.QuickEdit.idFormats.uploadBoxForm.format(element.aVquickEdit.editorGuid), aV.config.QuickEdit.classNames.uploadBoxForm, aV.config.QuickEdit.idFormats.uploadBoxIFrame.format(element.aVquickEdit.editorGuid));
-				
-				var params;
-				try
-				{
-					params=eval("(" + element.aVquickEdit.params + ")");
-				}
-				catch (error)
-				{
-					params=(typeof element.aVquickEdit.params=="string")?element.aVquickEdit.params:element.aVquickEdit.params.toQueryString();
-				}
-				
-				var paramList=params.split('&');
-				for (var i=0; i<paramList.length-1; i++)
-				{
-					var tempArray=paramList[i].split('=');
-					inHTML+='<input type="hidden" name="%s" value="%s" />'.format(tempArray);
-				}
-				//inHTML+='<input type="hidden" name="MAX_FILE_SIZE" value="500000" />';
-				inHTML+='<input type="file" name="%s" onchange="if(this.value){this.form.submit();this.disabled=true;document.getElementById(\'%s\').style.display=\'\'}" />'.format(paramList[paramList.length-1], aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(element.aVquickEdit.editorGuid));
-				inHTML+='<div id="%s" class="%s" style="display: none">%s</div>'.format(aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(element.aVquickEdit.editorGuid), aV.config.QuickEdit.classNames.uploadBoxLoadingDiv, aV.config.QuickEdit.texts.loadingDivHTML);
-				inHTML+='</form>';
-				//assign the dynamically generated HTML code to the container div's innerHTML property
-				editor.innerHTML=inHTML;
-				document.body.appendChild(editor); //add the container div to the document
-
-				//position the upload box, in the middle of the image
-				var elementCoordinates=aV.DOM.getElementCoordinates(element);
-				editor.style.top=Math.round(elementCoordinates.y + (element.offsetHeight - editor.offsetHeight)/2) + "px";
-				editor.style.left=Math.round(elementCoordinates.x + (element.offsetWidth - editor.offsetWidth)/2) + "px";	
-				
-				return editor;
-			},
-			destructor: function(editorGuid)
-			{
-				var editor=document.getElementById(aV.config.QuickEdit.idFormats.uploadBox.format(editorGuid));
-				editor.editee.aVquickEdit.active=false;
-				editor.editee.onmouseout({type: "mouseout",	target: editor.editee});
-				editor.editee=undefined;
-				editor.parentNode.removeChild(editor);
-			},
-			eventHandlers:
-			{
-				setresponse: function(event)
-				{
-					event.responseText=event.responseText.trim();
-
-					var temp=event.responseText.match(/<pre>(.*)<\/pre>/i);
-					if (temp)
-						event.responseText=temp[1];
-
-					var responseObject=Object.fromJSON(event.responseText);
-					if (!responseObject || responseObject.type=='error')
-					{
-						//enable the "file" input box again for a retry
-						var inputAreas=event.target.getElementsByTagName("input");
-						for (var i=0; i<inputAreas.length; i++)
-							inputAreas[i].disabled=false;
-		
-						//reset the form and hide the "in-progress" image
-						document.getElementById(aV.config.QuickEdit.idFormats.uploadBoxForm.format(event.target.editee.aVquickEdit.editorGuid)).reset();
-						document.getElementById(aV.config.QuickEdit.idFormats.uploadBoxLoadingDiv.format(event.target.editee.aVquickEdit.editorGuid)).style.display="none";
-						
-						aV.QuickEdit.triggerEvent("editerror", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target});
-						return false;
-					}
-					if (aV.QuickEdit.triggerEvent("endedit", {target: event.target.editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, event.target.editee)===false)
-						return false;
-					var now=new Date();
-					if (!responseObject.path)
-						responseObject.path=event.target.editee.src;
-					
-					event.target.editee.src=responseObject.path + ((responseObject.path.indexOf('?')>=0)?'&':'?') + now.getTime();
-					aV.QuickEdit.triggerEvent("afteredit", {target: event.target.editee}, event.target.editee);
-					return true;
-				}
-			}
-		}
-	},
-	valueHandlers:
-	{
-		get:
-		{
-			"default": function(element)
-			{
-				var result;
-				if (element.innerText) 
-					result = element.innerText;
-				else 
-				{
-					var temp = element.innerHTML;
-					element.innerHTML = temp.BRtoLB();
-					result = element.textContent;
-					element.innerHTML = temp;
-				}
-				return result || '';
-			},
-			html: function(element)
-			{
-				return element.innerHTML;
-			}
-		},
-		set:
-		{
-			"default": function(element, value)
-			{
-				element.innerHTML='';
-
-				var lines=[];
-				var matcher=new RegExp('\\r\\n|\\r|\\n', 'g');
-				var result;
-				var lastMatch=0;
-				while (result=matcher.exec(value))
-				{
-					lines.push(value.substring(lastMatch, result.index));
-					lastMatch=result.index+1;
-				}
-				lines.push(value.substr(lastMatch));
-
-				element.appendChild(document.createTextNode(lines[0]));
-				for (var i=1; i<lines.length; i++)
-				{
-					element.appendChild(document.createElement('br'));
-					element.appendChild(document.createTextNode(lines[i]));
-				}
-				return element.innerHTML;
-			},
-			html: function(element, value)
-			{
-				return element.innerHTML=value;
-			}
-		}
-	},
-	ruleFile: "editableRules.txt",
-	useInfoBox: true,
-	forbiddenTags: ["INPUT", "SELECT", "OPTION", "TEXTAREA", "FORM", "HR", "BR", "IFRAME"]
-};
+		ruleFile: "editableRules.txt",
+		useInfoBox: true,
+		forbiddenTags: ["INPUT", "SELECT", "OPTION", "TEXTAREA", "FORM", "HR", "BR", "IFRAME"]
+	}
+	,false
+);
 
 /**
  * Used internally to assign unique id's to the created upload boxes.

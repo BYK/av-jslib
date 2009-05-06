@@ -3,9 +3,9 @@
  * @name Core Event Management Library
  *
  * @author 
- * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini dean@edwards.name
- * <br />Adomas Paltanavicius adomas.paltanavicius@gmail.com
- * <br />Burak Yigit Kaya byk@amplio-vita.net
+ * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini <dean@edwards.name>
+ * <br />Adomas Paltanavicius <adomas.paltanavicius@gmail.com>
+ * <br />Burak Yiğit Kaya <byk@amplio-vita.net>
  * @version 1.3
  * @copyright &copy;2005 - 2009
  */

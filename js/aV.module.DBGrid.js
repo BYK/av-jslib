@@ -1130,7 +1130,8 @@ aV.DBGrid.prototype._sortRows=function()
 aV.DBGrid.prototype._adjustHeight=function()
 {
 	var tableBody=this.tableElement.tBodies[0];
-	if (!aV.config.DBGrid.maxBodyHeight || !tableBody.clientHeight || tableBody.scrollHeight <= tableBody.clientHeight) 
+	var maxBodyHeight=(this.properties.maxBodyHeight!==false)?this.properties.maxBodyHeight:aV.config.DBGrid.maxBodyHeight;
+	if (!maxBodyHeight || !tableBody.clientHeight || tableBody.scrollHeight <= tableBody.clientHeight) 
 	{
 		tableBody.style.height = 'auto';
 		this.tableElement.dummyColumn.each(function(element){element.style.display='none'; return element;});

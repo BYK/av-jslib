@@ -498,7 +498,7 @@ aV.QuickEdit._startEdit=function(element)
 
 	for (var eventType in aV.config.QuickEdit.editors[editorId].eventHandlers)
 		if (aV.config.QuickEdit.editors[editorId].eventHandlers.hasOwnProperty(eventType))
-			aV.Events.add(editor, eventType, aV.config.QuickEdit.editors[editorId].eventHandlers[eventType]);
+			aV.Events.add(editor, eventType, aV.config.QuickEdit.editors[editorId].eventHandlers[eventType], 0);
 
 	aV.DOM.addClass(editor, aV.config.QuickEdit.classNames.editor);
 
@@ -574,9 +574,9 @@ aV.QuickEdit._setEditableElement=function(element)
 {
 	if (!element.aVquickEdit.editor)
 		element.aVquickEdit.editor='default';
-	aV.Events.add(element, "mouseover", aV.QuickEdit._editableElementHover); //assign the "private" editableElementHover function to onmouseover event
-	aV.Events.add(element, "mouseout", aV.QuickEdit._editableElementMouseOut); //assign the "private" editableElementMouseOut function to onmouseout event
-	aV.Events.add(element, "click", aV.QuickEdit._editableElementClick); //assign the "private" editableElementClick function to onclick event
+	aV.Events.add(element, "mouseover", aV.QuickEdit._editableElementHover, 0); //assign the "private" editableElementHover function to onmouseover event
+	aV.Events.add(element, "mouseout", aV.QuickEdit._editableElementMouseOut, 0); //assign the "private" editableElementMouseOut function to onmouseout event
+	aV.Events.add(element, "click", aV.QuickEdit._editableElementClick, 0); //assign the "private" editableElementClick function to onclick event
 };
 
 /**
@@ -605,4 +605,4 @@ aV.QuickEdit.init=function()
 };
 
 aV.AJAX.loadResource("/JSLib/css/aV.plg.quickEdit.css", "css", "aVquickEditCSS");
-aV.Events.add(window, 'domready', aV.QuickEdit.init);
+aV.Events.add(window, 'domready', aV.QuickEdit.init, 0);

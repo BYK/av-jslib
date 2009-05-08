@@ -28,6 +28,15 @@ aV.Events = {};
  */
 aV.Events.guid=1;
 
+aV.Events._sortHandlers=function(target, type)
+{
+	var eventComparator=function(a,b)
+	{
+		return target.events[type].priorities[b.$$guid] - target.events[type].priorities[a.$$guid];
+	};
+	target.events[type].list.sort(eventComparator);
+};
+
 /**
  * Adds the given event handler to element's the on-type event's event handler queue.
  *
@@ -43,8 +52,10 @@ aV.Events.guid=1;
  * }
  * aV.Events.add(window, "resize", resizeAlert);
  */
-aV.Events.add=function(target, type, handler)
+aV.Events.add=function(target, type, handler, priority)
 {
+	if (typeof priority!='number')
+		priority=1;
 	// assign each event handler a unique ID
 	if (!handler.$$guid) handler.$$guid = aV.Events.guid++;
 	// create a hash table of event types for the target
@@ -52,14 +63,13 @@ aV.Events.add=function(target, type, handler)
 	// create a hash table of event handlers for each target/event pair
 	var handlers = target.events[type];
 	if (!handlers) {
-		handlers = target.events[type] = {};
-		// store the existing event handler (if there is one)
-		if (target["on" + type]) {
-			handlers[0] = target["on" + type];
-		}
+		handlers = target.events[type] = {list: [], priorities: {}};
 	}
 	// store the event handler in the hash table
-	handlers[handler.$$guid] = handler;
+	handlers.list.push(handler);
+	handlers.priorities[handler.$$guid] = priority;
+	//sort the handler list according to priorities
+	aV.Events._sortHandlers(target, type);
 	// assign a global event handler to do all the work
 	target["on" + type] = aV.Events._handle;
 	return handler;
@@ -77,10 +87,16 @@ aV.Events.add=function(target, type, handler)
  */
 aV.Events.remove=function(target, type, handler)
 {
-	// delete the event handler from the hash table
-	if (target.events && target.events[type]) {
-		delete target.events[type][handler.$$guid];
+	if (handler.$$guid && target.events && target.events[type])
+	{
+		var handlerIndex=target.events[type].list.indexOf(handler.$$guid);
+		if (handlerIndex>-1)
+		{
+			target.events[type].list.splice(handlerIndex, 1);
+			return (delete target.events[type].priorities[handler.$$guid]);
+		}
 	}
+	return false;
 };
 
 /**
@@ -121,17 +137,15 @@ aV.Events._handle=function(event)
 	if (!event._type)
 		event._type=event.type;
 	// get a reference to the hash table of event handlers
-	var handlers = this.events[event._type];
+	var handlers = this.events[event._type].list;
 	// execute each event handler
-	for (var i in handlers)
+	for (var i=0; i<handlers.length; i++)
 	{
-		if (!handlers.hasOwnProperty(i))
-			continue;
 		this.$$handleEvent = handlers[i];
 		if (this.$$handleEvent(event) === false)
 			returnValue = false;
 	}
-	//delete this.$$handleEvent;
+	this.$$handleEvent=undefined;
 	return returnValue;
 };
 

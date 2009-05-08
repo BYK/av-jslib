@@ -2,9 +2,9 @@
  * @fileOverview Allows non obtrusive auto complete functionality for text inputs.
  * @name Auto Complete
  * 
- * @author Burak Yigit KAYA <byk@amplio-vita.net>
- * @version 1.3.1
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @version 1.3.2
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
 /**
@@ -233,7 +233,7 @@ aV.AutoComplete._onKeyUpHandler=function(event)
 		else
 		{
 			var delay=event.target.aVautoComplete.delay || aV.config.AutoComplete.delay;
-			event.target.aVautoComplete.keyUpTimer = setTimeout('aV.AutoComplete._doKeyUp(document.getElementById("' + event.target.id + '"))', delay);
+			event.target.aVautoComplete.keyUpTimer = setTimeout(function(){aV.AutoComplete._doKeyUp(event.target)}, delay);
 		}
 	}
 };
@@ -317,10 +317,10 @@ aV.AutoComplete._setElement=function(element)
 	if (element.aVautoComplete.source || element.aVautoComplete.params)
 	{
 		element.setAttribute("autocomplete", "off");
-		aV.Events.add(element, 'keyup', aV.AutoComplete._onKeyUpHandler);
-		aV.Events.add(element, 'focus', aV.AutoComplete._onKeyUpHandler);
-		aV.Events.add(element, 'keydown', aV.AutoComplete._onKeyDownHandler);
-		aV.Events.add(element, 'blur', aV.AutoComplete._onBlurHandler);
+		aV.Events.add(element, 'keyup', aV.AutoComplete._onKeyUpHandler, 0);
+		aV.Events.add(element, 'focus', aV.AutoComplete._onKeyUpHandler, 0);
+		aV.Events.add(element, 'keydown', aV.AutoComplete._onKeyDownHandler, 0);
+		aV.Events.add(element, 'blur', aV.AutoComplete._onBlurHandler, 100);
 	}
 	else
 	{

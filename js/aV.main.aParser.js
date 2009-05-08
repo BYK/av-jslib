@@ -45,6 +45,8 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 	} 
 	catch(error) 
 	{
+		if (window.onerror)
+			window.onerror(error.message, error.fileName, error.lineNumber);
 		return false;
 	}
 

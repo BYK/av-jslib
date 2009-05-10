@@ -2,9 +2,9 @@
  * @fileOverview Allows non obtrusive auto complete functionality for text inputs.
  * @name Auto Complete
  * 
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 1.3.2
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @version 1.3.1
+ * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
  */
 
 /**
@@ -27,30 +27,34 @@
  */
 aV.AutoComplete = {};
 
+if (!aV.config.AutoComplete)
+	aV.config.AutoComplete={};
 /**
  * Holds the configuration parameters.
  */
-aV.config.AutoComplete=
-{
-	ruleFile: 'autoCompleteRules.txt',
-	listBoxOffset: 1,
-	minChars: 2,
-	delay: 200,
-	retryOnError: false,
-	regExpPattern: "'^(' + filter + ')|\\\\W+(' + filter + ')'",
-	regExpBackferenceIndex: 1,
-	filterPattern: "'^(.+)$'", //"'([^' + separator + ']*)$'", //uncomment previous if you want multiple select by default
-	filterBackferenceIndex: 1,
-	allowedTags: ["INPUT"],
-	separator: ',',
-	defaultHTTPMethod: "GET",
-	classNames:
+aV.config.AutoComplete.unite(
 	{
-		listbox: 'aCListBox',
-		matchedPart: 'aCMatchedPart',
-		selectedItem: 'selected'
-	}
-};
+		ruleFile: 'autoCompleteRules.txt',
+		listBoxOffset: 1,
+		minChars: 2,
+		delay: 200,
+		retryOnError: false,
+		regExpPattern: "'^(' + filter + ')|\\\\W+(' + filter + ')'",
+		regExpBackferenceIndex: 1,
+		filterPattern: "'^(.+)$'", //"'([^' + separator + ']*)$'", //uncomment previous if you want multiple select by default
+		filterBackferenceIndex: 1,
+		allowedTags: ["INPUT"],
+		separator: ',',
+		defaultHTTPMethod: "GET",
+		classNames:
+		{
+			listbox: 'aCListBox',
+			matchedPart: 'aCMatchedPart',
+			selectedItem: 'selected'
+		}
+	},
+	false
+);
 
 aV.AutoComplete.listBoxCounter=0;
 
@@ -233,7 +237,7 @@ aV.AutoComplete._onKeyUpHandler=function(event)
 		else
 		{
 			var delay=event.target.aVautoComplete.delay || aV.config.AutoComplete.delay;
-			event.target.aVautoComplete.keyUpTimer = setTimeout(function(){aV.AutoComplete._doKeyUp(event.target)}, delay);
+			event.target.aVautoComplete.keyUpTimer = setTimeout(function() {aV.AutoComplete._doKeyUp(event.target)}, delay);
 		}
 	}
 };
@@ -292,7 +296,8 @@ aV.AutoComplete._onBlurHandler=function(event)
 
 	if (event.target.aVautoComplete.selectOnExit) 
 	{
-		event.keyCode = 13/*enter*/;
+		if (!event.keyCode)
+			event.keyCode = 13/*enter*/;
 		aV.AutoComplete._onKeyDownHandler(event);
 	}
 	else
@@ -303,9 +308,6 @@ aV.AutoComplete._onBlurHandler=function(event)
 
 aV.AutoComplete._checkElement=function(element)
 {
-	if (!element.id)
-		return false;
-
 	for (var i=aV.config.AutoComplete.allowedTags.length-1; i>=0; i--)
 		if (element.tagName==aV.config.AutoComplete.allowedTags[i])
 			return true;

@@ -120,7 +120,7 @@ aV.config.QuickEdit.unite(
 								return false;
 							aV.QuickEdit.setElementValue(editee, responseObject.value);
 							editee.onmouseout({type: "mouseout", target: editee});
-							aV.QuickEdit.triggerEvent("afteredit", {target: editee}, editee);
+							aV.QuickEdit.triggerEvent("afteredit", {target: editee, responseText: event.responseText, responseObject: responseObject}, editee);
 						}
 						else
 						{
@@ -514,26 +514,27 @@ aV.QuickEdit._startEdit=function(element)
 		editor.select();
 	
 	aV.QuickEdit.triggerEvent("startedit", {target: element, editor: editor}, element);
-	aV.Events.trigger(window, 'domready', {caller: element});
+	aV.Events.trigger(window, 'domready', {caller: aV.QuickEdit, changedNode: element});
 };
 
 aV.QuickEdit._makeSetRequest=function(editor, value)
 {
+	var element = editor.editee;
 	var params;
 	try
 	{
-		params=eval("(" + editor.editee.aVquickEdit.params + ")");
+		params=eval("(" + element.aVquickEdit.params + ")");
 	}
 	catch (error)
 	{
-		params=(typeof editor.editee.aVquickEdit.params=="string")?editor.editee.aVquickEdit.params:editor.editee.aVquickEdit.params.toQueryString();
+		params=(typeof element.aVquickEdit.params=="string")?element.aVquickEdit.params:element.aVquickEdit.params.toQueryString();
 	}
 
 	var responseHandler=function(requestObject)
 	{
-		delete editor.editee.aVquickEdit.requestObject;
+		delete element.aVquickEdit.requestObject;
 		editor.onsetresponse({type: 'setresponse', target: editor, requestObject: requestObject});
-		aV.Events.trigger(window, 'domready');
+		aV.Events.trigger(window, 'domready', {caller: aV.QuickEdit, changedNode: element});
 	};
 
 	editor.editee.aVquickEdit.requestObject=aV.AJAX.makeRequest(
@@ -587,8 +588,11 @@ aV.QuickEdit._setEditableElement=function(element)
  *
  * @method
  */
-aV.QuickEdit.init=function()
+aV.QuickEdit.init=function(event)
 {
+	if (event && event.caller==aV.QuickEdit)
+		return;
+
 	for (var editorId in aV.config.QuickEdit.editors)
 		if (aV.config.QuickEdit.editors.hasOwnProperty(editorId) && editorId!="default")
 			if (!("eventHandlers" in aV.config.QuickEdit.editors[editorId]))

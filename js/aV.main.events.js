@@ -6,7 +6,7 @@
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini <dean@edwards.name>
  * <br />Adomas Paltanavicius <adomas.paltanavicius@gmail.com>
  * <br />Burak Yiğit Kaya <byk@amplio-vita.net>
- * @version 1.3
+ * @version 1.4
  * @copyright &copy;2005 - 2009
  */
 
@@ -66,6 +66,8 @@ aV.Events.add=function(target, type, handler, priority)
 		handlers = target.events[type] = {list: [], priorities: {}};
 	}
 	// store the event handler in the hash table
+	if (target.events[type].list.indexOf(handler)>-1)
+		return false;
 	handlers.list.push(handler);
 	handlers.priorities[handler.$$guid] = priority;
 	//sort the handler list according to priorities
@@ -89,7 +91,7 @@ aV.Events.remove=function(target, type, handler)
 {
 	if (handler.$$guid && target.events && target.events[type])
 	{
-		var handlerIndex=target.events[type].list.indexOf(handler.$$guid);
+		var handlerIndex=target.events[type].list.indexOf(handler);
 		if (handlerIndex>-1)
 		{
 			target.events[type].list.splice(handlerIndex, 1);
@@ -169,12 +171,9 @@ aV.Events.trigger=function(target, type, parameters)
 		parameters={};
 
 	parameters=({type: type,	target: target}).unite(parameters, false);
-	var result=true;
 
 	if (target["on" + type])
-		result=target["on" + type](parameters);
-
-	return result;
+		window.setTimeout(function(){target["on" + type](parameters)}, 0);
 };
 
 /**

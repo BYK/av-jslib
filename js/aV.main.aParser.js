@@ -3,7 +3,7 @@
  * @name aV.aParser
  *
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version	1.2.2
+ * @version	1.3
  * 
  * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
  */
@@ -21,7 +21,7 @@ if (!aV.AJAX)
  * @requires String Extensions (aV.ext.string.js)
  * @requires Object Extension (aV.ext.object.js)
  * @requires aV.AJAX (aV.main.ajax.js)
- * @requires <a href="http://dean.edwards.name/my/cssQuery/" target="_blank">cssQuery</a> (dE.main.cssQuery.js)
+ * @requires Ext.DomQuery (ext.main.domQuery.js)
  */
 aV.aParser = {};
 
@@ -127,9 +127,9 @@ aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSe
 {
 	var secondaryInitializer=function()
 	{
-		if (includeStyleTags || includeStyleTags===undefined)
+		if (includeStyleTags!==false)
 			aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
-		if (includeInnerDefinitions || includeInnerDefinitions===undefined)
+		if (includeInnerDefinitions!==false)
 			aV.aParser.assignAttributesFromInnerDefinitions(propertyName, beforeSet, afterSet);
 	};
 
@@ -146,7 +146,7 @@ aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSe
 	if (fileAddress)
 		aV.AJAX.makeRequest('GET', fileAddress, '',	initializer);
 	else
-		secondaryInitializer();
+		window.setTimeout(secondaryInitializer, 0);
 };
 
 /**

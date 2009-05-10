@@ -1130,7 +1130,7 @@ aV.DBGrid.prototype._sortRows=function()
 aV.DBGrid.prototype._adjustHeight=function()
 {
 	var tableBody=this.tableElement.tBodies[0];
-	var maxBodyHeight=(this.properties.maxBodyHeight!==false)?this.properties.maxBodyHeight:aV.config.DBGrid.maxBodyHeight;
+	var maxBodyHeight=(this.properties.maxBodyHeight!==undefined)?this.properties.maxBodyHeight:aV.config.DBGrid.maxBodyHeight;
 	if (!maxBodyHeight || !tableBody.clientHeight || tableBody.scrollHeight <= tableBody.clientHeight) 
 	{
 		tableBody.style.height = 'auto';
@@ -1201,7 +1201,8 @@ aV.DBGrid.prototype._printRows=function(clear, i, count, insertBefore)
 
 			newCell=document.createElement("td");
 			newCell.setAttribute("datatype", this.properties.columns[column].dataType);
-			
+			newCell.setAttribute("column", column);
+
 			if (this.properties.columns[column].hidden)
 				newCell.style.display='none';
 			
@@ -1239,7 +1240,7 @@ aV.DBGrid.prototype._printRows=function(clear, i, count, insertBefore)
 		this._groupRows(lastKeyRow);
 
 	setTimeout("aV.DBGrid.list[%s]._adjustHeight();".format(this.guid),0);
-	setTimeout("aV.Events.trigger(window, 'domready');",0);
+	aV.Events.trigger(window, 'domready', {caller: this, changedNode: tableBody});
 
 	this._printFooter(originalStart);
 

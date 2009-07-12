@@ -1,9 +1,9 @@
 <?php
-    function queryToOutput($query,$tableName=NULL,$setName=Null,$outputType='json')
+    function queryToOutput($query,$parameters=NULL,$tableName=NULL,$setName=NULL,$outputType='json')
 	{
-		require_once("../../php/DBGrid_conf.php");
 		$qResult = mysql_query($query,$GLOBALS['link']);
-		$parameters = returnParameters($tableName,$setName,$_REQUEST['columns']);
+		if (!isset($parameters))
+			$parameters = returnParameters($tableName,$setName,$_REQUEST['columns']);
 		if (!$_REQUEST['export'])
 		{
 			if ($outputType=='xml')
@@ -130,7 +130,7 @@
 	 * return an array containing the column name and values for each row from the query result
 	 * 
 	 * @param mysql_resource $result a query result that will be processed for the DBGrid
-	 * @param array $fields the fields wanted from the query result. It should be an associated array with field names adn their aliases.
+	 * @param array $fields the fields wanted from the query result. It should be an associated array with field names and their aliases.
 	 * @return array $result_array = Array that will be used in order to convert to JSON.
 	 */
 	function resultToArray($result,$fields,$encoding='')
@@ -175,12 +175,11 @@
 		{
 			$currentColumn = $result['columns'][$fieldName];
 			$currentColumn['title'] = $fieldTitle;
+//Now merge the properties defined in allFields with the parameters array
+			$currentColumn = array_merge($currentColumn,(array)$allFields['columns'][$fieldName]);
 //To understand which ones will be initially hidden we check whether it is wanted (is it in the $parameters['columns] array?)
 			if (!array_key_exists($fieldName,$parameters['columns']) && ($fieldName != 'news_header'))
-			{
-				$currentColumn = array_merge($currentColumn,(array)$allFields['columns'][$fieldName]);
 				$currentColumn['hidden'] = 1;
-			}
 //If the dataType is not given then we try to decide it. 
 			if (!isset($currentColumn['dataType']))	$currentColumn['dataType'] = (is_float($array[0][$field_name]+0))?('real'):('string'); 
 			//not the safest code to find float entities, what if first cell is void?

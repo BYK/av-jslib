@@ -2,10 +2,10 @@
  * @fileOverview A collection of useful DOM related functions.
  * @name DOM Extensions
  *
- * @author Burak Yiğit KAYA	<byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA	<byk@amplio-vita.net>
  * @version 1.0
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)
@@ -99,14 +99,14 @@ aV.DOM._filterResults=function(n_win, n_docel, n_body)
  * @param {Boolean} [deleteFlag] Set to true if you want to delete the CSS rule whose name is given in the ruleName parameter.
  * @return {CSSRuleElementObject} The css rule
  */
-aV.DOM.getCSSRule=function(ruleName, deleteFlag)
+aV.DOM.getCSSRule=function(ruleName, styleSheetName, deleteFlag)
 {
 	if (document.styleSheets)
 	{
 		for (var i=0; i<document.styleSheets.length; i++)
 		{
 			var styleSheet=document.styleSheets[i];
-			if (styleSheet)
+			if (!styleSheet || styleSheet.href.indexOf(styleSheetName)==-1)
 				continue;
 			var ii=0;
 			var cssRule=false;

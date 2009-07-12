@@ -2,10 +2,10 @@
  * @fileOverview A visual effects function library.
  * @name Visual Effects and Functions Library
  *
- * @author Burak Yi�it KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 1.7
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -214,7 +214,7 @@ aV.Visual.getOpacity=function(obj)
 aV.Visual.composeRGBCode=function(color)
 {
 	var colors=[];
-	colors.push(Math.convertToBase(color.r, 16), Math.convertToBase(color.g, 16), Math.convertToBase(color.b, 16));
+	colors.push(color.r.toString(16), color.g.toString(16), color.b.toString(16));
 	colors.each(function(x){if (x.length==1) return '0'+x; else if (x.length>2) return '00'; else return x;});
 	return '#%s%s%s'.format(colors);
 };
@@ -242,9 +242,9 @@ aV.Visual.decomposeRGBCode=function(colorCode)
 		return undefined;
 
 	return {
-		r: Math.convertToDecimal(colors[startFrom], base),
-		g: Math.convertToDecimal(colors[startFrom+1], base),
-		b: Math.convertToDecimal(colors[startFrom+2], base)
+		r: parseInt(colors[startFrom], base),
+		g: parseInt(colors[startFrom+1], base),
+		b: parseInt(colors[startFrom+2], base)
 	};
 };
 
@@ -467,17 +467,17 @@ aV.Visual.toggle=function(element, display)
 		element.style.display='none';
 };
 
-aV.Visual.slideToggle=function (element, maxHeight, offset, horizontal, callback)
+aV.Visual.slideToggle=function (element, maxDimension, offset, horizontal, callback)
 {
 	var newDimension, direction;
 	var propertyStr=(horizontal)?'Width':'Height';
 	if (!offset)
 		offset=0;
-	if (!maxHeight)
-		maxHeight=element['scroll' + propertyStr];
-	if (element['client' + propertyStr]<maxHeight)
+	if (!maxDimension)
+		maxDimension=element['scroll' + propertyStr];
+	if (element['client' + propertyStr]<maxDimension)
 	{
-		newDimension=maxHeight + offset;
+		newDimension=maxDimension + offset;
 		direction=1;
 	}
 	else

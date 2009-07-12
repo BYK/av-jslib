@@ -4,9 +4,9 @@
  * The generated tables have native sort, filter and grouping support.
  * @name aV.DBGrid
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 2.1
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @version 2.3
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV.config.DBGrid)
@@ -17,7 +17,7 @@ aV.config.DBGrid.unite(
 		maxSortAccumulation: 4,
 		resizeLockOffset: 10,
 		minColWidth: 20, //should be >= 2*resizeLockOffset
-		maxBodyHeight: 400,
+		maxBodyHeight: -1,
 		minCharsToFilter: 2,
 		maxCharsInColumnList: 25,
 		keyupTimeout: 200, //in milliseconds
@@ -42,7 +42,8 @@ aV.config.DBGrid.unite(
 				sortbegin: 'Sorting table...',
 				groupbegin: 'Groping rows...',
 				ungroupbegin: 'Ungrouping rows...',
-				printend: 'Table is ready to use.'
+				printend: 'Table is ready to use.',
+				fetchend: 'Table data received.'
 			},
 			buttonColumnList: 'Column Manager',
 			buttonColumnListHint: 'You can set the visibility of the table columns from here',
@@ -57,7 +58,8 @@ aV.config.DBGrid.unite(
 			previousPage: ' ',
 			nextPage: ' ',
 			newCellText: '(empty cell)',
-			emptyCellText: 'Loading...'
+			emptyCellText: 'Loading...',
+			na: 'N/A'
 		},
 		classNames:
 		{
@@ -255,7 +257,6 @@ aV.DBGrid.getOwnerObject=function(element)
 aV.DBGrid._toggleMenu=function(guid, menuIdentifier, alignElement, offset)
 {
 	var margin=8;
-	var tableElement=aV.DBGrid.list[guid].tableElement;
 	var subElement=document.getElementById(aV.config.DBGrid.idFormats[menuIdentifier].format(guid));
 	if (offset===undefined)
 		offset={x: 0, y: 0};
@@ -282,6 +283,13 @@ aV.DBGrid._documentClickHandler=function(event)
 	for (var guid in aV.DBGrid.list)
 		if (guid!=excludeId && aV.DBGrid.list.hasOwnProperty(guid) && aV.DBGrid.list[guid].tableElement)
 			aV.Visual.fadeNSlide(aV.DBGrid.list[guid].tableElement.columnList, 0, -1, false, function(obj){obj.style.visibility = 'hidden';});
+};
+
+aV.DBGrid._windowResizeHandler = function(event)
+{
+	for (var guid in aV.DBGrid.list)
+		if (aV.DBGrid.list.hasOwnProperty(guid))
+			aV.DBGrid.list[guid]._adjustHeight();
 };
 
 aV.DBGrid._columnManagerClickHandler=function(event)
@@ -352,6 +360,7 @@ aV.DBGrid._lockResize=function(event)
 
 	aV.DBGrid._activeResizer.initialPos=clientX;
 	obj.cancelClick=true;
+	aV.Events.add(document, "mousemove", aV.DBGrid._doResize);
 	return false;
 };
 
@@ -362,16 +371,17 @@ aV.DBGrid._unlockResize=function(event)
 		return true;
 	obj.initialPos=false;
 	aV.DBGrid._activeResizer=false;
-	return aV.DBGrid._activeResizer;
+	aV.Events.remove(document, "mousemove", aV.DBGrid._doResize);
+	return false;
 };
 
 aV.DBGrid._doResize=function(event)
 {
 	var obj=aV.DBGrid._activeResizer;
 	if (!obj)
-		return false;
+		return true;
 	if (!obj.initialPos)
-		return false;
+		return true;
 
 	var clientX=(event.layerX)?event.layerX-obj.offsetLeft:event.clientX-aV.DOM.getElementCoordinates(obj).x;
 	var change=clientX - obj.initialPos;
@@ -653,32 +663,63 @@ aV.DBGrid.prototype.refreshData=function(fullRefresh, preserveState)
 	
 	var self=this;
 	
-	this.triggerEvent("fetchbegin", {status: 'loading'});
 	if (preserveState!==false)
 		this._addStateToParameters();
-	 
+	
+	var supportedMimeTypes=[];
+			for (var mimeType in aV.config.AJAX.dataParsers)
+				if (aV.config.AJAX.dataParsers.hasOwnProperty(mimeType))
+					supportedMimeTypes.push(mimeType);
+
+	var loadingFunction=function(requestObject)
+	{
+		self.triggerEvent("fetchbegin", {status: 'loading'});
+	};
+	
+	var completedFunction=function(requestObject, rangeInfo)
+	{
+		self.loadingData=rangeInfo;				
+		
+		if (!aV.AJAX.isResponseOK(requestObject, supportedMimeTypes))
+		{
+			self.triggerEvent("fetcherror", {status: 'error', messages: [requestObject.status, requestObject.responseText.stripHTML()], forceInfoBox: true});
+			delete self.fetcher;
+			return false;
+		}
+
+		self.triggerEvent("fetchend", {status: 'info'});
+		if (!rangeInfo || rangeInfo.start===0)
+			self.parseData(fullRefresh, preserveState);
+		else if (rangeInfo.type=='rows')
+		{
+			var parsedData=aV.AJAX.getResponseAsObject(requestObject);
+			if (!parsedData || !parsedData.row)
+				throw new Error("Invalid DBGrid data.", self.getFullSourceURL());
+			self.properties.row=self.properties.row.concat(parsedData.row);
+			
+			var currentStartIndex=(self.properties.currentPage-1)*self.properties.maxRowsInPage;
+			var currentEndIndex=currentStartIndex + self.properties.maxRowsInPage;
+			if ((rangeInfo.start >= currentStartIndex && rangeInfo.start <= currentEndIndex) || (((rangeInfo.end + 1) >= rangeInfo.total) && self.properties.sort.length)) 
+			{
+				if (self.properties.sort.length)
+					self._sortRows();
+				self._printRows();
+			}
+			else 
+				self._updateInfoFields();
+		}
+		else
+			return false;
+		
+		delete self.fetcher;
+	};
+	
 	this.fetcher=aV.AJAX.makeRequest(
 		"POST",
 		this.sourceURL,
 		this.parameters,
-		function(requestObject)
-		{
-			self.loadingData=false;				
-			var supportedMimeTypes=[];
-			for (var mimeType in aV.config.AJAX.dataParsers)
-				if (aV.config.AJAX.dataParsers.hasOwnProperty(mimeType))
-					supportedMimeTypes.push(mimeType);
-			if (!aV.AJAX.isResponseOK(requestObject, supportedMimeTypes))
-			{
-				self.triggerEvent("fetcherror", {status: 'error', messages: [requestObject.status, requestObject.responseText.stripHTML()], forceInfoBox: true});
-				delete self.fetcher;
-				return;
-			}
-			self.triggerEvent("fetchend", {status: 'info'});
-
-			self.parseData(fullRefresh, preserveState);
-			delete self.fetcher;
-		}
+		completedFunction,
+		loadingFunction
 	);
 };
 
@@ -889,7 +930,6 @@ aV.DBGrid.prototype._print=function(clear, element)
 	
 	this.tableElement.captionTitle=this.tableElement.caption.appendChild(document.createElement("div"));
 	this.tableElement.captionTitle.className=aV.config.DBGrid.classNames.captionTitle;
-	this.tableElement.captionTitle.appendChild(document.createTextNode(aV.config.DBGrid.texts.title.format(this.properties.caption || aV.config.DBGrid.texts.defaultTitle, this.properties.row.length)));
 	
 	this.tableElement.statusArea=this.tableElement.caption.appendChild(document.createElement("div"));
 	this.tableElement.statusArea.className=aV.config.DBGrid.classNames.statusArea;
@@ -897,27 +937,29 @@ aV.DBGrid.prototype._print=function(clear, element)
 	this.tableElement.setColumnVisibility=function(column, visible)
 	{
 		var displayState=(visible)?'':'none';
-		var rows=this.getElementsByTagName("tr");
 		var DBGridObj=aV.DBGrid.getOwnerObject(this);
-		//for (var i = rows.length - 1; i >= 0; i--) 
-		for (var i = 0; i < rows.length; i++)
-		{
-			if (rows[i].parentNode != this.tFoot)
-				rows[i].cells[DBGridObj.properties.columns[column].index].style.display = displayState;
-			else
-				rows[i].cells[0].colSpan+=(visible)?1:-1;
-		}
+		var colIndex=DBGridObj.properties.columns[column].index;
+
+		for (var i = DBGridObj.tableElement.tHead.rows.length-1; i >= 0; i--)
+			this.tHead.rows[i].cells[colIndex].style.display = displayState;
+
+		for (var i = DBGridObj.tableElement.tFoot.rows.length-1; i >= 0 ; i--)
+			this.tFoot.rows[i].cells[0].colSpan+=(visible)?1:-1;
+ 
+		for (var i = DBGridObj.tableElement.tBodies[0].rows.length-1; i >= 0 ; i--)
+			this.tBodies[0].rows[i].cells[colIndex].style.display = displayState;
+
 		DBGridObj.properties.columns[column].hidden=!visible;
 		if (visible && DBGridObj.properties.row.length && !(column in DBGridObj.properties.row[0]))
 			DBGridObj.refreshData();
 	};
 	
 	this.tableElement.appendChild(document.createElement("thead"));
-	this.tableElement.tHead.filterRow=this.tableElement.tHead.insertRow(-1);
+	this.tableElement.tHead.filterRow=this.tableElement.tHead.appendChild(document.createElement('tr'));
 	this.tableElement.tHead.filterRow.className=aV.config.DBGrid.classNames.filterRow;
 	this.tableElement.tHead.filterRow.style.display='none';
-	var newRow=this.tableElement.tHead.insertRow(-1);
-	var columnTitle, newCell, newLi, newLabel, newCheckbox;
+	var newRow=this.tableElement.tHead.appendChild(document.createElement('tr'));
+	var newCell, newLi, newLabel, newCheckbox;
 	var visibleColCount=0;
 	
 	for (var column in this.properties.columns)
@@ -946,7 +988,7 @@ aV.DBGrid.prototype._print=function(clear, element)
 
 		newCheckbox.checked=!this.properties.columns[column].hidden;
 
-		newCell=newRow.insertCell(-1);
+		newCell=newRow.appendChild(document.createElement('td'));
 
 		newCell.appendChild(document.createTextNode(this.properties.columns[column].title));
 		newCell.setAttribute("alias", column);
@@ -958,7 +1000,7 @@ aV.DBGrid.prototype._print=function(clear, element)
 		if (this.properties.columns[column].width)
 			newCell.style.width=this.properties.columns[column].width + "px";
 		
-		newCell.filterBox=this.tableElement.tHead.filterRow.insertCell(-1).appendChild(document.createElement("input"));
+		newCell.filterBox=this.tableElement.tHead.filterRow.appendChild(document.createElement('td')).appendChild(document.createElement("input"));
 		newCell.filterBox.columnHeader=newCell;
 		
 		if (this.properties.columns[column].hidden)
@@ -971,12 +1013,12 @@ aV.DBGrid.prototype._print=function(clear, element)
 		
 		aV.Events.add(newCell.filterBox, "keyup", aV.DBGrid._filterBoxKeyUpHandler);
 	}
-	this.tableElement.dummyColumn=[this.tableElement.tHead.rows[0].insertCell(-1), this.tableElement.tHead.rows[1].insertCell(-1)];
+	this.tableElement.dummyColumn=[this.tableElement.tHead.rows[0].appendChild(document.createElement('td')), this.tableElement.tHead.rows[1].appendChild(document.createElement('td'))];
 	this.tableElement.dummyColumn.each(function(element){element.className=aV.config.DBGrid.classNames.dummyColumn; return element});
 	
 	this.tableElement.appendChild(document.createElement("tfoot"));
 	/* footer cell */
-	this.tableElement.tFoot.insertRow(-1).insertCell(-1);
+	this.tableElement.tFoot.appendChild(document.createElement('tr')).appendChild(document.createElement('td'));
 	if (visibleColCount>1)
 		this.tableElement.tFoot.rows[0].cells[0].colSpan=visibleColCount;
 	this.tableElement.tFoot.rowInfo=this.tableElement.tFoot.rows[0].cells[0].appendChild(document.createElement("DIV"));
@@ -1021,11 +1063,16 @@ aV.DBGrid.prototype._print=function(clear, element)
 	element.appendChild(this.tableElement);
 };
 
-aV.DBGrid.prototype._printFooter=function(originalStart)
+aV.DBGrid.prototype._updateInfoFields=function(originalStart)
 {
 	var totalPages=Math.ceil(this.properties.row.length/this.properties.maxRowsInPage);
 	var tableBody=this.tableElement.tBodies[0];
-	this.tableElement.tFoot.rowInfo.innerHTML=aV.config.DBGrid.texts.footerRowCount.format(originalStart, originalStart + tableBody.rows.length - 1, tableBody.rows.length, this.properties.row.length);
+	
+	this.tableElement.captionTitle.innerHTML='';
+	this.tableElement.captionTitle.appendChild(document.createTextNode(aV.config.DBGrid.texts.title.format(this.properties.caption || aV.config.DBGrid.texts.defaultTitle, this.properties.row.length)));
+	
+	if (typeof originalStart=='number')
+		this.tableElement.tFoot.rowInfo.innerHTML=aV.config.DBGrid.texts.footerRowCount.format(originalStart, originalStart + tableBody.rows.length - 1, tableBody.rows.length, this.properties.row.length);
 	this.tableElement.tFoot.pageControls.maxRowsInPage.value=this.properties.maxRowsInPage;
 	this.tableElement.tFoot.pageControls.page.value=this.properties.currentPage;
 	this.tableElement.tFoot.pageControls.totalPageCount.innerHTML=aV.config.DBGrid.texts.totalPages.format(totalPages);
@@ -1073,8 +1120,6 @@ aV.DBGrid.prototype.sortData=function(column, direction)
 	}
 	else
 		this.properties.sort[0].direction=direction;
-	
-	var currentObject=this;
 	
 	this._sortRows();
 
@@ -1129,12 +1174,25 @@ aV.DBGrid.prototype._sortRows=function()
 
 aV.DBGrid.prototype._adjustHeight=function()
 {
+	if (!this.tableElement)	return;
+
 	var tableBody=this.tableElement.tBodies[0];
 	var maxBodyHeight=(this.properties.maxBodyHeight!==undefined)?this.properties.maxBodyHeight:aV.config.DBGrid.maxBodyHeight;
-	if (!maxBodyHeight || !tableBody.clientHeight || tableBody.scrollHeight <= tableBody.clientHeight) 
+	var calculatedHeight=(maxBodyHeight>0)?maxBodyHeight:aV.DOM.windowClientHeight() - this.tableElement.caption.offsetHeight - this.tableElement.tHead.offsetHeight - this.tableElement.tFoot.offsetHeight - 10
+	//IE conditional comments to force unlimited height
+	/*@cc_on
+	calculatedHeight=0;
+	@*/
+
+	if (!calculatedHeight || !this.properties.row.length || tableBody.scrollHeight <= calculatedHeight) 
 	{
 		tableBody.style.height = 'auto';
 		this.tableElement.dummyColumn.each(function(element){element.style.display='none'; return element;});
+	}
+	else
+	{
+		tableBody.style.height = calculatedHeight + 'px';
+		this.tableElement.dummyColumn.each(function(element){element.style.display=''; return element;});
 	}
 };
 
@@ -1160,19 +1218,13 @@ aV.DBGrid.prototype._printRows=function(clear, i, count, insertBefore)
 		while (tableBody.firstChild)
 			tableBody.removeChild(tableBody.firstChild);
 
-	if (aV.config.DBGrid.maxBodyHeight > 0) 
-	{
-		tableBody.style.height = aV.config.DBGrid.maxBodyHeight + 'px';
-		this.tableElement.dummyColumn.each(function(element){element.style.display=''; return element;});
-	}
-
 	for (var c=0; c<this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells.length-1; c++)
 		this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells[c].className='';
 	if (this.properties.sort && this.properties.sort.length>0)
 		this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells[this.properties.columns[this.properties.sort[0].column].index].className=(this.properties.sort[0].direction==1)?aV.config.DBGrid.classNames.sortedAsc:aV.config.DBGrid.classNames.sortedDesc;
 
 	var originalStart=i+1;
-	var newRow, newCell, lastKeyRow, lastKeyData, currentKeyData, rowContent;
+	var newRow, newCell, lastKeyRow, lastKeyData, currentKeyData;
 	for (; (addedRows<count && i<this.properties.row.length); i++)
 	{
 		newRow=document.createElement("tr");
@@ -1242,7 +1294,8 @@ aV.DBGrid.prototype._printRows=function(clear, i, count, insertBefore)
 	setTimeout("aV.DBGrid.list[%s]._adjustHeight();".format(this.guid),0);
 	aV.Events.trigger(window, 'domready', {caller: this, changedNode: tableBody});
 
-	this._printFooter(originalStart);
+	if (!insertBefore)
+		this._updateInfoFields(originalStart);
 
 	this.triggerEvent("printend", {status: 'info'});
 
@@ -1290,7 +1343,10 @@ aV.DBGrid.prototype._groupRows=function(groupHeader)
 			{
 				case 'int':
 				case 'real':
-					groupHeader.cells[columnIndex].firstChild.nodeValue=parseFloat(groupHeader.cells[columnIndex].textContent || groupHeader.cells[columnIndex].innerText) + parseFloat(currentRow.cells[columnIndex].textContent || currentRow.cells[columnIndex].innerText);
+					if (!groupHeader.cells[columnIndex].firstChild)
+						groupHeader.cells[columnIndex].appendChild(document.createTextNode(''));
+					var newValue=parseFloat(groupHeader.cells[columnIndex].textContent || groupHeader.cells[columnIndex].innerText) + parseFloat(currentRow.cells[columnIndex].textContent || currentRow.cells[columnIndex].innerText);
+					groupHeader.cells[columnIndex].firstChild.nodeValue=(isNaN(newValue))?aV.config.DBGrid.texts.na:newValue;
 					break;
 				default:
 					groupHeader.cells[columnIndex].appendChild(document.createElement('br'));
@@ -1334,8 +1390,8 @@ aV.DBGrid.prototype.updateStatus=function(text, type, forceInfoBox)
 };
 
 aV.Events.add(document, "mouseup", aV.DBGrid._unlockResize);
-aV.Events.add(document, "mousemove", aV.DBGrid._doResize);
 aV.Events.add(document, "click", aV.DBGrid._documentClickHandler);
+aV.Events.add(window, "resize", aV.DBGrid._windowResizeHandler);
 aV.Events.add(document, "selectstart", function() {return !aV.DBGrid._activeResizer});
 aV.Events.add(document, "dragstart", function() {return !aV.DBGrid._activeResizer});
 if (aV.QuickEdit)

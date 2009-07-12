@@ -3,9 +3,9 @@
  * @name String Extensions
  *
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 1.1
+ * @version 1.2
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 /**
@@ -222,20 +222,27 @@ String.prototype.stripHTML=function(tags)
  */
 String.prototype.format=function()
 {
-	var matcher=/%(\d*):?s/g;
+	var matcher=/(%(\w+):s)|(%s)/g;
 	var index=0;
 
 	var result;
 	var outText='';
 	var lastMatch=0;
 	
-	if (arguments.length==1 && (arguments[0] instanceof Array))
+	if (arguments.length==1 && arguments[0]!==undefined && ((arguments[0] instanceof Array) || (arguments[0].constructor==Object)))
 		arguments=arguments[0];
 
 	while (result=matcher.exec(this))
 	{
 		outText+=this.substring(lastMatch, result.index);
-		outText+=(result[1] !== '')?arguments[result[1]]:arguments[index++];
+
+		if (!result[2])
+			outText+=arguments[index++];
+		else if (result[2] in arguments)
+			outText+=arguments[result[2]];
+		else
+			outText+=result[0];
+
 		lastMatch=result.index+result[0].length;
 	}
 	

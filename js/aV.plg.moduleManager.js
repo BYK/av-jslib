@@ -4,7 +4,7 @@
  *
  * @author Burak Yiğit KAYA	byk@amplio-vita.net
  * @version 1.0
- * @copyright &copy;2008 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 aV.AJAX.ModuleManager=

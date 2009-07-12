@@ -5,7 +5,7 @@
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 1.1
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 /**
@@ -21,7 +21,7 @@ Object.prototype.toQueryString=function(format, encodeURI)
 	var result='';
 	for (var paramName in this) 
 	{
-		if (this.constructor==Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName))
+		if (this.constructor==Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName]===undefined)
 			continue;
 
 		if (this[paramName].constructor==Object || this[paramName].constructor==Array)
@@ -42,6 +42,8 @@ Object.prototype.unite=function(additive, overwrite)
 {
 	if (overwrite!==false)
 		overwrite=true;
+	if (!additive || !additive.hasOwnProperty)
+		return this;
 	for (var property in additive) 
 	{
 		if (!additive.hasOwnProperty(property))

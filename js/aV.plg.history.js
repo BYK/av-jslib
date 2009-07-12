@@ -1,9 +1,10 @@
 /**
  * @fileOverview Simple history manager
- * @name aV.plg.history
+ * @name aV.main.history
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA byk@amplio-vita.net
  * @version 1.1
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -16,7 +17,7 @@ aV.config.History.unite(
 	{
 		compression: true,
 		startOnLoad: true,
-		listenPeriod: 500,
+		listenPeriod: 1000,
 		useIFrame: false,
 		listenerIFrameURL: '/JSLib/blank.html',
 		listenerIFrameId: 'aVHistoryListenerIFrame'
@@ -34,6 +35,11 @@ aV.History=
 	onchange: null
 };
 
+aV.History._URIComponentComparator=function(a, b)
+{
+	return (decodeURIComponent(a)==decodeURIComponent(b));
+};
+
 aV.History._listener=function()
 {
 	if (!aV.History.onchange || document.location.hash.length<=1)
@@ -44,7 +50,7 @@ aV.History._listener=function()
 	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
 		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
 	var newList = paramStr.split('&');
-	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).simplify();
+	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).simplify(false, aV.History._URIComponentComparator);
 	var pair;
 	var matcher=/^([^&=]+)=([^&]+)$/;
 	for (var i = 0; i < changeList.length; i++) 
@@ -89,18 +95,20 @@ aV.History.startListener=function()
 	if (aV.History._listenerHandle)
 		return aV.History._listenerHandle;
 	
-	aV.History._listenerHandle=window.setInterval(aV.History._listener, aV.config.History.listenPeriod);
-	
-	if (aV.config.History.useIFrame)
+	if (aV.config.History.useIFrame) 
 	{
-		aV.History._iframe=document.createElement('IFRAME');
-		aV.History._iframe.style.display='none';
-		aV.History._iframe.src=aV.config.History.listenerIFrameURL;
-		aV.History._iframe.id=aV.config.History.listenerIFrameId;
+		aV.History._iframe = document.createElement('IFRAME');
+		aV.History._iframe.style.display = 'none';
+		aV.History._iframe.src = aV.config.History.listenerIFrameURL;
+		aV.History._iframe.id = aV.config.History.listenerIFrameId;
 		document.body.appendChild(aV.History._iframe);
+		if (document.location.hash.length>1)
+			aV.History._oldIframeLocation=aV.History._iframe.contentWindow.location.search=document.location.href.substring(document.location.href.indexOf('#')+1);
 		
-		aV.History._iframeListenerHandle=window.setInterval(aV.History._iframeListener, aV.config.History.listenPeriod);
+		aV.History._iframeListenerHandle = window.setInterval(aV.History._iframeListener, aV.config.History.listenPeriod);
 	}
+	
+	aV.History._listenerHandle=window.setInterval(aV.History._listener, aV.config.History.listenPeriod);
 };
 
 aV.History.stopListener=function()
@@ -113,7 +121,7 @@ aV.History.stopListener=function()
 	if (aV.config.History.useIFrame)
 	{
 		window.clearInterval(aV.History._iframeListenerHandle);
-		return delete aV.History._iframeListenerHandle;
+		delete aV.History._iframeListenerHandle;
 
 		if (aV.History._iframe && aV.History._iframe.parentNode)
 			aV.History._iframe.parentNode.removeChild(aV.History._iframe);

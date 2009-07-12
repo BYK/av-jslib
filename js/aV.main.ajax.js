@@ -2,9 +2,9 @@
  * @fileOverview A function-based AJAX library which also comes with useful XML functions such as <a href="#aV.AJAX.XML.getValue">aV.AJAX.XML.getValue</a> and <a href="#aV.AJAX.XML.setValue">aV.AJAX.XML.setValue</a>.
  * @name Core AJAX and XML functions Library
  *
- * @author Burak Yigit KAYA	<byk@amplio-vita.net>
- * @version 1.7
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @author Burak Yiğit KAYA	<byk@amplio-vita.net>
+ * @version 1.8
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)
@@ -54,6 +54,8 @@ aV.config.AJAX.unite(
 		 * @type {String} The path of the "blank.html" which is need for cross-domain requests.
 		 */
 		blankPageURL: "/JSLib/blank.html",
+		defaultDomain: document.domain,
+		defaultPath: document.location.pathname.substring(0, document.location.pathname.lastIndexOf('/')+1),
 		/**
 		 * @memberOf aV.config.AJAX
 		 * @type {Object} Contains the list of the data-parses to process the AJAX result into a native JavaScript object. You can add your data-type and data-parser to this object if you need.
@@ -77,7 +79,8 @@ aV.config.AJAX.unite(
 				return Object.fromJSON(eval(requestObject.responseText));
 			}
 		}
-	}
+	},
+	false
 );
 
 /**
@@ -255,6 +258,11 @@ aV.AJAX.checkActiveRequests=function()
 		return aV.config.AJAX.pageLeaveWarning;
 };
 
+aV.AJAX.assureDomain=function(address)
+{
+	return (address.match(/https?:\/\//))?address:document.location.protocol + '//' + aV.config.AJAX.defaultDomain + ((address.charAt(0)=='/')?'':aV.config.AJAX.defaultPath) + address;
+}
+
 /**
  * Creates a new XMLHttpRequest object which connects to the address, which includes the URI encoded and merged GET parameters.
  * Assignes changeFunction to the newly created XMLHttpRequest object's onreadystatechange event.
@@ -266,7 +274,7 @@ aV.AJAX.checkActiveRequests=function()
  * @param {Boolean} [crossDomain=false] If true, aV.createCrossDomainRequestObject function is used to create the request object.
  * @return {XMLHttpRequestObject} The created XMLHttpRequest.
  */
-aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
+aV.AJAX.makeGetRequest=function(address, changeFunction, headers, crossDomain, warnOnPageLeave)
 {
 	var requestObject = (crossDomain)?this.createCrossDomainRequestObject():this.createRequestObject(); //try to create an XMLHttpRequest object
 	if (requestObject) //if the XMLHttpRequest object is valid
@@ -288,13 +296,21 @@ aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
 			{
 				if (requestObject.readyState==4)
 				{
-					aV.AJAX.activeRequestCount--;
+					if (warnOnPageLeave!==false)
+						aV.AJAX.activeRequestCount--;
 					requestObject=undefined;
 				}
 			}
 		};
+		
+		if (headers)
+			for (var header in headers)
+				if (headers.hasOwnProperty(header))
+					requestObject.setRequestHeader(header, headers[header]);
+					
 		requestObject.send((crossDomain)?'&windowname=true':null); //start the request
-		aV.AJAX.activeRequestCount++;
+		if (warnOnPageLeave!==false)
+			aV.AJAX.activeRequestCount++;
 	}
 	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
 		alert(aV.config.AJAX.noAjax);
@@ -313,7 +329,7 @@ aV.AJAX.makeGetRequest=function(address, changeFunction, crossDomain)
  * @param {Boolean} [crossDomain=false] If true, aV.createCrossDomainRequestObject function is used to create the request object.
  * @return {XMLHttpRequestObject} The created request object.
  */
-aV.AJAX.makePostRequest=function(address, parameters, changeFunction, crossDomain)
+aV.AJAX.makePostRequest=function(address, parameters, changeFunction, headers, crossDomain, warnOnPageLeave)
 {
 	var requestObject = (crossDomain)?this.createCrossDomainRequestObject():this.createRequestObject(); //try to create a XMLHttpRequest object
 	if (requestObject) //if XMLHttpRequest object is valid
@@ -335,21 +351,32 @@ aV.AJAX.makePostRequest=function(address, parameters, changeFunction, crossDomai
 			{
 				if (requestObject.readyState==4)
 				{
-					aV.AJAX.activeRequestCount--;
+					if (warnOnPageLeave!==false)
+						aV.AJAX.activeRequestCount--;
 					requestObject=undefined;
 				}
 			}
 		};
 		if (!parameters)
 			parameters='';
-		requestObject.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    requestObject.setRequestHeader("Content-length", parameters.length);
-    requestObject.setRequestHeader("Connection", "close");
-		//set some headers for POST method
+			
 		if (crossDomain)
 			parameters+='&windowname=true';
+
+		headers=(headers || {}).unite(
+			{
+				'Content-type': 'application/x-www-form-urlencoded',
+				'Content-length': parameters.length,
+				'Connection': 'close'
+			}
+		);
+		for (var header in headers)
+			if (headers.hasOwnProperty(header))
+				requestObject.setRequestHeader(header, headers[header]);
+
 		requestObject.send(parameters); //send the request with parameters attached
-		aV.AJAX.activeRequestCount++;
+		if (warnOnPageLeave!==false)
+			aV.AJAX.activeRequestCount++;
 	}
 	else if(aV.config.AJAX.noAjax) //if cannot create a valid XMLHttpRequest object, inform user.
 		alert(aV.config.AJAX.noAjax);
@@ -366,7 +393,7 @@ aV.AJAX.isCrossDomain=function(url)
 {
 	var matchResult=url.match(/^\w+:\/\/([^\/@ ]+)/i);
 	var domain=(matchResult)?matchResult[1]:null;
-	return (domain && (domain!=document.domain));
+	return (domain && (('.' + domain).indexOf('.' + document.domain)<0));
 };
 
 /**
@@ -381,13 +408,31 @@ aV.AJAX.isCrossDomain=function(url)
  * @param {Function(XMLHttpRequestObject)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4. Might be called several times before the call is completed.
  * @return {XMLHttpRequestObject} The newly created XMLHttpRequest object for this specific AJAX call.
  */
-aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loadingFunction)
+aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loadingFunction, headers, warnOnPageLeave)
 {
 	var crossDomain=aV.AJAX.isCrossDomain(address);
 	var triggerFunction=function (requestObject) //define the custom changeFunction as triggerFunction
 	{
 		if (requestObject.readyState == 4 && completedFunction) //if the request is finished and there is a  completedFunction assigned
-			completedFunction(requestObject); //call the completedFunction sending the requestObject as its parameter
+		{
+			if ((requestObject.status==206) && ("getResponseHeader" in requestObject)) //if it is a partial response
+			{
+				var rangeInfo=requestObject.getResponseHeader("Content-Range").trim();
+				rangeInfo=rangeInfo.match(/(\w+)\s+(\d+)\-(\d+)\/(\d+)/);
+				if (rangeInfo)
+					rangeInfo={type: rangeInfo[1], start: parseInt(rangeInfo[2]), end: parseInt(rangeInfo[3]), total: parseInt(rangeInfo[4])};
+			}
+			var handlerResult=completedFunction(requestObject, rangeInfo);
+			if (handlerResult!==false && rangeInfo && rangeInfo.start<rangeInfo.end && ((rangeInfo.end+1)<rangeInfo.total || isNaN(rangeInfo.total)))
+			{
+				var newRangeEnd=2*rangeInfo.end - rangeInfo.start + 1;
+				if (!isNaN(rangeInfo.total))
+					newRangeEnd=Math.min(newRangeEnd, rangeInfo.total-1);
+
+				headers=(headers || {}).unite({'Range': '%s=%s-%s'.format(rangeInfo.type, rangeInfo.end + 1, newRangeEnd)});
+				aV.AJAX.makeRequest(method, address, parameters, completedFunction, loadingFunction, headers, warnOnPageLeave);
+			}
+		}
 		else if (loadingFunction) //if request is in progress and there is an assigned loadingFunction
 			loadingFunction(requestObject); //call the loadingFunction passing the requestObject as its parameter
 	}; //finished defining the custom changeFunction
@@ -398,9 +443,9 @@ aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loa
 		parameters=parameters.toQueryString();
 	
 	if (method.toUpperCase()=="GET") //if requested method is GET, then call the aV.AJAX.makeGetRequest function
-		return this.makeGetRequest(address + ((parameters)?'?' + parameters:''), triggerFunction, crossDomain);
+		return this.makeGetRequest(address + ((parameters)?'?' + parameters:''), triggerFunction, headers, crossDomain, warnOnPageLeave);
 	else if (method.toUpperCase()=="POST") //else if requested method is POST, then call the aV.AJAX.makePostRequest function
-		return this.makePostRequest(address, parameters, triggerFunction, crossDomain);
+		return this.makePostRequest(address, parameters, triggerFunction, headers, crossDomain, warnOnPageLeave);
 	else //if requested method is invalid, return false
 		return false;
 };
@@ -438,7 +483,7 @@ aV.AJAX.getEncoding=function(requestObject)
  */
 aV.AJAX.isResponseOK=function(requestObject, mimeType)
 {
-	var result=(requestObject.status==200 && requestObject.responseText);
+	var result=(Math.floor(requestObject.status/100)==2 && requestObject.responseText);
 	if (mimeType && result) 
 	{
 		if (!(mimeType instanceof Array))
@@ -470,7 +515,7 @@ aV.AJAX.getResponseAsObject=function(requestObject)
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  * @return {XMLHttpRequestObject} The created XMLHttoRequestObject.
  */
-aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction, cancelDOMReady)
+aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction, preFunction, cancelDOMReady)
 {
 	var crossDomain=aV.AJAX.isCrossDomain(address);
 	if (typeof(element)=='string') //if id of the object is given instead of the object itself
@@ -493,7 +538,7 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
 				element.innerHTML=aV.config.AJAX.loadingText; //set the given element's innerHTML the loading text to inform the user
 		}
 	};
-	return this.makeGetRequest(address, triggerFunction, crossDomain); //make the GET request and return the used XMLHttpRequest object
+	return this.makeGetRequest(address, triggerFunction, crossDomain, preFunction, false); //make the GET request and return the used XMLHttpRequest object
 };
 
 /**
@@ -508,6 +553,7 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
  */
 aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh)
 {
+	address=aV.AJAX.assureDomain(address);
 	if (!type)
 		type="js";
 	if (forceRefresh)
@@ -536,57 +582,6 @@ aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh)
 	}
 	newNode[attr]=address;
 	return head.appendChild(newNode);
-};
-
-/**
- * @ignore
- * @param {Object} address
- * @param {Object} parameters
- * @param {Object} element
- * @param {Object} incremental
- * @param {Object} completedFunction
- * @param {Object} loadingFunction
- */
-aV.AJAX.loadSelectOptions=function(address, parameters, element, incremental, completedFunction, loadingFunction)
-{
-	
-};
-
-/**
- * Sends the form data using AJAX when the form's onSubmit event is triggered.
- * 
- * @ignore
- * @param {Object} event
- * @return {Boolean} Returns always false to prevent "real" submission.
- */
-aV.AJAX.sendForm=function(event)
-{
-	var form=event.target;
-/*
-	if (checkRequiredFormElements)
-		if (!checkRequiredFormElements(form))
-		return false;
-*/	
-	var params={};
-	for (var i = 0; i < form.elements.length; i++) 
-	{
-		if (form.elements[i].type=='submit' || form.elements[i].value=='' || ((form.elements[i].type=='checkbox' || form.elements[i].type=='radio') && form.elements[i].checked==false))
-			continue;
-		params[form.elements[i].name] = form.elements[i].value;
-		form.elements[i].oldDisabled=form.elements[i].disabled;
-		form.elements[i].disabled=true;
-	}
-	
-	var completedFunction=function(requestObject)
-	{
-		for (var i = 0; i < form.elements.length; i++) 
-			form.elements[i].disabled=form.elements[i].oldDisabled;
-		if (form.callback)
-			form.callback(requestObject);
-	};
-	
-	aV.AJAX.makeRequest(form.method, form.action, params, completedFunction);
-	return false;
 };
 
 /**

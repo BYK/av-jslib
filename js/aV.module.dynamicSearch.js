@@ -3,8 +3,8 @@
  * @name Dynamic Search
  * 
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 2.0
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a> 
+ * @version 2.1
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a> 
  */
 
 /**
@@ -25,6 +25,9 @@
  */
 aV.DynamicSearch=function (name, element, guid)
 {
+	if (aV.Events.trigger(aV.DynamicSearch, 'create', {name: name, element: element, guid: guid})===false)
+		return;
+	
 	//assign for a unique guid to achive unique id's in the search boxes.
 	if (!guid)
 		guid=aV.DynamicSearch.$$lastGuid++;
@@ -100,6 +103,11 @@ aV.DynamicSearch.prototype._initialize=function()
 			return;
 		}
 		
+		if (self.properties)
+			if (self.properties.helpBoxItems)
+				for (var i=0; i<self.properties.helpBoxItems.length; i++)
+					self.container.content.helpList.removeChild(self.container.content.helpList.lastChild);
+
 		self.properties=aV.AJAX.getResponseAsObject(requestObject);
 
 		for (var fieldName in self.properties.fieldList)
@@ -127,8 +135,8 @@ aV.DynamicSearch.prototype._initialize=function()
 		self._createDBGrid(true);
 		self._createBasicForm(true);
 		self._createAdvancedForm(true);
-		aV.Events.trigger(window, 'domready', {caller: self});
 		self.setActiveForm(aV.DynamicSearch.historyList[self.$$guid].form, false);
+		aV.Events.trigger(aV.DynamicSearch, 'initcomplete', {caller: self});
 	};
 	this.loader=aV.AJAX.makeRequest('GET', aV.config.DynamicSearch.paths.fields, {search: {name: this.name}}, initializer);
 };
@@ -317,14 +325,13 @@ aV.DynamicSearch.prototype._createDBGrid=function(destructive)
  */
 aV.DynamicSearch.prototype._initNewCondition=function(element, fieldName)
 {
+	element.className='text';
 	if (this.properties.fieldList[fieldName].isEnum)
-		element.className=aV.config.DynamicSearch.classNames.enumInput;
+		aV.DOM.addClass(element, aV.config.DynamicSearch.classNames.enumInput);
 	else if (this.properties.fieldList[fieldName].isParsable)
-		element.className=aV.config.DynamicSearch.classNames.parsableInput;
+		aV.DOM.addClass(element, aV.config.DynamicSearch.classNames.parsableInput);
 	else if (this.properties.fieldList[fieldName].noAC)
-		element.className=aV.config.DynamicSearch.classNames.noAC;
-	else
-		element.className=null;
+		aV.DOM.addClass(element, aV.config.DynamicSearch.classNames.noAC);
 	
 	if (!element.addition) 
 	{
@@ -413,7 +420,7 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 		newLi.id=aV.config.DynamicSearch.idFormats.formBasicField.format(this.$$guid, fieldName);
 		var condition = newLi.condition = newLi.appendChild(document.createElement("INPUT"));
 		newLi.condition.name=aV.config.DynamicSearch.idFormats.formBasicInput.format(this.$$guid, fieldName);
-		newLi.condition.type = "TEXT";
+		newLi.condition.type = "text";
 		newLi.condition.id = newLi.condition.name;
 		newLi.condition.operator = 
 		{
@@ -425,12 +432,19 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 		};
 		
 		this._initNewCondition(newLi.condition, fieldName);
+
+		var clearIcon=document.createElement("span");
+		clearIcon.innerHTML='&nbsp;';
+		clearIcon.className=aV.config.DynamicSearch.classNames.clearIcon;
+		aV.Events.add(clearIcon, 'click', aV.DynamicSearch._clearIconHandler);
+		newLi.insertBefore(clearIcon, newLi.condition.nextSibling);
+
 		var helpIcon=document.createElement("span");
 		helpIcon.innerHTML='&nbsp;';
 		helpIcon.className=aV.config.DynamicSearch.classNames.helpIcon;
 		helpIcon.setAttribute("hint", this.properties.fieldList[fieldName].helpText || aV.config.DynamicSearch.texts.defaultHelpText);
-		newLi.insertBefore(helpIcon, newLi.condition.nextSibling);
-
+		newLi.insertBefore(helpIcon, clearIcon.nextSibling);
+		
 		this.container.content.formBasic.list.appendChild(newLi);
 		
 		newLi = document.createElement('LI');
@@ -567,7 +581,7 @@ aV.DynamicSearch.prototype.addCondition=function(afterElement)
 	var operatorSelector=newLi.appendChild(document.createElement("SELECT"));
 	newLi.condition=newLi.appendChild(document.createElement("INPUT"));
 	newLi.condition.name=aV.config.DynamicSearch.idFormats.formAdvancedInput.format(this.$$guid, liList.length); //might not be unique, TODO: CHECK!
-	newLi.condition.type='TEXT';
+	newLi.condition.type='text';
 	newLi.condition.id=newLi.condition.name;
 	newLi.condition.field=fieldSelector;
 	newLi.condition.operator=operatorSelector;
@@ -617,6 +631,7 @@ aV.DynamicSearch.prototype.addFormButtons=function(formType)
 
 	newButton=document.createElement("INPUT");
 	newButton.type='RESET';
+	newButton.className='reset'; //for IE6 compatibility
 	newButton.value=aV.config.DynamicSearch.texts.reset;
 	newItem.appendChild(newButton);
 	form.resetButton=newButton;
@@ -906,6 +921,8 @@ aV.DynamicSearch._onFormSubmit=function(event)
 							paranthesis: pCount
 						});
 						//inputElement.oldDisabled = element.condition.disabled;
+						if (element.condition.blur)
+							element.condition.blur();
 						element.condition.disabled = true;
 					}
 				}
@@ -1008,6 +1025,12 @@ aV.DynamicSearch._fieldOnFocusHandler=function(event)
 	event.target.select();
 };
 
+aV.DynamicSearch._clearIconHandler=function(event)
+{
+	event.target.previousSibling.value='';
+	//event.target.previousSibling.focus();
+};
+
 aV.DynamicSearch.getOwnerObject=function(element)
 {
 	while (element && element!=document.body && !element.aVdSGuid)
@@ -1063,6 +1086,7 @@ aV.config.DynamicSearch.unite(
 			generalHelpButton: 'aVdS_generalHelpButton',
 			fieldAddition: 'aVdS_fieldAddition',
 			helpIcon: 'aVdS_helpIcon',
+			clearIcon: 'aVdS_clearIcon',
 			customHelpBoxItem: 'aVdS_customHelpBoxItem'
 		},
 		paths:
@@ -1169,14 +1193,14 @@ aV.config.DynamicSearch.unite(
 			{
 				element=element.target || element.srcElement || element;
 				var isValid=element.value.match(/^-?\d*$/);
-				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
+				aV.DOM[((isValid)?'remove':'add') + 'Class'](element, aV.config.DynamicSearch.classNames.error);
 				return isValid;
 			},
 			dt_real: function(element)
 			{
 				element=element.target || element.srcElement || element;
 				var isValid=element.value.match(/^-?\d*\.?\d*$/);
-				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
+				aV.DOM[((isValid)?'remove':'add') + 'Class'](element, aV.config.DynamicSearch.classNames.error);
 				return isValid;
 			},
 			dt_date: function(element)
@@ -1184,7 +1208,6 @@ aV.config.DynamicSearch.unite(
 				var keyCode=element.which || element.keyCode;
 				element=element.target || element.srcElement || element;
 				var isValid=(element.value=='') || element.value.match(/^(\d{4})($|-\d{2}($|-\d{2}($|( \d{2}:\d{2}($|:\d{2}$)))))/);
-				element.className=(isValid)?'':aV.config.DynamicSearch.classNames.error;
 				var addendum='';
 				if (isValid && !keyCode)
 				{
@@ -1204,6 +1227,7 @@ aV.config.DynamicSearch.unite(
 						if (isValid[i])
 							element.value+=isValid[i];
 				}
+				aV.DOM[((isValid)?'remove':'add') + 'Class'](element, aV.config.DynamicSearch.classNames.error);
 				return isValid;
 			}
 		}

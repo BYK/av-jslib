@@ -1,4 +1,4 @@
-ul.aCListBox
+.aCListBox
 {
 	display: block;
 	border: 1px solid #cccccc;
@@ -7,15 +7,16 @@ ul.aCListBox
 	padding: 0px;
 	overflow: auto;
 	max-height: 100px;
+	height: expression(((this.scrollHeight<100)?this.scrollHeight:100) + 'px'); /* fix for IE */
 	font-size: 10pt;
 	z-index: 100;
 }
-ul.aCListBox>li
+.aCListBox>li
 {
 	list-style: none;
 	cursor: pointer;
 }
-ul.aCListBox li.selected
+.aCListBox li.selected
 {
 	background: #bbddff;
 }

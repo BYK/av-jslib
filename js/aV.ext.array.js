@@ -5,7 +5,7 @@
  * @author Burak Yiğit KAYA <byk@amplio-vita.net>
  * @version 1.1
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">BSD Licence</a>
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 /* backup the original indexOf if exists */
@@ -19,7 +19,7 @@ if (Array.prototype.indexOf)
  * @param {Object} element The element whose index should be found.
  * @param {Boolean} [strictMatch=false] Indicates wheter the comparison would be type sensitive (uses === comparator)
  * @param {Integer} [startFrom=0] Where to start searching from
- * @param {Function(a,b)} [compareFuncion] Custom comparison function
+ * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
  * @return {Integer} The index of the found element or -1
  */
 Array.prototype.indexOf=function(element, strictMatch, startFrom, compareFunction)
@@ -28,7 +28,7 @@ Array.prototype.indexOf=function(element, strictMatch, startFrom, compareFunctio
 		/**
 		 * @ignore
 		 */
-		compareFunction=(strictMatch)?function(hay, needle){return (hay===needle)}:function(hay, needle){return (hay==needle)};
+		compareFunction=(strictMatch)?function(a, b){return (a===b)}:function(a, b){return (a==b)};
 	if (!(startFrom>0))
 		startFrom=0;
 	for (; startFrom<this.length; startFrom++)
@@ -61,17 +61,18 @@ Array.prototype.each=function(unitFunction, recursive)
  * Scans the whole array and removes all the duplicates of the elements.
  * 
  * @param {Boolean} [strictMatch=false] Wheter the function should use a "forced type equality comparator" while comparing two elements or not.
+ * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
  * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The deduplicated array, itself.
  */
-Array.prototype.deduplicate=function(strictMatch, recursive)
+Array.prototype.deduplicate=function(strictMatch, compareFunction, recursive)
 {
 	var dupIndex;
 	for (var i=0; i<this.length; i++)
 		if (recursive && (this[i] instanceof Array))
 			this[i]=this[i].deduplicate(strictMatch, true);
 		else
-			while ((dupIndex=this.indexOf(this[i], strictMatch, i+1))>-1)
+			while ((dupIndex=this.indexOf(this[i], strictMatch, i+1, compareFunction))>-1)
 				this.splice(dupIndex, 1);
 	
 	return this;
@@ -82,10 +83,11 @@ Array.prototype.deduplicate=function(strictMatch, recursive)
  * Note that this function is just like Array.prototype.deduplicate but it removes the original elements having duplicates also. 
  * 
  * @param {Boolean} [strictMatch=false] Wheter the function should use a "forced type equality comparator" while comparing two elements or not.
+ * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
  * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The simplified array, itself.
  */
-Array.prototype.simplify=function(strictMatch, recursive)
+Array.prototype.simplify=function(strictMatch, compareFunction, recursive)
 {
 	var dupIndex;
 	var i=0;
@@ -96,7 +98,7 @@ Array.prototype.simplify=function(strictMatch, recursive)
 		if (recursive && (this[i] instanceof Array)) 
 			this[i] = this[i].simplify(strictMatch, true);
 		else 
-			while ((dupIndex = this.indexOf(this[i], strictMatch, i + 1)) > -1) 
+			while ((dupIndex = this.indexOf(this[i], strictMatch, i + 1, compareFunction)) > -1) 
 			{
 				this.splice(dupIndex, 1);
 				erased = true;
@@ -219,19 +221,13 @@ Array.prototype.reduce=function(unitFunction, initialValue, recursive)
 
 /**
  * Shuffles the array and returnes the shuffled version.
+ * Idea from http://code.google.com/p/jslibs/wiki/JavascriptTips
  * 
  * @return {Array} The new, shuffled array.
  */
 Array.prototype.shuffle=function()
 {
-	var temp=this.slice(0);
-	this.splice(0, this.length);
-	while (temp.length)
-	{
-		var index=Math.floor(Math.random()*temp.length);
-		this.push(temp.splice(index, 1)[0]);
-	}
-	return this;
+	return this.sort(function(){Math.random() - 0.5});
 };
 
 /**

@@ -6,8 +6,8 @@
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini <dean@edwards.name>
  * <br />Adomas Paltanavicius <adomas.paltanavicius@gmail.com>
  * <br />Burak Yiğit Kaya <byk@amplio-vita.net>
- * @version 1.4
- * @copyright &copy;2005 - 2009
+ * @version 1.4.1
+ * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -139,13 +139,24 @@ aV.Events._handle=function(event)
 	if (!event._type)
 		event._type=event.type;
 	// get a reference to the hash table of event handlers
+	if (!this.events[event._type])
+		return;
+
 	var handlers = this.events[event._type].list;
 	// execute each event handler
 	for (var i=0; i<handlers.length; i++)
 	{
 		this.$$handleEvent = handlers[i];
-		if (this.$$handleEvent(event) === false)
-			returnValue = false;
+		try 
+		{
+			if (this.$$handleEvent(event) === false) 
+				returnValue = false;
+		}
+		catch(error)
+		{
+			if (window.onerror)
+				window.onerror(error.message, error.fileName, error.lineNumber);
+		}
 	}
 	this.$$handleEvent=undefined;
 	return returnValue;
@@ -238,7 +249,7 @@ if (document.addEventListener)
 	aV.Events._onDOMReadyEventBinded=true;
 }
 
-//The cross-browser binding coes below are adapted from http://dean.edwards.name/weblog/2006/06/again/
+//The cross-browser binding codes below are adapted from http://dean.edwards.name/weblog/2006/06/again/
 
 // for Internet Explorer (using conditional comments)
 /*@cc_on @*/

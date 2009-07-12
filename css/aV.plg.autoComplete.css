@@ -10,6 +10,7 @@
 	height: expression(((this.scrollHeight<100)?this.scrollHeight:100) + 'px'); /* fix for IE */
 	font-size: 10pt;
 	z-index: 100;
+	color: #999999;
 }
 .aCListBox>li
 {
@@ -30,4 +31,8 @@
 {
 	font-weight: bold;
 	text-decoration: underline;
+}
+.aCActivePart
+{
+	color: #000000;
 }

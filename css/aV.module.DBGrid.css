@@ -1,4 +1,4 @@
-table.aVDBGrid
+.aVDBGrid
 {
 	[if lt IE 8] border-collapse: collapse;
 	[if ! lt IE 8] border-collapse: separate;
@@ -18,7 +18,7 @@ table.aVDBGrid
 	[if lt Gecko 1.9] clear: both;
 	[if lt Gecko 1.9] margin: 0px 0.5% 4px 0.5%;
 }
-table.aVDBGrid caption
+.aVDBGrid caption
 {
 	font-size: 10pt;
 	font-weight: bold;
@@ -30,7 +30,7 @@ table.aVDBGrid caption
 	/* Conditional line for Firefox 2 and below bug */
 	[if lt Gecko 1.9] margin: 4px 0.5% 0px 0.5%;
 }
-table.aVDBGrid caption div.title
+.aVDBGrid caption .title
 {
 	overflow: hidden;
 	float: left;
@@ -39,9 +39,8 @@ table.aVDBGrid caption div.title
 	margin-left: 2px;
 	padding: 2px 1px;
 	[if lt IE 8] width: 75%;
-/*	[if lt IE 8] height: 1.2em;*/
 }
-table.aVDBGrid caption div.statusArea
+.aVDBGrid .statusArea
 {
 	overflow: hidden;
 	float: right;
@@ -51,9 +50,8 @@ table.aVDBGrid caption div.statusArea
 	font-size: 9pt;
 	margin: 3px 0;
 	text-align: right;
-/*	[if lt IE 8] width: 45%;*/
 }
-table.aVDBGrid caption a
+.aVDBGrid caption a
 {
 	display: block;
 	padding: 5px 0 5px 20px;
@@ -66,29 +64,31 @@ table.aVDBGrid caption a
 	text-decoration: none;
 	font-weight: normal;
 }
-table.aVDBGrid caption a.buttonColumnList
+.aVDBGrid .buttonColumnList
 {
 	background-image: url('../images/DBGrid/wand.png');
+	font-weight: bold;
+	color: #a40d26;
 }
-table.aVDBGrid caption a.buttonGroupAll
+.aVDBGrid .buttonGroupAll
 {
 	background-image: url('../images/DBGrid/link.png');
 }
-table.aVDBGrid caption a.buttonUngroupAll
+.aVDBGrid .buttonUngroupAll
 {
 	background-image: url('../images/DBGrid/link_break.png');
 }
-table.aVDBGrid caption a.buttonExport
+.aVDBGrid .buttonExport
 {
 	float: right;
 	background-position: right;
 	padding: 5px 20px 5px 0;
 }
-table.aVDBGrid caption a.buttonFilter
+.aVDBGrid .buttonFilter
 {
 	background-image: url('../images/DBGrid/filter.png');
 }
-ul.aVDBGridColumnList
+.aVDBGridColumnList
 {
 	background: #eeeeff;
 	border: 1px solid #bbbbbb;
@@ -101,8 +101,9 @@ ul.aVDBGridColumnList
 	font-weight: normal;
 	overflow-y: auto;
 	overflow-x: hidden;
+	[if lt IE 8] margin-top: 63px;
 }
-ul.aVDBGridColumnList li
+.aVDBGridColumnList li
 {
 	padding: 1px;
 	overflow: hidden;
@@ -110,47 +111,52 @@ ul.aVDBGridColumnList li
 	height: 18px;
 	width: 188px;
 }
-ul.aVDBGridColumnList li:hover
+.aVDBGridColumnList li:hover
 {
-	background: #bbbbff;
+	background-color: #bbbbff;
 }
-ul.aVDBGridColumnList li *
+.aVDBGridColumnList li *
 {
 	cursor: pointer;
 	float: left;
 	clear: none;
 }
-ul.aVDBGridColumnList li label
+.aVDBGridColumnList label
 {
 	width: 150px;
 	margin: 2px 0;
 }
-table.aVDBGrid thead
+.aVDBGrid thead
 {
 	overflow: hidden;
 }
-table.aVDBGrid tbody
+.aVDBGrid tbody
 {
 	overflow-x: hidden;
 	overflow-y: auto;
 	[if lt IE 8] height: auto!important;
 }
-table.aVDBGrid td
+.aVDBGrid td
 {
 	border: 1px solid #cccccc;
 	white-space: normal;
 	overflow: hidden;
 	padding: 2px;
 }
-table.aVDBGrid td *
+.aVDBGrid td *
 {
 	font-size: 8pt;
 }
-table.aVDBGrid tr.groupedRow td
+.aVDBGrid .groupedRow
+{
+	background-image: url('../images/DBGrid/piano.gif');
+	background-position: 0 2px;
+}
+.aVDBGrid .groupedRow td
 {
 	white-space: nowrap;
 }
-table.aVDBGrid thead tr td
+.aVDBGrid thead td
 {
 	background: #557e9f;
 	color: #ffffff;
@@ -160,12 +166,12 @@ table.aVDBGrid thead tr td
 	padding-top: 3px;
 	padding-bottom: 3px;
 }
-table.aVDBGrid thead tr td:hover
+.aVDBGrid thead td:hover
 {
 	border-bottom: 1px solid #BBBBBB;
-	background: #054278;
+	background-color: #054278;
 }
-table.aVDBGrid thead tr td.sortedAsc, table.aVDBGrid thead tr td.sortedDesc
+.aVDBGrid thead .sortedAsc, .aVDBGrid thead .sortedDesc
 {
 	border-bottom: 1px solid #BBBBBB;
 	background-repeat: no-repeat;
@@ -173,39 +179,39 @@ table.aVDBGrid thead tr td.sortedAsc, table.aVDBGrid thead tr td.sortedDesc
 	background-color: #054278;
 	padding-left: 10px!important;
 }
-table.aVDBGrid thead tr td.sortedAsc
+.aVDBGrid thead .sortedAsc
 {
 	background-image: url('../images/DBGrid/up.png');
 }
-table.aVDBGrid thead tr td.sortedDesc
+.aVDBGrid thead .sortedDesc
 {
 	background-image: url('../images/DBGrid/down.png');
 }
-table.aVDBGrid thead tr.filterRow td
+.aVDBGrid thead .filterRow td
 {
 	padding: 0px;
 	background: #eeeeff;
 }
-table.aVDBGrid thead tr.filterRow td input
+.aVDBGrid thead .filterRow input
 {
 	border: none;
 	width: 100%;
 }
-table.aVDBGrid thead tr td.dummyColumn
+.aVDBGrid thead .dummyColumn
 {
 	width: 17px;
 	cursor: default;
 	border: none;
 }
-table.aVDBGrid tbody tr
+.aVDBGrid tbody tr
 {
 	background: #ffffff;
 }
-table.aVDBGrid tbody tr:hover, table.aVDBGrid tbody tr.selected
+.aVDBGrid tbody tr:hover, .aVDBGrid tbody tr.selected
 {
-	background: #e3edfa!important;
+	background-color: #e3edfa!important;
 }
-table.aVDBGrid tbody tr td
+.aVDBGrid tbody td
 {
 	vertical-align: top;
 	padding: 2px;
@@ -213,46 +219,46 @@ table.aVDBGrid tbody tr td
 	border-color: #cccccc;
 	border-style: none solid solid none;
 }
-table.aVDBGrid tbody tr td[datatype="int"], table.aVDBGrid tbody tr td[datatype="real"], table.aVDBGrid tbody tr td[datatype="real"] .aVqE_editor, table.aVDBGrid tbody tr td[datatype="int"] .aVqE_editor
+.aVDBGrid tbody td[datatype="int"], .aVDBGrid tbody td[datatype="real"], .aVDBGrid tbody td[datatype="real"] .aVqE_editor, .aVDBGrid tbody td[datatype="int"] .aVqE_editor
 {
 	text-align: right;
 	color: #4848ff;
 }
-table.aVDBGrid tbody tr td p
+.aVDBGrid tbody p
 {
 	margin-top: 0px;
 	margin-bottom: 0px;
 }
-table.aVDBGrid tbody td.aVqE_editee input.aVqE_editor
+.aVDBGrid tbody td.aVqE_editee input.aVqE_editor
 {
 	border: none;
 	margin: -1px;
 	font-size: 8pt;
 	width: 100%;
 }
-table.aVDBGrid tfoot
+.aVDBGrid tfoot
 {
 	font-weight: bold;
 	overflow: hidden;
 	text-align: left;
 	z-index: 3;
-	background: #eeeeff;
+	background-color: #eeeeff;
 }
-table.aVDBGrid tfoot tr td
+.aVDBGrid tfoot td
 {
 	padding: 2px 2px 4px 2px;
 	border: none;
 }
-table.aVDBGrid tfoot tr td div
+.aVDBGrid tfoot div
 {
 	float: left;
 }
-table.aVDBGrid tfoot tr td div.pageControls
+.aVDBGrid .pageControls
 {
 	text-align: right;
 	float: right;
 }
-table.aVDBGrid tfoot tr td input
+.aVDBGrid .pageControls input
 {
 	font-size: 8pt;
 	text-decoration: underline;
@@ -264,80 +270,79 @@ table.aVDBGrid tfoot tr td input
 	width: 20px;
 	text-align: center;
 }
-table.aVDBGrid tfoot tr td input.page
+.aVDBGrid .pageControls input.page
 {
 	margin-right: 0;
 }
-table.aVDBGrid tfoot tr td a
+.aVDBGrid .pageControls a
 {
 	text-decoration: none;
 	color: #000080;
 	padding-bottom: 3px;
 }
-table.aVDBGrid tfoot tr td a[disabled="true"]
+.aVDBGrid .pageControls a[disabled="true"]
 {
 	opacity: 0.5;
 	filter: alpha(opacity=50);
 	cursor: text;
 }
-table.aVDBGrid tfoot tr td a.previousPage
+.aVDBGrid .pageControls a.previousPage
 {
 	padding-right: 18px;
 	background: url('../images/DBGrid/previous.png') no-repeat right;
 }
-table.aVDBGrid tfoot tr td a.nextPage
+.aVDBGrid .pageControls a.nextPage
 {
 	padding-left: 18px;
 	background: url('../images/DBGrid/next.png') no-repeat left;
 }
-
 /* Begin Printer Styles */
 @media print
 {
 	/* hide unnecessary controls */
-	table.aVDBGrid caption div.statusArea,
-	table.aVDBGrid caption a,
-	table.aVDBGrid tfoot tr td div.pageControls,
-	div.aVDBGridColumnList,
-	table.aVDBGrid thead tr.filterRow,
-	table.aVDBGrid tbody tr td form,
-	table.aVDBGrid tbody tr td input
+	.aVDBGrid .statusArea,
+	.aVDBGrid caption a,
+	.aVDBGrid .pageControls,
+	.aVDBGridColumnList,
+	.aVDBGrid thead tr.filterRow,
+	.aVDBGrid tbody form,
+	.aVDBGrid tbody input
 	{
 		display: none!important;
 	}
 	/* Set Page Break Rules */
-	table.aVDBGrid
+	.aVDBGrid
 	{
 		overflow: visible;
 	}
-	table.aVDBGrid caption
+	.aVDBGrid caption
 	{
 		page-break-before: avoid;
 		page-break-inside: avoid;
 		page-break-after: avoid;
 	}
-	table.aVDBGrid thead
+	.aVDBGrid thead
 	{
 		page-break-before: avoid;
 	}
-	table.aVDBGrid thead tr td.dummyColumn
+	.aVDBGrid thead .dummyColumn
 	{
 		display: none;
 	}
-	table.aVDBGrid tbody
+	.aVDBGrid tbody
 	{
 		page-break-before: avoid;
 		page-break-after: avoid;
 		overflow: visible;
 		height: auto!important;
 	}
-	table.aVDBGrid tbody tr
+	.aVDBGrid tbody tr
 	{
 		page-break-inside: avoid;
 	}
-	table.aVDBGrid tbody tr *,
-	table.aVDBGrid tfoot,
-	table.aVDBGrid tfoot *
+	.aVDBGrid tbody tr *,
+	.aVDBGrid tfoot,
+	.aVDBGrid tfoot *
 	{
 		page-break-before: avoid!important;
 		page-break-inside: avoid!important;

@@ -3,7 +3,7 @@
  * Check address below for more.
  * http://www.famfamfam.com/lab/icons/silk/
  */
-div.aVdS_container
+.aVdS_container
 {
 	border: 1px solid #c7c7c7;
 	overflow: hidden;
@@ -12,24 +12,24 @@ div.aVdS_container
 	margin: 4px;
 	clear: both;
 }
-div.aVdS_content
+.aVdS_content
 {
 	overflow: hidden;
 	margin: 0;
 	padding: 0;
 	width: 100%;
 }
-div.aVdS_generalHelpBox
+.aVdS_generalHelpBox
 {
 	background: #ededed;
 	overflow: hidden;
 	font-size: 8pt;
 }
-div.aVdS_generalHelpBox ul li.aVdS_customHelpBoxItem
+.aVdS_generalHelpBox .aVdS_customHelpBoxItem
 {
 	font-weight: bold;
 }
-div.aVdS_generalHelpButton
+.aVdS_generalHelpButton
 {
 	position: absolute;
 	cursor: pointer;
@@ -40,7 +40,7 @@ div.aVdS_generalHelpButton
 	background: url('/JSLib/images/DynamicSearch/help.gif') right center no-repeat;
 	padding-right: 18px;
 }
-ul.aVdS_tabTitle
+.aVdS_tabTitle
 {
 	padding: 0;
 	margin: 0;
@@ -53,7 +53,7 @@ ul.aVdS_tabTitle
 	overflow: visible;
 	position: relative;
 }
-ul.aVdS_tabTitle li
+.aVdS_tabTitle li
 {
 	padding: 0 4px;
 	display: block;
@@ -64,11 +64,11 @@ ul.aVdS_tabTitle li
 	border-right: 1px solid #c7c7c7;
 	cursor: pointer;
 }
-ul.aVdS_tabTitle li:hover
+.aVdS_tabTitle li:hover
 {
 	color: #22354b;
 }
-ul.aVdS_tabTitle li.aVdS_activeTabTitle
+.aVdS_tabTitle .aVdS_activeTabTitle
 {
 	background: url('/images/tab_selected_back.gif') repeat-x top left;
 	height: 16px;
@@ -76,20 +76,20 @@ ul.aVdS_tabTitle li.aVdS_activeTabTitle
 	font-weight: bold;
 	color: #22354b;
 }
-form.aVdS_form ul
+.aVdS_form ul
 {
 	float: left;
 	margin: 2px;
 	padding: 0px;
 	width: auto;
 }
-form.aVdS_form ul.aVdS_conditions
+.aVdS_form .aVdS_conditions
 {
 	width: 98%;
 	margin: 3px;
 	padding: 3px;
 }
-form.aVdS_form ul li
+.aVdS_form li
 {
 	float: left;
 	clear: both;
@@ -98,72 +98,72 @@ form.aVdS_form ul li
 	height: 2em;
 	vertical-align: middle;
 }
-form.aVdS_form ul li span.aVdS_fieldAddition
+.aVdS_form .aVdS_fieldAddition
 {
 	float: left;
 }
-form.aVdS_form ul.aVdS_labels
+.aVdS_form .aVdS_labels
 {
 	width: 24%;
 }
-form.aVdS_form ul.aVdS_labels a
+.aVdS_form .aVdS_labels a
 {
 	background-color: #ffffbb;
 	font-weight: bold;
 }
-form.aVdS_form ul.aVdS_inputs
+.aVdS_form .aVdS_inputs
 {
 	width: 74%;
 }
-form.aVdS_form ul.aVdS_inputs li
+.aVdS_inputs li
 {
 	width: 100%;
 }
-form.aVdS_form ul.aVdS_inputs li input
+.aVdS_inputs input
 {
-	width: 152px;
+	width: 300px;
 	float: left;
 }
-form.aVdS_form ul.aVdS_conditions li
+.aVdS_conditions li
 {
 	width: 100%;
 	background: #ffffff;
 	height: 21px!important;
 	padding: 2px;
 }
-form.aVdS_form ul.aVdS_conditions li:hover
+.aVdS_conditions li:hover
 {
 	background: #ffb;
 	cursor: pointer;
 }
-form.aVdS_form ul.aVdS_conditions li input, form.aVdS_form ul.aVdS_conditions li select
+.aVdS_conditions input, .aVdS_conditions select
 {
 	margin-right: 1px;
 	float: left;
 	clear: none;
 }
-form.aVdS_form ul li.aVdS_controlButtons input, form.aVdS_form ul li.aVdS_controlButtons select, form.aVdS_form ul li.aVdS_controlButtons label
+.aVdS_controlButtons input, .aVdS_controlButtons select, .aVdS_controlButtons label
 {
 	float: right;
 }
-form.aVdS_form ul li.aVdS_controlButtons label
+.aVdS_controlButtons label
 {
 	margin: 2px 1px;
 }
-form.aVdS_form ul li.aVdS_controlButtons input
+.aVdS_controlButtons input
 {
 	width: auto;
 }
-form.aVdS_form ul li.aVdS_controlButtons input[type="reset"]
+.aVdS_controlButtons input.reset
 {
 	float: left;
 }
-form.aVdS_form ul li.aVdS_controlButtons:hover, form.aVdS_form ul li.aVdS_conjunction:hover
+.aVdS_controlButtons:hover, .aVdS_conjunction:hover
 {
 	cursor: default;
 	background: #ffffff;
 }
-form.aVdS_form ul li input[type="text"]
+.aVdS_form input.text
 {
 	background-image: url('/JSLib/images/DynamicSearch/check.png');
 	background-position: right;
@@ -172,22 +172,30 @@ form.aVdS_form ul li input[type="text"]
 	height: 16px;
 	padding-right: 16px;
 }
-form.aVdS_form ul li input[type="text"].aVdS_error
+.aVdS_error
 {
 	background-color: #efefef;
 	background-image: url('/JSLib/images/DynamicSearch/error.png')!important;
 }
-form.aVdS_form ul li input[type="text"].aVdS_enum
+.aVdS_enum
 {
-	background-image: url('/JSLib/images/DynamicSearch/dropdown.gif');
+	background-image: url('/JSLib/images/DynamicSearch/dropdown.gif')!important;
 }
-form.aVdS_form ul li span.aVdS_helpIcon
+.aVdS_helpIcon
 {
 	float: left;
 	padding-left: 18px;
 	background: transparent url(/JSLib/images/DynamicSearch/help.gif) no-repeat scroll left center;
 }
-div.aVdS_loading
+.aVdS_clearIcon
+{
+	float: left;
+	padding-left: 18px;
+	cursor: pointer;
+	margin-right: 2px;
+	background: transparent url(/JSLib/images/DynamicSearch/clear.png) no-repeat scroll left center;
+}
+.aVdS_loading
 {
 	background-image: url('/JSLib/images/loading.gif');
 	background-position: left;
@@ -215,21 +223,21 @@ div.aVdS_loading
 {
 	background-image: url('/JSLib/images/DynamicSearch/remove.png');
 }
-div.aVdS_groupButton, div.aVdS_ungroupButton
+.aVdS_groupButton, .aVdS_ungroupButton
 {
 	float: right;
 	font-style: italic;
 	font-size: 10pt;
 	cursor: pointer;
 }
-div.aVdS_ungroupButton
+.aVdS_ungroupButton
 {
 	margin: 0;
 	padding: 1px;
 	background: #ffb;
 	font-size: 8pt;
 }
-div.aVdS_groupContainer
+.aVdS_groupContainer
 {
 	border: 2px dashed #000000;
 	padding: 2px;
@@ -244,42 +252,42 @@ div.aVdS_groupContainer
 @media print
 {
 	/* hide unnecessary controls */
-	div.aVdS_tabTitle,
-	div.aVdS_groupButton,
-	div.aVdS_ungroupButton,
+	.aVdS_tabTitle,
+	.aVdS_groupButton,
+	.aVdS_ungroupButton,
 	.aVdS_addCondition,
 	.aVdS_removeCondition,
-	form.aVdS_form ul li.aVdS_controlButtons
+	.aVdS_controlButtons
 	{
 		display: none;
 	}
 	/* Set Page Break Rules */
-	div.aVdS_container
+	.aVdS_container
 	{
 		page-break-before: auto;
 		page-break-inside: avoid;
 		page-break-after: auto;
 		overflow: visible;
 	}
-	form.aVdS_form ul li
+	.aVdS_form li
 	{
 		page-break-before: auto;
 		page-break-inside: avoid;
 		page-break-after: avoid;
 	}
-	form.aVdS_form ul.aVdS_labels
+	.aVdS_labels
 	{
 		page-break-before: auto;
 		page-break-inside: avoid;
 		page-break-after: avoid;
 	}
-	form.aVdS_form ul.aVdS_inputs, form.aVdS_form ul.aVdS_conditions
+	.aVdS_inputs, .aVdS_conditions
 	{
 		page-break-before: avoid;
 		page-break-inside: avoid;
 		page-break-after: avoid;
 	}
-	form.aVdS_form ul li *
+	.aVdS_form li *
 	{
 		page-break-before: avoid;
 		page-break-inside: avoid;

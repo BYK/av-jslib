@@ -674,6 +674,7 @@ aV.DBGrid.prototype.refreshData=function(fullRefresh, preserveState)
 	var loadingFunction=function(requestObject)
 	{
 		self.triggerEvent("fetchbegin", {status: 'loading'});
+		self.fetcher=requestObject;
 	};
 	
 	var completedFunction=function(requestObject, rangeInfo)

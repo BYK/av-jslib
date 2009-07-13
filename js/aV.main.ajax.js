@@ -415,26 +415,35 @@ aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loa
 	{
 		if (requestObject.readyState == 4 && completedFunction) //if the request is finished and there is a  completedFunction assigned
 		{
-			if ((requestObject.status==206) && ("getResponseHeader" in requestObject)) //if it is a partial response
+			if ((requestObject.status == 206) && ("getResponseHeader" in requestObject)) //if it is a partial response
 			{
-				var rangeInfo=requestObject.getResponseHeader("Content-Range").trim();
-				rangeInfo=rangeInfo.match(/(\w+)\s+(\d+)\-(\d+)\/(\d+)/);
-				if (rangeInfo)
-					rangeInfo={type: rangeInfo[1], start: parseInt(rangeInfo[2]), end: parseInt(rangeInfo[3]), total: parseInt(rangeInfo[4])};
+				var rangeInfo = requestObject.getResponseHeader("Content-Range").trim();
+				rangeInfo = rangeInfo.match(/(\w+)\s+(\d+)\-(\d+)\/(\d+)/);
+				if (rangeInfo) 
+					rangeInfo = 
+					{
+						type: rangeInfo[1],
+						start: parseInt(rangeInfo[2]),
+						end: parseInt(rangeInfo[3]),
+						total: parseInt(rangeInfo[4])
+					};
 			}
-			var handlerResult=completedFunction(requestObject, rangeInfo);
-			if (handlerResult!==false && rangeInfo && rangeInfo.start<rangeInfo.end && ((rangeInfo.end+1)<rangeInfo.total || isNaN(rangeInfo.total)))
+			var handlerResult = completedFunction(requestObject, rangeInfo);
+			if (handlerResult !== false && rangeInfo && rangeInfo.start < rangeInfo.end && ((rangeInfo.end + 1) < rangeInfo.total || isNaN(rangeInfo.total))) 
 			{
-				var newRangeEnd=2*rangeInfo.end - rangeInfo.start + 1;
-				if (!isNaN(rangeInfo.total))
-					newRangeEnd=Math.min(newRangeEnd, rangeInfo.total-1);
-
-				headers=(headers || {}).unite({'Range': '%s=%s-%s'.format(rangeInfo.type, rangeInfo.end + 1, newRangeEnd)});
+				var newRangeEnd = 2 * rangeInfo.end - rangeInfo.start + 1;
+				if (!isNaN(rangeInfo.total)) 
+					newRangeEnd = Math.min(newRangeEnd, rangeInfo.total - 1);
+				
+				headers = (headers ||	{}).unite({'Range': '%s=%s-%s'.format(rangeInfo.type, rangeInfo.end + 1, newRangeEnd)});
 				aV.AJAX.makeRequest(method, address, parameters, completedFunction, loadingFunction, headers, warnOnPageLeave);
 			}
 		}
-		else if (loadingFunction) //if request is in progress and there is an assigned loadingFunction
-			loadingFunction(requestObject); //call the loadingFunction passing the requestObject as its parameter
+		else if (loadingFunction && !requestObject.loadingFunctionTriggered) 
+		{
+			loadingFunction(requestObject);
+			requestObject.loadingFunctionTriggered=true;
+		}
 	}; //finished defining the custom changeFunction
 	//checking parameters
 	if (!parameters)
@@ -515,7 +524,7 @@ aV.AJAX.getResponseAsObject=function(requestObject)
  * @param {Function(Object, String)} [loadingFunction] The function which will be called EVERYTIME when an onreadystatechange event is occured with a readyState different than 4 while loading the dynamic content. It is called with the target container element and the URL as parameters.
  * @return {XMLHttpRequestObject} The created XMLHttoRequestObject.
  */
-aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction, preFunction, cancelDOMReady)
+aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunction, cancelDOMReady)
 {
 	var crossDomain=aV.AJAX.isCrossDomain(address);
 	if (typeof(element)=='string') //if id of the object is given instead of the object itself
@@ -538,7 +547,7 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
 				element.innerHTML=aV.config.AJAX.loadingText; //set the given element's innerHTML the loading text to inform the user
 		}
 	};
-	return this.makeGetRequest(address, triggerFunction, crossDomain, preFunction, false); //make the GET request and return the used XMLHttpRequest object
+	return this.makeGetRequest(address, triggerFunction, false, crossDomain, false); //make the GET request and return the used XMLHttpRequest object
 };
 
 /**

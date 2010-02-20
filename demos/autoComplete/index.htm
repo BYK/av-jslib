@@ -13,6 +13,7 @@
 		<script src="../../js/aV.ext.object.js" type="text/javascript"></script>
 		<script src="../../js/aV.ext.DOM.js" type="text/javascript"></script>
 		<script src="../../js/aV.main.events.js" type="text/javascript"></script>
+		<script src="../../js/aV.main.CSS.js" type="text/javascript"></script>
 		<script src="../../js/aV.main.ajax.js" type="text/javascript"></script>
 		<script src="../../js/aV.main.aParser.js" type="text/javascript"></script>
 		<script src="../../js/aV.main.visual.js" type="text/javascript"></script>
@@ -38,10 +39,21 @@
 				params: '',
 				minChars: 0
 			}
-			#multiName
+			#multiName, #staticList
 			{
-				filterPattern: "'([^' + separator + ']*)$'", /* this provides multiple entry support with , as seperator*/
+				filterPattern: "'([' + separator + ']|^)([^' + separator + ']*)'", /* this provides multiple entry support with , as seperator*/
+				filterBackreferenceIndex: 2,
+				separatorBackreferenceIndex: 1,
+				force: true,
+				selectOnExit: true,
 				onselectitem: setAndLogHiddenInput /*this assigns an event handler to the onselectitem event to perform external operations*/
+			}
+			#staticList
+			{
+				onselectitem: undefined,
+				source: undefined,
+				params: undefined,
+				list: ['Ahmet', 'Osman', 'Huseyin']
 			}
 		</style>
 	</head>
@@ -55,11 +67,13 @@
 			</select><br/>
 			<div>Name<br/></div>
 			<div>Multiple Names</div>
+			<div>Static List</div>
 		</div>
 		<div id="right">
 			<input type="text" id="name"/><br/>
 			<input type="text" id="name2"/><br/>
-			<input type="text" id="multiName"/>
+			<input type="text" id="multiName"/><br/>
+			<input type="text" id="staticList"/>
 		</div>
 		<input id="myHiddenInput" type="hidden"/>
 		<input id="myHiddenIdInput" type="hidden"/>

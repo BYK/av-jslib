@@ -29,76 +29,75 @@ if (!aV.DOM)
  */
 aV.Visual = {};
 
-/**
- * Holds the configuration parameters.
- */
-aV.config.Visual=
-{
-	slideTreshold: 2,
-	slideDivisor: 4,
-	fadeTreshold: 0.05,
-	fadeDivisor: 4,
-	defaults:
+if (!aV.config.Visual)
+	aV.config.Visual = {};
+	
+aV.config.Visual.unite(
 	{
-		interval: 50,
-		duration: 2000,
-		converger: 'exponential'
-	},
-	convergers:
-	{
-		linear: function(start, end, steps)
+		slideTreshold: 2,
+		slideDivisor: 4,
+		defaults:
 		{
-			this.step=0;
-			this.steps=steps;
-			this.m=(end-start)/this.steps;
-			this.c=start;
-			this.next=function()
-			{
-				this.step++;
-				return this.m*this.step + this.c;
-			};
+			interval: 50,
+			duration: 750,
+			converger: 'exponential'
 		},
-		exponential: function(start, end, steps)
+		convergers:
 		{
-			this.step=0;
-			this.steps=steps;
-			this.increment=5/this.steps;
-			this.c=start;
-			this.m=(end-start);
-			this.next=function()
+			linear: function(start, end, steps)
 			{
-				this.step++;
-				return (1-Math.exp(-this.step*this.increment))*this.m + this.c;
-			};
-		},
-		trigonometric: function(start, end, steps)
-		{
-			this.step=0;
-			this.steps=steps;
-			this.m=(end-start);
-			this.c=start;
-			this.next=function()
+				this.step=0;
+				this.steps=steps;
+				this.m=(end-start)/this.steps;
+				this.c=start;
+				this.next=function()
+				{
+					this.step++;
+					return this.m*this.step + this.c;
+				};
+			},
+			exponential: function(start, end, steps)
 			{
-				this.step++;
-				return (Math.cos((this.step/this.steps - 1)*Math.PI)+1)*this.m/2 + this.c;
-			};
-		},
-		power: function(start, end, steps)
-		{
-			this.step=0;
-			this.steps=steps;
-			this.increment=12/this.steps;
-			this.c=start;
-			this.m=(end-start);
-			this.next=function()
+				this.step=0;
+				this.steps=steps;
+				this.increment=5/this.steps;
+				this.c=start;
+				this.m=(end-start);
+				this.next=function()
+				{
+					this.step++;
+					return (1-Math.exp(-this.step*this.increment))*this.m + this.c;
+				};
+			},
+			trigonometric: function(start, end, steps)
 			{
-				this.step++;
-				var x=this.step*this.increment;
-				return (1-Math.pow(x/2, -x/4))*this.m + this.c;
-			};
+				this.step=0;
+				this.steps=steps;
+				this.m=(end-start);
+				this.c=start;
+				this.next=function()
+				{
+					this.step++;
+					return (Math.cos((this.step/this.steps - 1)*Math.PI)+1)*this.m/2 + this.c;
+				};
+			},
+			power: function(start, end, steps)
+			{
+				this.step=0;
+				this.steps=steps;
+				this.increment=12/this.steps;
+				this.c=start;
+				this.m=(end-start);
+				this.next=function()
+				{
+					this.step++;
+					var x=this.step*this.increment;
+					return (1-Math.pow(x/2, -x/4))*this.m + this.c;
+				};
+			}
 		}
 	}
-};
+);
 
 /**
  * Holds the fixed elements recognized by the initEditables function.
@@ -129,20 +128,40 @@ aV.Visual.fixedElements = [];
  */
 aV.Visual.initFunctions = [];
 
-aV.Visual.animationTicker=function(startVal, endVal, tickCallback, type, duration, interval)
+aV.Visual.animationTicker=function(convergerProperties, callbacks, duration, interval)
 {
-	if (!(type in aV.config.Visual.convergers))
-		type=aV.config.Visual.defaults.converger;
+	if (!(convergerProperties instanceof Array))
+		convergerProperties = [convergerProperties];
 
-	this.startVal=this.currentVal=startVal;
-	this.endVal=endVal;
-	this.tickCallback=tickCallback;
+	this.convergerProperties=convergerProperties;
+	this.value=[];
+
+	this.callbacks=callbacks;
 	this.interval=interval || aV.config.Visual.defaults.interval;
 	this.duration=duration || aV.config.Visual.defaults.duration;
-	
-	this.diverger=new aV.config.Visual.convergers[type](startVal, endVal, this.duration/this.interval);
+
+	this.convergers = [];
+	var start;
+	for (var i = 0, length = this.convergerProperties.length; i < length; i++) 
+	{
+		if (!(this.convergerProperties[i].type in aV.config.Visual.convergers))
+			this.convergerProperties[i].type=aV.config.Visual.defaults.converger;
+		
+		start = this.convergerProperties[i].start || 0;
+		this.value.push(start);
+		this.convergers.push(new aV.config.Visual.convergers[this.convergerProperties[i].type](start, this.convergerProperties[i].end, Math.round(this.duration / this.interval)));
+	}
 
 	var self=this;
+	
+	this.tickerFunction=function()
+	{
+		for (var i=self.value.length - 1; i>=0; i--)
+			self.value[i]=self.convergers[i].next();
+		self.callbacks.tick(self);
+		if (self.convergers[0].step==self.convergers[0].steps)
+			self.stop();
+	};
 	
 	this.start=function()
 	{
@@ -154,19 +173,13 @@ aV.Visual.animationTicker=function(startVal, endVal, tickCallback, type, duratio
 		if (this.ticker) 
 		{
 			window.clearInterval(this.ticker);
-			delete this.ticker;
+			this.ticker = undefined;
+			for (var i=this.value.length - 1; i>=0; i--)
+				this.value[i]=this.convergerProperties[i].end;
+			this.callbacks.tick(this);
+			if (this.callbacks.stop instanceof Function)
+				this.callbacks.stop(this);
 		}
-	};
-	
-	this.tickerFunction=function()
-	{
-		self.currentVal=self.diverger.next();
-		if (self.diverger.step==self.diverger.steps)
-		{
-			self.currentVal=self.endVal;
-			self.stop();
-		}
-		self.tickCallback(self);
 	};
 	
 	this.start();
@@ -180,10 +193,9 @@ aV.Visual.animationTicker=function(startVal, endVal, tickCallback, type, duratio
  */
 aV.Visual.setOpacity=function(obj, opacity)
 {
-	if (document.all) //if IE
-		obj.style.filter="alpha(opacity=" + opacity*100 + ")"; //use filter-alpha
-	else //if not IE
-		obj.style.opacity=opacity; //use CSS opacity
+	if (window.console)
+		console.warn('aV.Visual.setOpacity is depreciated. Use aV.CSS.setOpacity.');
+	return aV.CSS.setOpacity(obj, opacity);
 };
 
 /**
@@ -194,122 +206,9 @@ aV.Visual.setOpacity=function(obj, opacity)
  */
 aV.Visual.getOpacity=function(obj)
 {
-	var opacity;
-	try
-	{
-		if (document.all) //if IE
-			opacity=parseFloat(obj.style.filter.split('=')[1])/100; //extract the alpha value, then parse to float
-		else //if not IE
-			opacity=parseFloat(obj.style.opacity); //parse the opacity value to float
-	}
-	catch(e) //if any error occurs then,
-	{
-		opacity=1; //most probable opacity value is one
-	}
-	if (isNaN(opacity)) //or if opacity cannot be parsed to float, again
-		opacity=1; //most probable opacity value is one
-	return opacity;
-};
-
-aV.Visual.composeRGBCode=function(color)
-{
-	var colors=[];
-	colors.push(color.r.toString(16), color.g.toString(16), color.b.toString(16));
-	colors.each(function(x){if (x.length==1) return '0'+x; else if (x.length>2) return '00'; else return x;});
-	return '#%s%s%s'.format(colors);
-};
-
-aV.Visual.decomposeRGBCode=function(colorCode)
-{
-	var colorSeperator=/rgb\(\s*(\d{1,3})\,\s*(\d{1,3})\,\s*(\d{1,3})\)|\#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i
-	
-	var colors=colorSeperator.exec(colorCode);
-	if (!colors)
-		return undefined;
-	
-	var startFrom, base;
-	if (colors[1]!=undefined)
-	{
-		startFrom=1;
-		base=10;
-	}
-	else if (colors[4]!=undefined)
-	{
-		startFrom=4;
-		base=16;
-	}
-	else
-		return undefined;
-
-	return {
-		r: parseInt(colors[startFrom], base),
-		g: parseInt(colors[startFrom+1], base),
-		b: parseInt(colors[startFrom+2], base)
-	};
-};
-
-aV.Visual.HSLtoRGB=function(color)
-/** conversion function taken from 
- * http://en.wikipedia.org/wiki/HSL_and_HSV
- */
-{
-	var q=(color.l<0.5)?color.l*(1+color.s):(color.l + color.s - color.l*color.s);
-	var p=2*color.l - q;
-	var hk=color.h/360;
-	var t=[hk + 1/3, hk, hk - 1/3];
-	t.each(function(x){if (x<0) return x+1; else if (x>1) return x-1; else return x});
-	var calculateColorValue=function(x)
-	{
-		var result;
-		if (x<1/6)
-			result=p + (q - p)*6*x;
-		else if (x<0.5)
-			result=q;
-		else if (x<2/3)
-			result=p + (q - p)*6*(2/3 - x);
-		else
-			result=p;
-		
-		return Math.round(result*255);
-	};
-	
-	return {
-		r: calculateColorValue(t[0]),
-		g: calculateColorValue(t[1]),
-		b: calculateColorValue(t[2])
-	};
-};
-
-aV.Visual.RGBtoHSL = function(color)
-/** conversion function taken from 
- * http://en.wikipedia.org/wiki/HSL_and_HSV
- */
-{
-	var max=Math.max(Math.max(color.r, color.g), color.b);
-	var min=Math.min(Math.min(color.r, color.g), color.b);
-	var result={};
-	switch(max)
-	{
-		case min:
-			result.h=0;break;
-		case color.r:
-			result.h=(60*(color.g - color.b)/(max - min) + 360)%360;break;
-		case color.g:
-			result.h=60*(color.b - color.r)/(max - min) + 120;break;
-		case color.b:
-			result.h=60*(color.r - color.g)/(max - min) + 240; break;
-	}
-	
-	result.l=(max + min)/510;
-	
-	if (max==min)
-		result.s=0;
-	else if (result.l>0.5)
-		result.s=(max - min)/(510 - max - min);
-	else
-		result.s=(max - min)/(max + min);
-	
-	return result;
+	if (window.console)
+		console.warn('aV.Visual.getOpacity is depreciated. Use aV.CSS.getOpacity.');
+	return aV.CSS.getOpacity(obj);
 };
 
 /**
@@ -320,7 +219,7 @@ aV.Visual.RGBtoHSL = function(color)
  * @param {Function(HTMLElementObject)}	[callback]	The function which will be called immediately after the fade operation is finished.
  */
 aV.Visual.fade=function(obj, opacity, callback)
-{
+{//TODO: Make this function point to newFade!
 	if (obj.fadeTimer) //if there is an ongoing fade operation
 	{
 		clearTimeout(obj.fadeTimer); //cancel it
@@ -349,31 +248,105 @@ aV.Visual.fade=function(obj, opacity, callback)
 	}
 };
 
-aV.Visual.newFade=function(element, targetOpacity, duration, callback, type, interval, startOpacity)
+aV.Visual.newFade=function(element, options)
 {
-	if (!element || typeof targetOpacity!='number')
+	if (!(element && options && options.constructor == Object && typeof options.to == 'number'))
 		return;
 	
-	if (element.aVfadeTicker) 
+	if (element._aVfadeTicker) 
 	{
-		element.aVfadeTicker.stop();
-		delete element.aVfadeTicker;
+		element._aVfadeTicker.stop();
+		element._aVfadeTicker = undefined;
 	}
 	
-	if (typeof startOpacity!='number')
-		startOpacity=aV.Visual.getOpacity(element);
+	if (typeof options.from != 'number')
+		options.from = aV.CSS.getOpacity(element);
 	
-	var tickFunction=function(ticker)
+	var callbacks = 
 	{
-		aV.Visual.setOpacity(element, ticker.currentVal);
-		if (ticker.currentVal==ticker.endVal)
+		tick: function(ticker)
 		{
-			delete element.aVfadeTicker;
-			if (callback)
+			aV.CSS.setOpacity(element, ticker.value[0]);
+		},
+		stop: function(ticker)
+		{
+			element._aVfadeTicker = undefined;
+			if (options.callback) 
+				options.callback(element);
+		}
+	};
+	element._aVfadeTicker = new aV.Visual.animationTicker({start: options.from,	end: options.to, type: options.type}, callbacks, options.duration);
+};
+
+aV.Visual.fadeSwitch = function(from, to, duration, callback)
+{
+	aV.Visual.newFade(
+		from,
+		{
+			to: 0,
+			duration: duration/2,
+			callback:
+			function(element)
+			{
+				element.style.display='none';
+				aV.CSS.setOpacity(to, 0);
+				to.style.display='block';
+				aV.Visual.newFade(
+					to,
+					{
+						to: 1,
+						duration: duration / 2,
+						callback: function()
+						{
+							if (callback instanceof Function) 
+								callback(from, to)
+						}
+					}
+				);
+			}
+		}
+	);
+};
+
+aV.Visual.resize = function(element, width, height, duration, type, callback)
+{
+	var widthSet = (typeof width == 'number'), heightSet = (typeof height == 'number');
+	if (!element || !(widthSet || heightSet))
+		return;
+	
+	if (!widthSet)
+		width = element.clientWidth;
+	if (!heightSet)
+		height = element.clientHeight;
+
+	if (element._aVresizeTicker) 
+	{
+		element._aVresizeTicker.stop();
+		element._aVresizeTicker = undefined;
+	}
+
+	var callbacks = 
+	{
+		tick: function(ticker)
+		{
+			element.style.width = ticker.value[0] + "px";
+			element.style.height = ticker.value[1] + "px";
+		},
+		stop: function(ticker)
+		{
+			element._aVresizeTicker = undefined;
+			if (callback instanceof Function)
 				callback(element);
 		}
 	};
-	element.aVfadeTicker=new aV.Visual.animationTicker(startOpacity, targetOpacity, tickFunction, type, duration, interval);
+	element._aVresizeTicker = new aV.Visual.animationTicker(
+		[
+			{start: element.offsetWidth, type: type, end: width},
+			{start: element.offsetHeight, type: type, end: height}
+		],
+		callbacks,
+		duration
+	);
 };
 
 /**

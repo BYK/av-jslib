@@ -90,57 +90,6 @@ aV.DOM._filterResults=function(n_win, n_docel, n_body)
 };
 /** End of external code */
 
-/** External code from unknown author, if you know the author, please notify me */
-
-/**
- * Gets the CSS rule element whose name is given with ruleName parameter or deletes it provided to the deleteFlag's state.
- *
- * @param {String} ruleName The name of the CSS rule which will be returned.
- * @param {Boolean} [deleteFlag] Set to true if you want to delete the CSS rule whose name is given in the ruleName parameter.
- * @return {CSSRuleElementObject} The css rule
- */
-aV.DOM.getCSSRule=function(ruleName, styleSheetName, deleteFlag)
-{
-	if (document.styleSheets)
-	{
-		for (var i=0; i<document.styleSheets.length; i++)
-		{
-			var styleSheet=document.styleSheets[i];
-			if (!styleSheet || styleSheet.href.indexOf(styleSheetName)==-1)
-				continue;
-			var ii=0;
-			var cssRule=false;
-			do
-			{
-				if (styleSheet.cssRules)
-					cssRule = styleSheet.cssRules[ii];
-				else
-					cssRule = styleSheet.rules[ii];
-				if (cssRule)
-				{
-					if (cssRule.selectorText==ruleName)
-					{
-						if (deleteFlag)
-						{
-							if (styleSheet.cssRules)
-								styleSheet.deleteRule(ii);
-							else
-								styleSheet.removeRule(ii);
-							return true;
-						}
-						else
-							return cssRule;
-					}
-				}
-				ii++;
-			}
-			while (cssRule)
-		}
-	}
-	return false;
-};
-/** end of unknown author's external code */
-
 /**
  * Determines whether the given element has a spesific class or not.
  * 
@@ -230,75 +179,35 @@ aV.DOM.removeChildren=function(element)
 };
 
 /**
- * Returns a Coordinate object relative to the top-left of the BODY document.
- * Implemented as a single function to save having to do two recursive loops in
- * opera and safari just to get both coordinates.
- *
- * Note: this is based on Yahoo's getXY method, which is
- * Copyright (c) 2006, Yahoo! Inc.
- * All rights reserved.
- * 
- * Note2: I have adapted this code from http://code.google.com/p/doctype/wiki/ArticlePageOffset
- * 
- * Redistribution and use of this software in source and binary forms, with or without modification, are
- * permitted provided that the following conditions are met:
- * 
- * * Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
- * 
- * * Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer in the documentation and/or other
- *   materials provided with the distribution.
- * 
- * * Neither the name of Yahoo! Inc. nor the names of its
- *   contributors may be used to endorse or promote products
- *   derived from this software without specific prior
- *   written permission of Yahoo! Inc.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
- * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * NOTICE: Inspired by jQuery's offset function
+ * Returns a coordinate object relative to the related document element viewport.
  * @param {HTMLElement} element The element whoose coordinates will be calculated.
  * @return {Object} Returns an object having x and y properties holding the coordinates.
  */
-aV.DOM.getElementCoordinates=function(element)
+aV.DOM.getElementCoordinates=(document.documentElement.getBoundingClientRect)?
+function(element)
 {
-  var result={x: 0, y:0};
-	var damnIE=false;
-	
-	//IE conditional comments to force the use of DOM traversing since IE7+ does not include scrolls in getBoundingClientRect
-	/*@cc_on
-	damnIE=true;
-	@*/
-	
-	if (element == document.documentElement)
-    return result;
-  if (element.getBoundingClientRect && !damnIE)
-	{
-    var elementBox = element.getBoundingClientRect();
-		var documentElementBox = document.documentElement.getBoundingClientRect();
+	if (!element.ownerDocument)
+		return false;
 
-    result.x = elementBox.left - documentElementBox.left;
-    result.y = elementBox.top - documentElementBox.top;
+  var result={x: 0, y:0}, elementBox = element.getBoundingClientRect(), docElement = element.ownerDocument.documentElement;
 
-  }
-	else
+  result.x = elementBox.left - docElement.clientLeft + aV.DOM.windowScrollLeft();
+  result.y = elementBox.top - docElement.clientTop + aV.DOM.windowScrollTop();
+	
+	return result;
+}
+:
+function(element)
+{
+	var result={x: 0, y:0};
+	
+	do
 	{
-    do
-		{
-			result.x+=element.offsetLeft - element.scrollLeft;
-			result.y+=element.offsetTop - element.scrollTop;
-		}
-		while ((element=element.offsetParent) && (element!=document.documentElement))
-  }
+		result.x+=element.offsetLeft - element.scrollLeft;
+		result.y+=element.offsetTop - element.scrollTop;
+	}
+	while ((element=element.offsetParent) && (element!=document.documentElement))
 
   return result;
 };

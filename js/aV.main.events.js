@@ -239,6 +239,7 @@ window.onmousewheel = document.onmousewheel = aV.Events._handleMouseWheelEvent;
 
 aV.Events._handleDOMReadyEvent=function(event)
 {
+	aV.Events.trigger(document, 'domready', event);
 	aV.Events.trigger(window, 'domready', event);
 };
 

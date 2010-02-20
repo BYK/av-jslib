@@ -13,19 +13,19 @@
  *
  * @return {String} The escaped string.
  */
-String.prototype.escapeRegExp=function()
+String.prototype.escapeRegExp = function()
 {
-	var matcher=new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi');
+	var matcher = new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi');
 	var result;
-	var outText='';
-	var lastMatch=0;
-	while (result=matcher.exec(this))
+	var outText = '';
+	var lastMatch = 0;
+	while (result = matcher.exec(this))
 	{
-		outText+=this.substring(lastMatch, result.index);
-		outText+='\\' + result[0];
-		lastMatch=result.index+1;
+		outText += this.substring(lastMatch, result.index);
+		outText += '\\' + result[0];
+		lastMatch = result.index + 1;
 	}
-	outText+=this.substr(lastMatch);
+	outText += this.substr(lastMatch);
 	return outText;
 };
 
@@ -34,21 +34,21 @@ String.prototype.escapeRegExp=function()
  *
  * @return {String} The "word-uppercased" string.
  * @example
- * var myText="javascript is lovely.";
+ * var myText = "javascript is lovely.";
  * myText.ucWords();
  * <br />Will give you "Javascript Is Lovely."
  */
-String.prototype.ucWords=function() 
+String.prototype.ucWords = function() 
 {
 	var matcher = /\b\S+/g;
 	var result;
-	var outText='';
-	var lastMatch=0;
-	while (result=matcher.exec(this))
+	var outText = '';
+	var lastMatch = 0;
+	while (result = matcher.exec(this))
 	{
-		outText+=this.substring(lastMatch, result.index);
-		outText+=result[0].charAt(0).toUpperCase() + result[0].substr(1).toLowerCase();
-		lastMatch=result.index+result[0].length;
+		outText += this.substring(lastMatch, result.index);
+		outText += result[0].charAt(0).toUpperCase() + result[0].substr(1).toLowerCase();
+		lastMatch = result.index + result[0].length;
 	}
 	return outText;
 };
@@ -63,37 +63,37 @@ String.prototype.ucWords=function()
  * @return {String} The replaced string
  *
  * @example
- * var myText="I love Visual Basic, CGI-Script and Ruby very much!";
+ * var myText = "I love Visual Basic, CGI-Script and Ruby very much!";
  * myText.arrayReplace(["Visual Basic", "CGI-Script", "Ruby"], ["PHP", "JavaScript"]);
  * <br />Will give you "I love PHP, JavaScript and JavaScript very much!"
  */
-String.prototype.arrayReplace=function(fromArray, toArray, dontEscape)
+String.prototype.arrayReplace = function(fromArray, toArray, dontEscape)
 {
-	var expression='';
-	var replacementArray=new Object();
-	var maxToIndex=toArray.length-1;
+	var expression = '';
+	var replacementArray = {};
+	var maxToIndex = toArray.length - 1;
 	
-	for (var i=0; i<fromArray.length; i++)
+	for (var i = 0; i < fromArray.length; i++)
 	{
-		expression+='|' + ((dontEscape)?fromArray[i]:fromArray[i].escapeRegExp());
+		expression += '|' + ((dontEscape)?fromArray[i]:fromArray[i].escapeRegExp());
 		replacementArray[fromArray[i]]=toArray[Math.min(i, maxToIndex)];
 	}
 	
-	expression=expression.substr(1);
-	var matcher=new RegExp(expression, "gi");
+	expression = expression.substr(1);
+	var matcher = new RegExp(expression, "gi");
 	
 	var result;
-	var outText='';
-	var lastMatch=0;
+	var outText = '';
+	var lastMatch = 0;
 	
-	while (result=matcher.exec(this))
+	while (result = matcher.exec(this))
 	{
-		outText+=this.substring(lastMatch, result.index);
-		outText+=replacementArray[result[0]];
-		lastMatch=result.index+result[0].length;
+		outText += this.substring(lastMatch, result.index);
+		outText += replacementArray[result[0]];
+		lastMatch = result.index + result[0].length;
 	}
 	
-	outText+=this.substr(lastMatch);
+	outText += this.substr(lastMatch);
 	return outText;	
 };
 
@@ -104,12 +104,12 @@ String.prototype.arrayReplace=function(fromArray, toArray, dontEscape)
  * @param {Boolean} [dontEscape=false] If false, the searchStr is used directly as/in a regular expression.
  * @return {Number} The occurance count.
  */
-String.prototype.strCount=function(searchStr, dontEscape)
+String.prototype.strCount = function(searchStr, dontEscape)
 {
-	var occurance=0;
+	var occurance = 0;
 	if (!dontEscape)
-		searchStr=searchStr.escapeRegExp();
-	var matcher=new RegExp(searchStr, "gi");
+		searchStr = searchStr.escapeRegExp();
+	var matcher = new RegExp(searchStr, "gi");
 	while (matcher.exec(this))
 		occurance++;
 	return occurance;
@@ -120,9 +120,9 @@ String.prototype.strCount=function(searchStr, dontEscape)
  *
  * @return {String} The "html-friendly" string.
  */
-String.prototype.LBtoBR=function()
+String.prototype.LBtoBR = function()
 {
-	var outText=this.replace(/\r\n|\r|\n/g, "<br>");
+	var outText = this.replace(/\r\n|\r|\n/g, "<br>");
 	return outText;
 };
 
@@ -131,9 +131,9 @@ String.prototype.LBtoBR=function()
  *
  * @return {String} The "native" string.
  */
-String.prototype.BRtoLB=function()
+String.prototype.BRtoLB = function()
 {
-	outText=this.replace(/<br>|<br\s\/>/gi, "\n");
+	outText = this.replace(/<br>|<br\s\/>/gi, "\n");
 	return outText;
 };
 
@@ -144,12 +144,12 @@ String.prototype.BRtoLB=function()
  * @param {String} [replacement="..."] The replacement which will be added to the end of the trimmed string.
  * @return {String} The trimmed string.
  */
-String.prototype.trimToLength=function(length, replacement)
+String.prototype.trimToLength = function(length, replacement)
 {
-	if (replacement===undefined)
-		replacement="...";
+	if (replacement === undefined)
+		replacement = "...";
 
-	return (this.length>length)?(this.substr(0, length-replacement.length) + replacement):this;
+	return (this.length > length)?(this.substr(0, length - replacement.length) + replacement):this;
 };
 
 /**
@@ -157,11 +157,13 @@ String.prototype.trimToLength=function(length, replacement)
  *
  * @return {String} The left-trimmed string.
  */
-String.prototype.trimLeft=function(trimChars)
+String.prototype.trimLeft = function(trimChars)
 {
 	if (!trimChars)
-		trimChars="\\s";
-	var trimmer=new RegExp("^(" + trimChars + ")+", "g");
+		trimChars = "\\s";
+	else
+		trimChars = trimChars.escapeRegExp();
+	var trimmer = new RegExp("^[" + trimChars + "]+", "g");
 	return this.replace(trimmer, "");
 };
 
@@ -170,11 +172,13 @@ String.prototype.trimLeft=function(trimChars)
  *
  * @return {String} The right-trimmed string.
  */
-String.prototype.trimRight=function(trimChars)
+String.prototype.trimRight = function(trimChars)
 {
 	if (!trimChars)
-		trimChars="\\s";
-	var trimmer=new RegExp("(" + trimChars + ")+$", "g");
+		trimChars = "\\s";
+	else
+		trimChars = trimChars.escapeRegExp();
+	var trimmer = new RegExp("[" + trimChars + "]+$", "g");
 	return this.replace(trimmer, "");
 };
 
@@ -183,11 +187,13 @@ String.prototype.trimRight=function(trimChars)
  *
  * @return {String} The trimmed string.
  */
-String.prototype.trim=function(trimChars)
+String.prototype.trim = function(trimChars)
 {
 	if (!trimChars)
-		trimChars="\\s";
-	var trimmer=new RegExp("^(" + trimChars + ")+|(" + trimChars + ")+$", "g");
+		trimChars = "\\s";
+	else
+		trimChars = trimChars.escapeRegExp();
+	var trimmer = new RegExp("^[" + trimChars + "]+|[" + trimChars + "]+$", "g");
 	return this.replace(trimmer, "");
 };
 
@@ -198,14 +204,14 @@ String.prototype.trim=function(trimChars)
  * @param {String|Array} [tags] The tags which will be stripped out.
  * @return {String} The "html-free" string.
  */
-String.prototype.stripHTML=function(tags)
+String.prototype.stripHTML = function(tags)
 {
 	if (tags && tags.join)
-		tags='(' + tags.join('|') + ')';
+		tags = '(' + tags.join('|') + ')';
 	else if (!tags)
-		tags='[^>]+';
-	tags='(<[\/]?' + tags + '>)';
-	var matcher=new RegExp(tags, "gi");
+		tags = '[^>]+';
+	tags = '(<[\/]?' + tags + '>)';
+	var matcher = new RegExp(tags, "gi");
 	return this.replace(matcher, "");
 };
 
@@ -220,32 +226,45 @@ String.prototype.stripHTML=function(tags)
  * "%s says this function is great but %2:s claims it's not".format("BYK", "useless", "snlzkn") will give you
  * "BYK says this function is great but snlzkn claims it's not"
  */
-String.prototype.format=function()
+String.prototype.format = function()
 {
 	var matcher=/(%(\w+):s)|(%s)/g;
-	var index=0;
+	var index = 0;
 
 	var result;
-	var outText='';
-	var lastMatch=0;
+	var outText = '';
+	var lastMatch = 0;
 	
-	if (arguments.length==1 && arguments[0]!==undefined && ((arguments[0] instanceof Array) || (arguments[0].constructor==Object)))
-		arguments=arguments[0];
+	if (arguments.length == 1 && arguments[0]!==undefined && ((arguments[0] instanceof Array) || (arguments[0].constructor == Object)))
+		arguments = arguments[0];
 
-	while (result=matcher.exec(this))
+	while (result = matcher.exec(this))
 	{
-		outText+=this.substring(lastMatch, result.index);
+		outText += this.substring(lastMatch, result.index);
 
 		if (!result[2])
-			outText+=arguments[index++];
+			outText += arguments[(arguments.length - 1 > index) ? index++ : index];
 		else if (result[2] in arguments)
-			outText+=arguments[result[2]];
+			outText += arguments[result[2]];
 		else
-			outText+=result[0];
+			outText += result[0];
 
-		lastMatch=result.index+result[0].length;
+		lastMatch = result.index + result[0].length;
 	}
 	
-	outText+=this.substr(lastMatch);
+	outText += this.substr(lastMatch);
 	return outText;		
+};
+
+String.prototype.camelize = function()
+{
+	return this.replace(/[-\s](\w)/g, arguments.callee._replacer);
+};
+
+/**
+ * @ignore
+ */
+String.prototype.camelize._replacer = function(matched, letter)
+{
+	return letter.toUpperCase();
 };

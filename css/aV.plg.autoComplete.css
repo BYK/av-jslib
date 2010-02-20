@@ -1,4 +1,4 @@
-.aCListBox
+.aVaCListBox
 {
 	display: block;
 	border: 1px solid #cccccc;
@@ -12,27 +12,27 @@
 	z-index: 100;
 	color: #999999;
 }
-.aCListBox>li
+.aVaCListBox>li
 {
 	list-style: none;
 	cursor: pointer;
 }
-.aCListBox li.selected
+.aVaCListBox li.aVaCSelected
 {
 	background: #bbddff;
 }
-.aCLoading
+.aVaCLoading
 {
 	background-image: url('/JSLib/images/loading.gif')!important;
 	background-position: right;
 	background-repeat: no-repeat;
 }
-.aCMatchedPart
+.aVaCMatchedPart
 {
 	font-weight: bold;
 	text-decoration: underline;
 }
-.aCActivePart
+.aVaCActivePart
 {
 	color: #000000;
 }

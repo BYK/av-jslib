@@ -149,11 +149,12 @@ aV.DynamicSearch.prototype._initialize=function()
  */
 aV.DynamicSearch.prototype.setActiveForm=function(which)
 {
+	var condition, i, compareFunction, liList, doClick, startPos;
 	which=parseInt(which);
 	if (which<0 || which>=aV.config.DynamicSearch.formTypes.length)
 		return false;
 
-	for (var i = 0; i < aV.config.DynamicSearch.formTypes.length; i++) 
+	for (i = 0; i < aV.config.DynamicSearch.formTypes.length; i++) 
 	{
 		this.container.content['form' + aV.config.DynamicSearch.formTypes[i]].style.display = (which == i) ? '' : 'none';
 		this.container.tabsTitle.childNodes[i].className = (which == i) ? aV.config.DynamicSearch.classNames.acitveTabTitle : '';
@@ -171,8 +172,13 @@ aV.DynamicSearch.prototype.setActiveForm=function(which)
 		if (aV.DynamicSearch.historyList[this.$$guid].form == 0)
 		{
 			this.container.content['form' + aV.config.DynamicSearch.formTypes[0]].reset();
-			for (var i = 0; i < aV.DynamicSearch.historyList[this.$$guid].state.fields.length; i++) 
-				document.getElementById(aV.config.DynamicSearch.idFormats.formBasicInput.format(this.$$guid, aV.DynamicSearch.historyList[this.$$guid].state.fields[i].name)).value = aV.DynamicSearch.historyList[this.$$guid].state.fields[i].value || '';
+			for (i = 0; i < aV.DynamicSearch.historyList[this.$$guid].state.fields.length; i++) 
+			{
+				condition = document.getElementById(aV.config.DynamicSearch.idFormats.formBasicInput.format(this.$$guid, aV.DynamicSearch.historyList[this.$$guid].state.fields[i].name));
+				if (aV.DynamicSearch.historyList[this.$$guid].state.fields[i].value)
+					aV.DynamicSearch._clearSampleValue({target: condition});
+				condition.value = aV.DynamicSearch.historyList[this.$$guid].state.fields[i].value || '';
+			}
 		}
 		else if (aV.DynamicSearch.historyList[this.$$guid].form == 1)
 		{
@@ -180,24 +186,24 @@ aV.DynamicSearch.prototype.setActiveForm=function(which)
 			while (this.removeCondition()) ;
 			this.supressRemoveWarning=false;
 			this.container.content.formAdvanced.list.removeChild(this.container.content.formAdvanced.list.firstChild);
-			var newCondition;
-			for (var i = 0; i < aV.DynamicSearch.historyList[this.$$guid].state.fields.length; i++)
+
+			for (i = 0; i < aV.DynamicSearch.historyList[this.$$guid].state.fields.length; i++)
 			{
-				newCondition=this.addCondition();
-				newCondition.field.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].name;
-				newCondition.field.onchange({type: "change", target: newCondition.field});
-				newCondition.operator.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].operator;
-				newCondition.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].value || '';
+				condition=this.addCondition();
+				condition.field.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].name;
+				condition.field.onchange({type: "change", target: condition.field});
+				condition.operator.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].operator;
+				condition.value=aV.DynamicSearch.historyList[this.$$guid].state.fields[i].value || '';
 				if (i>0 && aV.DynamicSearch.historyList[this.$$guid].state.conjunctions && aV.DynamicSearch.historyList[this.$$guid].state.conjunctions.length>=i)
-					newCondition.parentNode.previousSibling.firstChild.value=aV.DynamicSearch.historyList[this.$$guid].state.conjunctions[i-1];
+					condition.parentNode.previousSibling.firstChild.value=aV.DynamicSearch.historyList[this.$$guid].state.conjunctions[i-1];
 			}
 
-			var compareFunction=function(a, b)
+			compareFunction=function(a, b)
 			{
-				return a.paranthesis-b.paranthesis;
+				return a.paranthesis - b.paranthesis;
 			};
-			var liList=this.container.content.formAdvanced.list.getElementsByTagName("LI");
-			var doClick=function(index)
+			liList=this.container.content.formAdvanced.list.getElementsByTagName("LI");
+			doClick=function(index)
 			{
 				liList[index*2].onclick(
 					{
@@ -210,7 +216,6 @@ aV.DynamicSearch.prototype.setActiveForm=function(which)
 					});
 			};
 			
-			var startPos;
 			while ((startPos=aV.DynamicSearch.historyList[this.$$guid].state.fields.min(compareFunction))>0)
 			{
 				doClick(startPos);
@@ -417,9 +422,9 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 			continue;
 
 		newLi = document.createElement('LI');
-		newLi.id=aV.config.DynamicSearch.idFormats.formBasicField.format(this.$$guid, fieldName);
+		newLi.id = aV.config.DynamicSearch.idFormats.formBasicField.format(this.$$guid, fieldName);
 		var condition = newLi.condition = newLi.appendChild(document.createElement("INPUT"));
-		newLi.condition.name=aV.config.DynamicSearch.idFormats.formBasicInput.format(this.$$guid, fieldName);
+		newLi.condition.name = aV.config.DynamicSearch.idFormats.formBasicInput.format(this.$$guid, fieldName);
 		newLi.condition.type = "text";
 		newLi.condition.id = newLi.condition.name;
 		newLi.condition.operator = 
@@ -432,6 +437,14 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 		};
 		
 		this._initNewCondition(newLi.condition, fieldName);
+		
+		if (this.properties.fieldList[fieldName].sampleValue)
+		{
+			newLi.condition.value = this.properties.fieldList[fieldName].sampleValue;
+			newLi.condition.hasSampleValue = true;
+			aV.DOM.addClass(newLi.condition, aV.config.DynamicSearch.classNames.hasSampleValue);
+			aV.Events.add(newLi.condition, 'focus', aV.DynamicSearch._clearSampleValue, 100);
+		}
 
 		var clearIcon=document.createElement("span");
 		clearIcon.innerHTML='&nbsp;';
@@ -840,7 +853,16 @@ aV.DynamicSearch._getTopLevel=function(element)
 	return element;
 };
 
-aV.DynamicSearch.releaseForm=function(form)
+aV.DynamicSearch._clearSampleValue = function(event)
+{
+	if (!event.target.hasSampleValue)
+		return;
+	event.target.value = '';
+	event.target.hasSampleValue = false;
+	aV.DOM.removeClass(event.target, aV.config.DynamicSearch.classNames.hasSampleValue);
+};
+
+aV.DynamicSearch.releaseForm = function(form)
 {
 	if (!form.elements)
 		form=form.target;
@@ -853,25 +875,18 @@ aV.DynamicSearch.releaseForm=function(form)
 
 aV.DynamicSearch._onFormSubmit=function(event)
 {
-	var form=event.target;
-	/*
-	 * Firefox < 2.0.0.15 fix [START]
-	 * event.target is not the form itself but the input box where the user presses ENTER key.
-	 */
-	if (form.form)
-		form=form.form;
-	/* Firefox < 2.0.0.15 fix [END] */
-
-	var DynamicSearchObject=aV.DynamicSearch.getOwnerObject(event.target);
-	var params=
-	{
-		search:
-		{
-			name: DynamicSearchObject.name,
-			fields: [],
-			conjunctions: []
-		}
-	};
+	var form = (event.target.tagName.toUpperCase()=='FORM')?event.target:event.target.form,
+	    DynamicSearchObject = aV.DynamicSearch.getOwnerObject(event.target),
+			activeFieldList = []; 
+	    params =
+			{
+				search:
+				{
+					name: DynamicSearchObject.name,
+					fields: [],
+					conjunctions: []
+				}
+			};
 	
 	if (form==DynamicSearchObject.container.content.formAdvanced && form.addButton.parentNode)
 	{
@@ -903,7 +918,7 @@ aV.DynamicSearch._onFormSubmit=function(event)
 				{
 					if (!DynamicSearchObject.properties.fieldList[element.condition.field.value].checkFunction(element.condition) || (element.condition.value == '' && form == DynamicSearchObject.container.content.formAdvanced)) 
 					{
-						if (element.condition.value != '')
+						if (element.condition.value != '' && !element.condition.hasSampleValue)
 							aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.invalidConditionValue, aV.config.Visual.infoBox.images.error);
 						else if (!DynamicSearchObject.supressEmptyFieldWarning && form == DynamicSearchObject.container.content.formAdvanced)
 							aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.emptyFieldinAdvanced, aV.config.Visual.infoBox.images.warning);
@@ -911,7 +926,7 @@ aV.DynamicSearch._onFormSubmit=function(event)
 						return false;
 					}
 					
-					if (element.condition.value != '') 
+					if (element.condition.value != '' && !element.condition.hasSampleValue) 
 					{
 						params.search.fields.push(
 						{
@@ -920,10 +935,11 @@ aV.DynamicSearch._onFormSubmit=function(event)
 							operator: element.condition.operator.value,
 							paranthesis: pCount
 						});
-						//inputElement.oldDisabled = element.condition.disabled;
 						if (element.condition.blur)
 							element.condition.blur();
+						aV.Events.trigger(element.condition, 'blur');
 						element.condition.disabled = true;
+						activeFieldList.push(element.condition.field.value);
 					}
 				}
 			}
@@ -935,7 +951,18 @@ aV.DynamicSearch._onFormSubmit=function(event)
 	
 	if (buildParameters(form.list.firstChild, 0) && params.search.fields.length) 
 	{
-		params.search.setName=document.getElementById(aV.config.DynamicSearch.idFormats.columnSetBox.format(DynamicSearchObject.$$guid, form.type)).value;//set the column set
+		var setNameElement = document.getElementById(aV.config.DynamicSearch.idFormats.columnSetBox.format(DynamicSearchObject.$$guid, form.type));
+		if (!activeFieldList.isSubArrayOf(DynamicSearchObject.properties.columnSets[setNameElement.value].relatedFields))
+		{
+			for (var setName in DynamicSearchObject.properties.columnSets)
+				if (DynamicSearchObject.properties.columnSets.hasOwnProperty(setName) && activeFieldList.isSubArrayOf(DynamicSearchObject.properties.columnSets[setName].relatedFields))
+				{
+					setNameElement.value = setName;
+					break;
+				}
+		}
+		params.search.setName = setNameElement.value;
+		
 		if (DynamicSearchObject.properties.externalOperations && (event.target.name in DynamicSearchObject.properties.externalOperations) && (DynamicSearchObject.properties.externalOperations.hasOwnProperty(event.target.name))) 
 			document.location=DynamicSearchObject.properties.externalOperations[event.target.name].address + params.toQueryString();
 		else
@@ -1087,7 +1114,8 @@ aV.config.DynamicSearch.unite(
 			fieldAddition: 'aVdS_fieldAddition',
 			helpIcon: 'aVdS_helpIcon',
 			clearIcon: 'aVdS_clearIcon',
-			customHelpBoxItem: 'aVdS_customHelpBoxItem'
+			customHelpBoxItem: 'aVdS_customHelpBoxItem',
+			hasSampleValue: 'aVdS_hasSampleValue'
 		},
 		paths:
 		{

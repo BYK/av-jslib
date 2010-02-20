@@ -19,14 +19,15 @@ aV.config.History.unite(
 		startOnLoad: true,
 		listenPeriod: 1000,
 		useIFrame: false,
+		useHashChangeEvent: true && ('onhashchange' in window),
 		listenerIFrameURL: '/JSLib/blank.html',
 		listenerIFrameId: 'aVHistoryListenerIFrame'
-	}
+	},false
 );
 
 //IE conditional comments to force the use of IFrame
 /*@cc_on
-aV.config.History.useIFrame=true;
+aV.config.History.useIFrame=true && !aV.config.History.useHashChangeEvent;
 @*/
 
 aV.History=
@@ -45,8 +46,8 @@ aV.History._listener=function()
 	if (!aV.History.onchange || document.location.hash.length<=1)
 		return false;
 
-	var changedKeys=[];
-	var paramStr = document.location.href.substring(document.location.href.indexOf('#')+1);
+	var changedKeys=[], paramStr,
+	hashStr = paramStr = document.location.href.substring(document.location.href.indexOf('#')+1);
 	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
 		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
 	var newList = paramStr.split('&');
@@ -65,6 +66,8 @@ aV.History._listener=function()
 	if (changedKeys.length)
 	{
 		aV.History._get=Object.fromQueryString(newList);
+		if (aV.History._iframe)
+			aV.History._iframe.contentWindow.location.search = '?' + hashStr;
 		aV.History.onchange({type: "change", changedKeys: changedKeys});
 	}
 };
@@ -92,40 +95,49 @@ aV.History.set=function(newGet)
 
 aV.History.startListener=function()
 {
-	if (aV.History._listenerHandle)
+	if (aV.History._listenerHandle) 
 		return aV.History._listenerHandle;
-	
-	if (aV.config.History.useIFrame) 
+	else if (aV.config.History.useHashChangeEvent) 
 	{
-		aV.History._iframe = document.createElement('IFRAME');
-		aV.History._iframe.style.display = 'none';
-		aV.History._iframe.src = aV.config.History.listenerIFrameURL;
-		aV.History._iframe.id = aV.config.History.listenerIFrameId;
-		document.body.appendChild(aV.History._iframe);
-		if (document.location.hash.length>1)
-			aV.History._oldIframeLocation=aV.History._iframe.contentWindow.location.search=document.location.href.substring(document.location.href.indexOf('#')+1);
-		
-		aV.History._iframeListenerHandle = window.setInterval(aV.History._iframeListener, aV.config.History.listenPeriod);
+		aV.Events.add(window, 'hashchange', aV.History._listener)();
+		return true;
 	}
-	
-	aV.History._listenerHandle=window.setInterval(aV.History._listener, aV.config.History.listenPeriod);
+	else 
+	{
+		if (aV.config.History.useIFrame) 
+		{
+			aV.History._iframe = document.createElement('IFRAME');
+			aV.History._iframe.style.display = 'none';
+			aV.History._iframe.src = aV.config.History.listenerIFrameURL;
+			aV.History._iframe.id = aV.config.History.listenerIFrameId;
+			document.body.appendChild(aV.History._iframe);
+			if (document.location.hash.length > 1) 
+				aV.History._oldIframeLocation = aV.History._iframe.contentWindow.location.search = document.location.href.substring(document.location.href.indexOf('#') + 1);
+			
+			aV.History._iframeListenerHandle = window.setInterval(aV.History._iframeListener, aV.config.History.listenPeriod);
+		}
+		return aV.History._listenerHandle = window.setInterval(aV.History._listener, aV.config.History.listenPeriod);
+	}
 };
 
 aV.History.stopListener=function()
 {
-	if (!aV.History._listenerHandle)
-		return false;
-	window.clearInterval(aV.History._listenerHandle);
-	return delete aV.History._listenerHandle;
-	
-	if (aV.config.History.useIFrame)
+	if (aV.History._listenerHandle) 
 	{
-		window.clearInterval(aV.History._iframeListenerHandle);
-		delete aV.History._iframeListenerHandle;
-
-		if (aV.History._iframe && aV.History._iframe.parentNode)
-			aV.History._iframe.parentNode.removeChild(aV.History._iframe);
+		window.clearInterval(aV.History._listenerHandle);
+		delete aV.History._listenerHandle;
+		
+		if (aV.config.History.useIFrame) 
+		{
+			window.clearInterval(aV.History._iframeListenerHandle);
+			delete aV.History._iframeListenerHandle;
+			
+			if (aV.History._iframe && aV.History._iframe.parentNode) 
+				aV.History._iframe.parentNode.removeChild(aV.History._iframe);
+		}
 	}
+	else if (aV.config.History.useHashChangeEvent) 
+		return aV.Events.remove(window, 'hashchange', aV.History._listener);
 };
 
 aV.AJAX.loadResource("/JSLib/js/webtoolkit.base64.js", "js", "base64Library");

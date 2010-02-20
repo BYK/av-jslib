@@ -2,8 +2,8 @@
  * @fileOverview A library which extends the base Object class with some useful functions.
  * @name Object Extensions
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
- * @version 1.1
+ * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @version 1.0
  *
  * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
@@ -21,7 +21,7 @@ Object.prototype.toQueryString=function(format, encodeURI)
 	var result='';
 	for (var paramName in this) 
 	{
-		if (this.constructor==Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName]===undefined)
+		if (this.constructor==Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName]===undefined || this[paramName]===null)
 			continue;
 
 		if (this[paramName].constructor==Object || this[paramName].constructor==Array)
@@ -48,12 +48,11 @@ Object.prototype.unite=function(additive, overwrite)
 	{
 		if (!additive.hasOwnProperty(property))
 			continue;
-		if (this[property] && this[property].constructor == Object && this.hasOwnProperty(property)) 
+		if (this[property] && (this[property].constructor == Object) && this.hasOwnProperty(property))
 			this[property].unite(additive[property], overwrite);
 		else if (overwrite || !(property in this))
 			this[property] = additive[property];
 	}
-
 	return this;
 };
 
@@ -84,11 +83,9 @@ Object.prototype.clone=function()
  */
 Object.fromJSON=function(source, secure)
 {
-	if ((source.charCodeAt(source.length-1)-source.charCodeAt(0))!=2 || (source.charAt(0)!='[' && source.charAt(0)!='{')) //do NOT user RegExp here since it crashes with very large strings
-		return false;
 	if (!secure || !window.JSON)
 		return eval('(' + source + ')');
-	else if (window.JSON)
+	else if (!window.JSON)
 		return JSON.parse(source);
 };
 
@@ -132,6 +129,8 @@ Object.fromQueryString=function(source)
 		}
 		catch(error)
 		{
+			if (window.console)
+				console.warn(error);
 			currentObject[arr[j]] = pair[2];
 		}
 	}
@@ -191,7 +190,7 @@ Object.fromXML=function(source, includeRoot)
 		}
 		else if (source.tagName)
 			result[source.tagName] = source.nodeValue;
-		else
+		else if (!source.nextSibling)
 			result = source.nodeValue;
 		source = source.nextSibling;
 	}
@@ -201,7 +200,7 @@ Object.fromXML=function(source, includeRoot)
 
 /*
  * if the JSON library at http://www.json.org/json2.js is included,
- * add a "toJSON" methdo to all objects.
+ * add a "toJSONStr" methdo to all objects.
  */
 if (window.JSON)
 {

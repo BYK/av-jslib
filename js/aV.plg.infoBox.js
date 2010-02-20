@@ -69,7 +69,7 @@ aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
 		message='<img src="' + image + '" />' + message;
 	if (message)
 		aV.Visual.infoBox.innerHTML=message;
-	aV.Visual.setOpacity(aV.Visual.infoBox, (showImmediately)?1:0);
+	aV.CSS.setOpacity(aV.Visual.infoBox, (showImmediately)?1:0);
 	aV.Visual.infoBox.style.visibility="visible";
 	
 	if (!timeout)

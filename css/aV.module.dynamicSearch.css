@@ -181,6 +181,11 @@
 {
 	background-image: url('/JSLib/images/DynamicSearch/dropdown.gif')!important;
 }
+.aVdS_hasSampleValue
+{
+	font-style: italic;
+	color: #bbbbbb;
+}
 .aVdS_helpIcon
 {
 	float: left;

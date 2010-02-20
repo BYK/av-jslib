@@ -92,7 +92,7 @@ aV.config.AJAX.unite(
 aV.AJAX.createRequestObject=function()
 {
 	var requestObject = false;
-	if(window.XMLHttpRequest && !(window.ActiveXObject))
+	if(window.XMLHttpRequest)
 	{
 		try
 		{
@@ -107,18 +107,11 @@ aV.AJAX.createRequestObject=function()
 	{
 		try
 		{
-			requestObject = new ActiveXObject("Msxml2.XMLHTTP");
+			requestObject = new ActiveXObject("MSXML2.XMLHTTP.3.0");
 		}
 		catch(error)
 		{
-			try
-			{
-				requestObject = new ActiveXObject("Microsoft.XMLHTTP");
-			}
-			catch(error)
-			{
-				requestObject = false;
-			}
+			requestObject = false;
 		}
 	}
 	return requestObject;
@@ -302,7 +295,7 @@ aV.AJAX.makeGetRequest=function(address, changeFunction, headers, crossDomain, w
 				}
 			}
 		};
-		
+
 		if (headers)
 			for (var header in headers)
 				if (headers.hasOwnProperty(header))
@@ -363,13 +356,7 @@ aV.AJAX.makePostRequest=function(address, parameters, changeFunction, headers, c
 		if (crossDomain)
 			parameters+='&windowname=true';
 
-		headers=(headers || {}).unite(
-			{
-				'Content-type': 'application/x-www-form-urlencoded',
-				'Content-length': parameters.length,
-				'Connection': 'close'
-			}
-		);
+		headers=(headers || {}).unite({'Content-type': 'application/x-www-form-urlencoded'});
 		for (var header in headers)
 			if (headers.hasOwnProperty(header))
 				requestObject.setRequestHeader(header, headers[header]);
@@ -415,21 +402,9 @@ aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loa
 	{
 		if (requestObject.readyState == 4 && completedFunction) //if the request is finished and there is a  completedFunction assigned
 		{
-			if ((requestObject.status == 206) && ("getResponseHeader" in requestObject)) //if it is a partial response
-			{
-				var rangeInfo = requestObject.getResponseHeader("Content-Range").trim();
-				rangeInfo = rangeInfo.match(/(\w+)\s+(\d+)\-(\d+)\/(\d+)/);
-				if (rangeInfo) 
-					rangeInfo = 
-					{
-						type: rangeInfo[1],
-						start: parseInt(rangeInfo[2]),
-						end: parseInt(rangeInfo[3]),
-						total: parseInt(rangeInfo[4])
-					};
-			}
+			var rangeInfo = aV.AJAX.getRangeInfo(requestObject);
 			var handlerResult = completedFunction(requestObject, rangeInfo);
-			if (handlerResult !== false && rangeInfo && rangeInfo.start < rangeInfo.end && ((rangeInfo.end + 1) < rangeInfo.total || isNaN(rangeInfo.total))) 
+			if (handlerResult !== false && rangeInfo && (rangeInfo.start <= rangeInfo.end) && (isNaN(rangeInfo.total) || ((rangeInfo.end + 1) < rangeInfo.total))) 
 			{
 				var newRangeEnd = 2 * rangeInfo.end - rangeInfo.start + 1;
 				if (!isNaN(rangeInfo.total)) 
@@ -442,7 +417,7 @@ aV.AJAX.makeRequest=function(method, address, parameters, completedFunction, loa
 		else if (loadingFunction && !requestObject.loadingFunctionTriggered) 
 		{
 			loadingFunction(requestObject);
-			requestObject.loadingFunctionTriggered=true;
+			try{requestObject.loadingFunctionTriggered = true;}catch(e){/*IE6 protection*/}
 		}
 	}; //finished defining the custom changeFunction
 	//checking parameters
@@ -483,6 +458,24 @@ aV.AJAX.getEncoding=function(requestObject)
 	return (result)?result[1].toLowerCase():'utf-8';	
 };
 
+aV.AJAX.getRangeInfo=function(requestObject)
+{
+	if (requestObject.status != 206 || !("getResponseHeader" in requestObject))
+		return false;
+
+	var rangeInfo = requestObject.getResponseHeader("Content-Range").trim();
+	rangeInfo = rangeInfo.match(/(\w+)\s+(\d+)\-(\d+)\/(\d+|\*)/);
+	if (rangeInfo) 
+		rangeInfo = 
+		{
+			type: rangeInfo[1],
+			start: parseInt(rangeInfo[2]),
+			end: parseInt(rangeInfo[3]),
+			total: parseInt(rangeInfo[4])
+		};
+	return rangeInfo;
+};
+
 /**
  * Checks the given requestObject for successfull return by means of HTTP status, non-empty responseText and if given mime-type.
  * 
@@ -493,11 +486,18 @@ aV.AJAX.getEncoding=function(requestObject)
 aV.AJAX.isResponseOK=function(requestObject, mimeType)
 {
 	var result=(Math.floor(requestObject.status/100)==2 && requestObject.responseText);
-	if (mimeType && result) 
+	if (result) 
 	{
-		if (!(mimeType instanceof Array))
-			mimeType=[mimeType];
-		result = (mimeType.indexOf(aV.AJAX.getMimeType(requestObject)) > -1);
+		var rangeInfo = aV.AJAX.getRangeInfo(requestObject);
+		if (rangeInfo)
+			result = (rangeInfo.start>=0) && (rangeInfo.end>=rangeInfo.start) && (rangeInfo.end<rangeInfo.total || isNaN(rangeInfo.total));
+
+		if (mimeType) 
+		{
+			if (!(mimeType instanceof Array)) 
+				mimeType = [mimeType];
+			result = (mimeType.indexOf(aV.AJAX.getMimeType(requestObject)) > -1);
+		}
 	}
 	return result;
 };
@@ -560,31 +560,34 @@ aV.AJAX.loadContent=function(address, element, completedFunction, loadingFunctio
  * @param {Boolean} [forceRefresh=false] Addes a "?time" value at the end of the file URL to force the browser reload the file and not to use cache.
  * @return {HTMLElementObject} The newly added script or link DOM node.
  */
-aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh)
+aV.AJAX.loadResource=function(address, type, resourceId, forceRefresh, documentObject)
 {
+	if (!documentObject)
+		documentObject=window.document;
+
 	address=aV.AJAX.assureDomain(address);
 	if (!type)
 		type="js";
 	if (forceRefresh)
 		address+="?" + Date.parse(new Date());
 	var attr, newNode;
-	var head=document.getElementsByTagName("head")[0];
+	var head=documentObject.getElementsByTagName("head")[0];
 	if (type=="js")
 	{
-		newNode=document.createElement("script");
+		newNode=documentObject.createElement("script");
 		newNode.type="text/javascript";
 		attr="src";
 	}
 	else if (type=="css")
 	{
-		newNode=document.createElement("link");
+		newNode=documentObject.createElement("link");
 		newNode.type="text/css";
 		newNode.rel="stylesheet";
 		attr="href";
 	}
 	if (resourceId)
 	{
-		old=document.getElementById(resourceId);
+		old=documentObject.getElementById(resourceId);
 		if (old) old.parentNode.removeChild(old);
 		delete old;
 		newNode.id=resourceId;

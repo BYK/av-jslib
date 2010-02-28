@@ -2,10 +2,10 @@
  * @fileOverview A parser library which assignes elements some properties from a CSS-like external file, from a special style tag or from an inline HTML attribute.
  * @name aV.aParser
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version	1.3
  * 
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)

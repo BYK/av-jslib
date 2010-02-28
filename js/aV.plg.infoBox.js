@@ -2,11 +2,11 @@
  * @fileOverview	Extens visual effects library to have an info box on top of the page.
  * @name Visual Effects - infoBox Extension
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
+ * @author	Burak Yiğit KAYA	byk@ampliovitam.com
  * @version	1.3
  *
- * @requires	<a href="http://amplio-vita.net/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -38,8 +38,6 @@ aV.config.Visual.infoBox=
  */
 aV.Visual.infoBox=document.createElement("DIV");
 aV.Visual.infoBox.id='infoBox';
-aV.Visual.infoBox.setAttribute("xOffset", "0");	
-aV.Visual.infoBox.setAttribute("yOffset", "0");
 
 /**
  * Clears the timer which is set to hide the infoBox after some interval.
@@ -69,18 +67,24 @@ aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
 		message='<img src="' + image + '" />' + message;
 	if (message)
 		aV.Visual.infoBox.innerHTML=message;
-	aV.CSS.setOpacity(aV.Visual.infoBox, (showImmediately)?1:0);
+
 	aV.Visual.infoBox.style.visibility="visible";
 	
 	if (!timeout)
 		timeout=aV.config.Visual.infoBox["timeout"];
-
-	aV.Visual.fade(aV.Visual.infoBox, 1, function()
-	{
-		if (aV.config.Visual.infoBox["timeout"])
-			aV.Visual.infoBox.hideTimer=setTimeout('aV.Visual.infoBox.hide();', timeout);
-	}
-	);
+	
+	if (showImmediately)
+		aV.CSS.setOpacity(aV.Visual.infoBox, 1);
+	else
+		new aV.Visual.Effect(aV.Visual.infoBox, {fade: {from: 0, to: 1}},
+			{
+				onfinish: function(effect)
+				{
+					if (aV.config.Visual.infoBox["timeout"])
+						aV.Visual.infoBox.hideTimer=setTimeout(aV.Visual.infoBox.hide, timeout);
+				}
+			}
+		);
 };
 		
 /**
@@ -91,7 +95,7 @@ aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
 aV.Visual.infoBox.hide=function()
 {
 	aV.Visual.infoBox.clearTimer();
-	aV.Visual.fade(aV.Visual.infoBox, 0, function() {aV.Visual.infoBox.style.visibility='hidden';});
+	new aV.Visual.Effect(aV.Visual.infoBox, {fade: {to: 0}}, {onfinish: function(effect) {effect.element.style.visibility='hidden';}}).start();
 };
 		
 /**
@@ -103,11 +107,11 @@ aV.Visual.infoBox.hide=function()
  */
 aV.Visual.infoBox.onclick=aV.Visual.infoBox.hide;
 
-aV.Visual.initFunctions.push(
-	function()
+aV.Events.add(window, 'domready',
+	function(event)
 	{
-		if (aV.AJAX)
-			aV.AJAX.loadResource("/JSLib/css/aV.plg.infoBox.css", "css", "aVinfoBoxCSS");
+//		if (aV.AJAX)
+//			aV.AJAX.loadResource("/JSLib/css/aV.plg.infoBox.css", "css", "aVinfoBoxCSS");
 		document.body.appendChild(aV.Visual.infoBox);
 	}		
 );

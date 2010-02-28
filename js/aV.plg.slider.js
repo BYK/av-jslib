@@ -2,11 +2,11 @@
  * @fileOverview	Extens visual effects library with a resize slider namespace.
  * @name Visual Effects - Slider Extension
  *
- * @author	Burak Yiğit KAYA	byk@amplio-vita.net
+ * @author	Burak Yiğit KAYA	byk@ampliovitam.com
  * @version	1.2.1
  *
- * @requires	<a href="http://amplio-vita.net/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV || !aV.Visual)
@@ -123,7 +123,7 @@ aV.Visual.slider._collapseContainer=function(event)
 		true,
 		function(o)
 		{
-			aV.Visual.setOpacity(o, 1);
+			aV.CSS.setOpacity(o, 1);
 			aV.Visual.fadeNSlide(
 				(condition)?obj.nextSib:obj.prevSib,
 				totalWidth,

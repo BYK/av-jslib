@@ -2,10 +2,10 @@
  * @fileOverview Error handling and reporting module
  * @name Error
  *
- * @author Burak Yigit KAYA <byk@amplio-vita.net>
+ * @author Burak Yigit KAYA <byk@ampliovitam.com>
  * @version 1.0
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)

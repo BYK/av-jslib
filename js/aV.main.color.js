@@ -2,10 +2,12 @@
  * @fileOverview A collection of useful color functions.
  * @name Color Functions Library
  *
- * @author Burak Yiğit KAYA	<byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA	<byk@ampliovitam.com>
  * @version 1.0
- *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * 
+ * @requires aV.ext.object
+ * @requires aV.ext.string
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)

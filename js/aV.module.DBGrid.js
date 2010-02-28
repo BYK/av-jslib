@@ -4,9 +4,9 @@
  * The generated tables have native sort, filter and grouping support.
  * @name aV.DBGrid
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 2.4
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV.config.DBGrid)
@@ -312,7 +312,7 @@ aV.DBGrid._toggleMenu = function(guid, menuIdentifier, alignElement, offset)
 		possibleHeights = [subElement.scrollHeight, Math.floor(aV.DOM.windowClientHeight() * 0.5), aV.DOM.windowClientHeight() - topCoordinate + aV.DOM.windowScrollTop() - 20];
 		subElement.style.overflowY = 'hidden';
 		subElement.style.visibility = 'visible';
-		aV.Visual.slideToggle(subElement, possibleHeights[possibleHeights.min()], margin, false, function(obj){obj.style.overflowY = 'auto';});
+		aV.Visual.slideToggle(subElement, Math.min.call(window, possibleHeights), margin, false, function(obj){obj.style.overflowY = 'auto';});
 	}
 	else
 		aV.Visual.fadeNSlide(subElement, 0, -1, false, function(obj){obj.style.visibility = 'hidden';});
@@ -1005,7 +1005,7 @@ aV.DBGrid.prototype._print = function(clear, element)
 	this.tableElement.columnList.id = aV.config.DBGrid.idFormats.columnList.format(this.guid);
 	this.tableElement.columnList.className = aV.config.DBGrid.classNames.columnList;
 	this.tableElement.columnList.style.height = "0";
-	aV.Visual.setOpacity(this.tableElement.columnList, 0);
+	aV.CSS.setOpacity(this.tableElement.columnList, 0);
 
 	/* Start creating the buttons */
 	/* ColumnList button */

@@ -2,9 +2,16 @@
  * @fileOverview Simple history manager
  * @name aV.main.history
  *
- * @author Burak Yiğit KAYA byk@amplio-vita.net
+ * @author Burak Yiğit KAYA byk@ampliovitam.com
  * @version 1.1
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * 
+ * @requires webtoolkit.main.base64
+ * @requires llamerada.main.ulzss
+ * @requires aV.ext.object
+ * @requires aV.ext.string
+ * @requires aV.ext.array
+ * @requires aV.main.events
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -139,8 +146,9 @@ aV.History.stopListener=function()
 	else if (aV.config.History.useHashChangeEvent) 
 		return aV.Events.remove(window, 'hashchange', aV.History._listener);
 };
-
-aV.AJAX.loadResource("/JSLib/js/webtoolkit.base64.js", "js", "base64Library");
-aV.AJAX.loadResource("/JSLib/js/ulzss.js", "js", "ulzssCompressionLibrary");
+/*
+aV.AJAX.loadResource("/JSLib/js/webtoolkit.main.base64.js", "js", "base64Library");
+aV.AJAX.loadResource("/JSLib/js/llamerada.main.ulzss.js", "js", "ulzssCompressionLibrary");
+*/
 if (aV.config.History.startOnLoad)
 	aV.Events.add(window, 'domready', aV.History.startListener);

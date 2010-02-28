@@ -2,15 +2,15 @@
  * @fileOverview	Allows non obtrusive in-place-editing functionality for both images and text based elements.
  * @name aV.QuickEdit
  *
- * @author	Burak Yiğit KAYA	<byk@amplio-vita.net>
+ * @author	Burak Yiğit KAYA	<byk@ampliovitam.com>
  * @version	2.2
  *
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.events.js">aV.main.events.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.aParser.js">aV.main.aParser.js</a> 	
- * @requires	<a href="http://amplio-vita.net/JSLib/js/aV.main.visual.js">aV.main.visual.js</a>
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.events.js">aV.main.events.js</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
+ * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.aParser.js">aV.main.aParser.js</a> 	
+ * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.visual.js">aV.main.visual.js</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -437,7 +437,7 @@ aV.QuickEdit._editableElementHover=function(event)
 	{//evaluate the given editing condition and if it is true, continue the operation.
 		aV.DOM.addClass(element, aV.config.QuickEdit.classNames.editableElement);
 		if (element.aVquickEdit.fade!=null) //if there is a "fade" variable, fade the element
-			aV.Visual.fade(element, element.aVquickEdit.fade);
+			new aV.Visual.Effect(element, {fade: {end: element.aVquickEdit.fade}}).start();
 	}	
 };
 
@@ -459,7 +459,7 @@ aV.QuickEdit._editableElementMouseOut=function(event)
 	if(!element.aVquickEdit.active) //if the element is not clicked (or being edited)
 	{
 		if (element.aVquickEdit.fade!=null) //if fading assigned, return to opaque mode
-			aV.Visual.fade(element, 1);
+			new aV.Visual.Effect(element, {fade: {end: 1}}).start();
 		aV.DOM.removeClass(element, aV.config.QuickEdit.classNames.editableElement);
 	}
 };

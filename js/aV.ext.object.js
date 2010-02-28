@@ -2,10 +2,10 @@
  * @fileOverview A library which extends the base Object class with some useful functions.
  * @name Object Extensions
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 1.0
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 /**

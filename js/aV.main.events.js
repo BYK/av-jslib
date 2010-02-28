@@ -5,9 +5,9 @@
  * @author 
  * <br />Dean Edwards with input from Tino Zijdel, Matthias Miller, Diego Perini <dean@edwards.name>
  * <br />Adomas Paltanavicius <adomas.paltanavicius@gmail.com>
- * <br />Burak Yiğit Kaya <byk@amplio-vita.net>
+ * <br />Burak Yiğit Kaya <byk@ampliovitam.com>
  * @version 1.4.1
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -146,10 +146,9 @@ aV.Events._handle=function(event)
 	// execute each event handler
 	for (var i=0; i<handlers.length; i++)
 	{
-		this.$$handleEvent = handlers[i];
 		try 
 		{
-			if (this.$$handleEvent(event) === false) 
+			if (handlers[i].call(this, event) === false) 
 				returnValue = false;
 		}
 		catch(error)
@@ -158,7 +157,6 @@ aV.Events._handle=function(event)
 				window.onerror(error.message, error.fileName, error.lineNumber);
 		}
 	}
-	this.$$handleEvent=undefined;
 	return returnValue;
 };
 

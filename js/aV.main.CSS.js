@@ -2,10 +2,11 @@
  * @fileOverview A collection of useful CSS related functions.
  * @name CSS Library
  *
- * @author Burak Yiğit KAYA	<byk@amplio-vita.net>
- * @version 1.0
+ * @author Burak Yiğit KAYA	<byk@ampliovitam.com>
+ * @version 1.1
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires aV.ext.string.js
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)
@@ -24,7 +25,7 @@ aV.CSS.usable = !!document.styleSheets;
  */
 aV.CSS._initialize = function()
 {
-	var standartCompliant = (document.styleSheets && document.styleSheets.length && document.styleSheets[0].cssRules);
+	var standartCompliant = (document.styleSheets && document.styleSheets.length && ('cssRules' in document.styleSheets[0]));
 	if (standartCompliant) 
 	{
 		aV.CSS._rulesProperty = 'cssRules';
@@ -157,22 +158,23 @@ function(element)
 	return element.currentStyle;
 };
 
+
 /**
  * Sets the given element's opacity to the given opacity value.
  * 
  * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will be changed.
  * @param {Float [0,1]} opacity The opacity value which the object's opacity will be set to.
  */
-aV.CSS.setOpacity=function(obj, opacity)
+aV.CSS.setOpacity = (document.all) ?
+function(element, opacity)
 {
-	if (document.all) //if IE
-	{
-		if (!obj.currentStyle.hasLayout)
-			obj.style.zoom='1';
-		obj.style.filter = "alpha(opacity=" + opacity * 100 + ")"; //use filter-alpha
-	}
-	else //if not IE
- 		obj.style.opacity = opacity; //use CSS opacity
+	if (!element.currentStyle.hasLayout)
+		element.style.zoom='1';
+	element.style.filter = "alpha(opacity=" + opacity * 100 + ")";
+}:
+function(element, opacity)
+{
+	element.style.opacity = opacity;
 };
 
 /**
@@ -199,4 +201,4 @@ function(styleObject)
 	return parseFloat(styleObject.opacity); //parse the opacity value to float
 };
 
-aV.Events.add(window, 'domready', aV.CSS._initialize);
+aV.CSS._initialize();

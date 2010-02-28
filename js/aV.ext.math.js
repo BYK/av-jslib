@@ -2,10 +2,10 @@
  * @fileOverview A library which extends the Math class with some useful functions.
  * @name Math Extensions
  *
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 1.0
  *
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 Math.logBase=function(x, base)

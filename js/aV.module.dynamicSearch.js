@@ -2,9 +2,9 @@
  * @fileOverview Defines a class which creates dynamic search ares supporting both basic and advanced options.
  * @name Dynamic Search
  * 
- * @author Burak Yiğit KAYA <byk@amplio-vita.net>
+ * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 2.1
- * @copyright &copy;2009 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a> 
+ * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a> 
  */
 
 /**
@@ -390,13 +390,13 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 				{
 					this.list.childNodes[i].style.display='';
 					this.labels.childNodes[i].style.display='';
-					aV.Visual.fade(this.list.childNodes[i], 1);
-					aV.Visual.fade(this.labels.childNodes[i], 1);
+					new aV.Visual.Effect(this.list.childNodes[i], {fade:{end: 1}}).start();
+					new aV.Visual.Effect(this.labels.childNodes[i], {fade:{end: 1}}).start();
 				}
 				else
 				{
-					aV.Visual.fade(this.list.childNodes[i], 0, function(obj){obj.style.display='none';});
-					aV.Visual.fade(this.labels.childNodes[i], 0, function(obj){obj.style.display='none';});
+					new aV.Visual.Effect(this.list.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
+					new aV.Visual.Effect(this.labels.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
 				}
 			}
 		}
@@ -473,8 +473,8 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 		{
 			this.container.content.formBasic.list.lastChild.style.display = 'none';
 			this.container.content.formBasic.labels.lastChild.style.display = 'none';
-			aV.Visual.setOpacity(this.container.content.formBasic.list.lastChild, 0);
-			aV.Visual.setOpacity(this.container.content.formBasic.labels.lastChild, 0);
+			aV.CSS.setOpacity(this.container.content.formBasic.list.lastChild, 0);
+			aV.CSS.setOpacity(this.container.content.formBasic.labels.lastChild, 0);
 			formEnlargable=true;
 		}
 	}
@@ -755,7 +755,7 @@ aV.DynamicSearch._onConditionClick=function(event)
 	if (DynamicSearchObject.groupSE)
 	{
 		currentElement=DynamicSearchObject.groupSE;
-		aV.Visual.setOpacity(currentElement, 1);
+		aV.CSS.setOpacity(currentElement, 1);
 		delete DynamicSearchObject.groupSE;
 		
 		endElement=aV.DynamicSearch._getTopLevel(event.target);
@@ -798,7 +798,7 @@ aV.DynamicSearch._onConditionClick=function(event)
 	{
 		currentElement=aV.DynamicSearch._getTopLevel(event.target);
 		DynamicSearchObject.groupSE=currentElement;
-		aV.Visual.setOpacity(currentElement, 0.5);
+		aV.CSS.setOpacity(currentElement, 0.5);
 	}
 	event.stopPropagation();
 };

@@ -66,24 +66,6 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 			<div class="post">
 				<h2 class="title">Sample Code</h2>
 				<div class="entry">
-					<!--<textarea id="sampleCode" rows="20" cols="80">
-window.sampleEffect = new aV.Visual.Effect(
-	document.getElementById('sideList1'),
-	{setStyle: {properties: {height: {end: 0}, width: {end: 0}}, converger: 'power'}},
-	{duration: 2000}
-).chain(
-	{fade: {end: 0}},
-	{duration: 1000},
-	document.getElementById('welcomeEntry')
-).chain(
-	{fade: {end: 1, converger: 'trigonometric'}}
-).chain(
-	{setStyle: {properties: {height: {end: 224}, width: {end: 200}}, converger: 'trigonometric'}},
-	{duration: 1000},
-	document.getElementById('sideList1')
-).start();
-setTimeout(function(){window.sampleEffect.pause();}, 2500);
-setTimeout(function(){window.sampleEffect.resume();}, 3500);</textarea>-->
 					<textarea id="sampleCode" rows="20" cols="80">
 window.sampleEffect = new aV.Visual.Effect(
 	document.getElementById('sideList1'),
@@ -95,6 +77,10 @@ window.sampleEffect = new aV.Visual.Effect(
 	document.getElementById('welcomeEntry')
 ).chain(
 	{fade: {end: 1, converger: 'trigonometric'}}
+).chain(
+	{color: {backgroundColor: 'ffff00', converger: 'trigonometric'}}
+).chain(
+	{color: {backgroundColor: 'fff'}}
 ).chain(
 	{style: {height: '100_224px', width: '100_200px', converger: 'trigonometric'}},
 	{duration: 1000},

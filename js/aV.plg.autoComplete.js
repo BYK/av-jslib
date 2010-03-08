@@ -125,7 +125,7 @@ aV.AutoComplete._removeListBox = function(element)
 				delete element.aVautoComplete.listBox;
 			}
 		}
-	);
+	).start();
 };
 aV.AutoComplete._showListBox = function(element)
 {

@@ -33,56 +33,22 @@ aV.config.Visual.unite(
 		},
 		convergers: 
 		{
-			linear: function(start, end, steps)
+			linear: function(step, steps)
 			{
-				this.step = 0;
-				this.steps = steps;
-				this.m = (end - start) / this.steps;
-				this.c = start;
-				this.next = function()
-				{
-					this.step++;
-					return this.m * this.step + this.c;
-				};
+				return step / steps;
 			},
-			exponential: function(start, end, steps)
+			exponential: function(step, steps)
 			{
-				this.step = 0;
-				this.steps = steps;
-				this.increment = 5 / this.steps;
-				this.c = start;
-				this.m = (end - start);
-				this.next = function()
-				{
-					this.step++;
-					return (1 - Math.exp(-this.step * this.increment)) * this.m + this.c;
-				};
+				return 1 - Math.exp(-5 * step / steps);
 			},
-			trigonometric: function(start, end, steps)
+			trigonometric: function(step, steps)
 			{
-				this.step = 0;
-				this.steps = steps;
-				this.m = (end - start);
-				this.c = start;
-				this.next = function()
-				{
-					this.step++;
-					return (Math.cos((this.step / this.steps - 1) * Math.PI) + 1) * this.m / 2 + this.c;
-				};
+				return (Math.cos((step / steps - 1) * Math.PI) + 1) / 2;
 			},
-			power: function(start, end, steps)
+			power: function(step, steps)
 			{
-				this.step = 0;
-				this.steps = steps;
-				this.increment = 12 / this.steps;
-				this.c = start;
-				this.m = (end - start);
-				this.next = function()
-				{
-					this.step++;
-					var x = this.step * this.increment;
-					return (1 - Math.pow(x / 2, -x / 4)) * this.m + this.c;
-				};
+				var x = 12 * step / steps;
+				return 1 - Math.pow(x / 2, -x / 4);
 			}
 		},
 		animations: 
@@ -114,9 +80,53 @@ aV.config.Visual.unite(
 							{
 								start: parseFloat(inputMatch[1] || currentMatch[2]) || 0,
 								end: parseFloat(inputMatch[2]) || 0,
-								propertyName: propertyName,
-								unit: inputMatch[3] || currentMatch[3],
+								propertyName: propertyName.camelize(),
+								unit: inputMatch[3] || currentMatch[3] || '',
 								set: function(element, value){element.style[this.propertyName] = value + this.unit;},
+								converger: options.converger
+							}
+						);
+					}
+				return animations;
+			},
+			color: function(element, options)
+			{
+				var animations = [], pattern = /^(.{3,7}_|)(.{3,7})$/, startColor, endColor, inputMatch;
+				for (var propertyName in options)
+					if (options.hasOwnProperty(propertyName) && propertyName != 'converger')
+					{
+						inputMatch = pattern.exec(options[propertyName]);
+						startColor = aV.Color.RGBtoHSL(
+							aV.Color.StringtoRGB(inputMatch[1].substring(0, inputMatch[1].length - 1)) || aV.Color.StringtoRGB(aV.CSS.getElementStyle(element, propertyName))
+						);
+						endColor = aV.Color.RGBtoHSL(aV.Color.StringtoRGB(inputMatch[2]));
+						//the if statements below are for smoother transitions from/to full black and from/to full white color animations
+						if (endColor.l == 1 || endColor.l == 0)
+						{
+							endColor.h = startColor.h;
+							endColor.s = startColor.s;
+						}
+						else if (startColor.l == 1 || startColor.l == 0)
+						{
+							startColor.h = endColor.h;
+							startColor.s = endColor.s;
+						}
+
+						animations.push(
+							{
+								start: 0,
+								end: 1,
+								startColor: startColor,
+								newColor: {h: 0, s:0, l: 0},
+								colorDiff: {h: endColor.h - startColor.h, s: endColor.s - startColor.s, l: endColor.l - startColor.l},
+								propertyName: propertyName.camelize(),
+								set: function(element, value)
+								{
+									this.newColor.h = this.startColor.h + this.colorDiff.h*value;
+									this.newColor.s = this.startColor.s + this.colorDiff.s*value;
+									this.newColor.l = this.startColor.l + this.colorDiff.l*value;
+									element.style[this.propertyName] = aV.Color.RGBtoString(aV.Color.HSLtoRGB(this.newColor));
+								},
 								converger: options.converger
 							}
 						);
@@ -148,6 +158,8 @@ aV.Visual.Effect = function(element, animations, options)
 		false
 	);
 
+	this.step = 0;
+	this.steps = Math.round(this.options.duration / this.options.interval)
 	this.animationInitializers = animations;
 	return this;
 };
@@ -155,12 +167,12 @@ aV.Visual.Effect = function(element, animations, options)
 aV.Visual.Effect.prototype._progressAnimation = function(index, finished)
 {
 	var animation = this.animations[index];
-	animation.set(this.element, (finished) ? animation.end : animation.converger.next());
+	animation.set(this.element, ((finished) ? 1 : animation.converger(this.step, this.steps))*animation.diff + animation.start);
 };
 
 aV.Visual.Effect.prototype._progress = function()
 {
-	var finished = this.animations[0].converger.step == this.animations[0].converger.steps;
+	var finished = ++this.step == this.steps;
 	for (var i = 0, length = this.animations.length; i < length; i++) 
 		this._progressAnimation(i, finished);
 	this.options.ontick(this);
@@ -179,7 +191,9 @@ aV.Visual.Effect.prototype.start = function()
 	}
 	
 	this.animations = [];
-	var animations = this.animationInitializers, start, animationName, animationSet, animation;
+	var animations = this.animationInitializers,
+	start, animationName, animationSet, animation;
+
 	for (var animationName in animations)
 		if (animations.hasOwnProperty(animationName) && (animationName in aV.config.Visual.animations)) 
 		{
@@ -187,15 +201,13 @@ aV.Visual.Effect.prototype.start = function()
 			for (var i = 0, length = animationSet.length; i < length; i++)
 			{
 				animation = animationSet[i];
-				if (!(animation.converger in aV.config.Visual.convergers))
-					animation.converger = this.options.defaultConverger;
 
 				animation.start = animation.start || 0;
-				animation.converger = new aV.config.Visual.convergers[animation.converger](
-					animation.start,
-					animation.end,
-					Math.round(this.options.duration / this.options.interval)
-				);
+				if (typeof animation.end != 'number')
+					animation.end = 1;
+				animation.diff = animation.end - animation.start;
+				if (!(animation.converger instanceof Function))
+					animation.converger = aV.config.Visual.convergers[animation.converger] || aV.config.Visual.convergers[this.options.defaultConverger];
 				this.animations.push(animation);
 			}
 		}

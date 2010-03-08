@@ -1197,7 +1197,8 @@ aV.DBGrid.prototype.sortData = function(column, direction)
 			this.tableElement.tHead.rows[this.tableElement.tHead.rows.length-1].cells[this.properties.columns[this.properties.sort[0].column].index].className = '';
 
 		this._sortCache = [column, direction];
-		window.setTimeout("aV.DBGrid.list[" + this.guid + "].sortData()", 0);
+		var self = this;
+		window.setTimeout(function(){self.sortData()}, 0);
 		return;
 	}
 	else

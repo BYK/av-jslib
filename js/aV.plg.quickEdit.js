@@ -110,12 +110,12 @@ aV.config.QuickEdit.unite(
 					},
 					setresponse: function(event)
 					{
-						var responseObject=aV.AJAX.getResponseAsObject(event.requestObject);
+						var responseObject = aV.AJAX.getResponseAsObject(event.requestObject);
 						var editee=event.target.editee;
 						if (responseObject && responseObject.type!='error')
 						{
-							editee.aVquickEdit.active=false;
-							event.target.editee=undefined;
+							editee.aVquickEdit.active = false;
+							event.target.editee = undefined;
 							if (aV.QuickEdit.triggerEvent("endedit", {target: editee, responseText: event.responseText, responseObject: responseObject, editor: event.target}, editee)===false)
 								return false;
 							aV.QuickEdit.setElementValue(editee, responseObject.value);
@@ -322,15 +322,17 @@ aV.config.QuickEdit.unite(
 				{
 					element.innerHTML='';
 	
-					var lines=[];
-					var matcher=new RegExp('\\r\\n|\\r|\\n', 'g');
+					var lines = [];
+					var matcher = new RegExp('\\r\\n|\\r|\\n', 'g');
 					var result;
-					var lastMatch=0;
-					while (result=matcher.exec(value))
+					var lastMatch = 0;
+					
+					while (result = matcher.exec(value))
 					{
 						lines.push(value.substring(lastMatch, result.index));
 						lastMatch=result.index+1;
 					}
+					
 					lines.push(value.substr(lastMatch));
 	
 					element.appendChild(document.createTextNode(lines[0]));
@@ -414,7 +416,7 @@ aV.QuickEdit.getElementValue=function(element)
 
 aV.QuickEdit.setElementValue=function(element, value)
 {
-	var valueHandlerId=(element.aVquickEdit.valueHandler in aV.config.QuickEdit.valueHandlers.get)?element.aVquickEdit.valueHandler:"default";
+	var valueHandlerId = (element.aVquickEdit.valueHandler in aV.config.QuickEdit.valueHandlers.get) ? element.aVquickEdit.valueHandler : "default";
 	return aV.config.QuickEdit.valueHandlers.set[valueHandlerId](element, value);
 };
 
@@ -527,7 +529,7 @@ aV.QuickEdit._makeSetRequest=function(editor, value)
 	}
 	catch (error)
 	{
-		params=(typeof element.aVquickEdit.params=="string")?element.aVquickEdit.params:element.aVquickEdit.params.toQueryString();
+		params=(typeof element.aVquickEdit.params=="string") ? element.aVquickEdit.params : element.aVquickEdit.params.toQueryString();
 	}
 
 	var responseHandler=function(requestObject)

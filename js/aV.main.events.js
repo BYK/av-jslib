@@ -67,7 +67,7 @@ aV.Events.add=function(target, type, handler, priority)
 	}
 	// store the event handler in the hash table
 	if (target.events[type].list.indexOf(handler)>-1)
-		return false;
+		return handler;
 	handlers.list.push(handler);
 	handlers.priorities[handler.$$guid] = priority;
 	//sort the handler list according to priorities

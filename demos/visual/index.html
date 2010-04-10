@@ -25,7 +25,7 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 <script type="text/javascript" src="../../js/aV.main.events.js"></script>
 <script type="text/javascript" src="../../js/aV.main.color.js"></script>
 <script type="text/javascript" src="../../js/aV.main.CSS.js"></script>
-<script type="text/javascript" src="../../js/aV.main.visual.js"></script>
+<script type="text/javascript" src="../../js/aV.main.effect.js"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -67,16 +67,16 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 				<h2 class="title">Sample Code</h2>
 				<div class="entry">
 					<textarea id="sampleCode" rows="20" cols="80">
-window.sampleEffect = new aV.Visual.Effect(
+window.sampleEffect = new aV.Effect(
 	document.getElementById('sideList1'),
 	{style: {height: '0', width: '0', converger: 'power'}},
 	{duration: 2000}
 ).chain(
-	{fade: {end: 0}},
+	{fade: {value: '0'}},
 	{duration: 1000},
 	document.getElementById('welcomeEntry')
 ).chain(
-	{fade: {end: 1, converger: 'trigonometric'}}
+	{fade: {value: '1', converger: 'trigonometric'}}
 ).chain(
 	{color: {backgroundColor: 'ffff00', converger: 'trigonometric'}}
 ).chain(

@@ -84,7 +84,7 @@ aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
 						aV.Visual.infoBox.hideTimer=setTimeout(aV.Visual.infoBox.hide, timeout);
 				}
 			}
-		);
+		).start();
 };
 		
 /**

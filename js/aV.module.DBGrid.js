@@ -455,7 +455,7 @@ aV.DBGrid._rowClickHandler = function(event)
 	
 	if (DBGridObj.onrowclick)
 	{
-		if (DBGridObj.triggerEvent("rowclick", {row: this, rowData: DBGridObj.properties.row[this.dataIndex]}) === false)
+		if (DBGridObj.triggerEvent("rowclick", {row: this, rowData: DBGridObj.properties.row[this.dataIndex], ownerObject: DBGRidObj}) === false)
 			selectable = false;
 	}
 
@@ -732,6 +732,8 @@ aV.DBGrid.prototype.refreshData = function(fullRefresh, preserveState)
 
 	if (preserveState !== false)
 		this._addStateToParameters();
+	else
+		this._printInfo.start = this._printInfo.end = 0;
 	
 	for (mimeType in aV.config.AJAX.dataParsers)
 		if (aV.config.AJAX.dataParsers.hasOwnProperty(mimeType))

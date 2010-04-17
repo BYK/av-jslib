@@ -211,3 +211,8 @@ function(element)
 
   return result;
 };
+
+aV.DOM.toggle = function(element)
+{
+	element.style.display = (element.style.display == 'none') ? '' : 'none';
+};

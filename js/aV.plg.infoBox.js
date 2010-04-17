@@ -1,21 +1,21 @@
 /**
  * @fileOverview	Extens visual effects library to have an info box on top of the page.
- * @name Visual Effects - infoBox Extension
+ * @name infoBox Extension
  *
  * @author	Burak Yiğit KAYA	byk@ampliovitam.com
  * @version	1.3
  *
- * @requires	<a href="http://ampliovitam.com/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
+ * @requires	aV.main.effect.js
  * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
 	throw new Error("aV namespace cannot be found.", "aV.plg.infoBox.js@" + window.location.href);
 
-if (!aV.Visual)
-	throw new Error("aV Visual functions library cannot be found!", "aV.plg.infoBox.js@" + window.location.href);
+if (!aV.Effect)
+	throw new Error("aV.Effects library cannot be found!", "aV.plg.infoBox.js@" + window.location.href);
 
-aV.config.Visual.infoBox=
+aV.config.infoBox =
 {
 	/**
 	 * The time interval before the infoBox is automatically hid in milliseconds. Default is 3000.
@@ -32,22 +32,20 @@ aV.config.Visual.infoBox=
 	}
 };
 /**
- * @memberOf	aV.Visual
- * @name	aV.Visual.infoBox
  * @type	HTMLDivElementObject
  */
-aV.Visual.infoBox=document.createElement("DIV");
-aV.Visual.infoBox.id='infoBox';
+aV.infoBox=document.createElement("DIV");
+aV.infoBox.id='infoBox';
 
 /**
  * Clears the timer which is set to hide the infoBox after some interval.
  *
  * @method
  */
-aV.Visual.infoBox.clearTimer=function()
+aV.infoBox.clearTimer=function()
 {
-	if (aV.Visual.infoBox.hideTimer)
-			clearTimeout(aV.Visual.infoBox.hideTimer);	
+	if (aV.infoBox.hideTimer)
+			clearTimeout(aV.infoBox.hideTimer);	
 };
 
 /**
@@ -60,29 +58,30 @@ aV.Visual.infoBox.clearTimer=function()
  * @param {Boolean} [showImmediately] If set, the infoBox appears instantly, without the fade effect.
  * @param {Integer} [timeout] The message spesific timeout in milliseconds. If not given, config.timeout is used.
  */
-aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
+aV.infoBox.show=function(message, image, showImmediately, timeout)
 {
-	aV.Visual.infoBox.clearTimer();
+	aV.infoBox.clearTimer();
 	if (typeof image=='string' && image!='')
 		message='<img src="' + image + '" />' + message;
 	if (message)
-		aV.Visual.infoBox.innerHTML=message;
+		aV.infoBox.innerHTML = message;
 
-	aV.Visual.infoBox.style.visibility="visible";
+	aV.infoBox.style.visibility="visible";
 	
 	if (!timeout)
-		timeout=aV.config.Visual.infoBox["timeout"];
+		timeout=aV.config.infoBox["timeout"];
 	
 	if (showImmediately)
-		aV.CSS.setOpacity(aV.Visual.infoBox, 1);
+		aV.CSS.setOpacity(aV.infoBox, 1);
 	else
-		new aV.Visual.Effect(aV.Visual.infoBox, {fade: {from: 0, to: 1}},
+		new aV.Effect(aV.infoBox, {fade: {value: "0_1"}},
 			{
-				onfinish: function(effect)
+				onfinish: function()
 				{
-					if (aV.config.Visual.infoBox["timeout"])
-						aV.Visual.infoBox.hideTimer=setTimeout(aV.Visual.infoBox.hide, timeout);
-				}
+					if (aV.config.infoBox["timeout"])
+						aV.infoBox.hideTimer = setTimeout(aV.infoBox.hide, timeout);
+				},
+				id: 'aVinfoBoxEffect'
 			}
 		).start();
 };
@@ -92,26 +91,26 @@ aV.Visual.infoBox.show=function(message, image, showImmediately, timeout)
  *
  * @method
  */
-aV.Visual.infoBox.hide=function()
+aV.infoBox.hide=function()
 {
-	aV.Visual.infoBox.clearTimer();
-	new aV.Visual.Effect(aV.Visual.infoBox, {fade: {to: 0}}, {onfinish: function(effect) {effect.element.style.visibility='hidden';}}).start();
+	aV.infoBox.clearTimer();
+	new aV.Effect(aV.infoBox, {fade: {value: 0}}, {id: 'aVinfoBoxEffect', onfinish: function() {this.element.style.visibility='hidden';}}).start();
 };
 		
 /**
- * The onclick event is assigned directly to the <a href="#aV.Visual.infoBox.hide">hide</a> method
+ * The onclick event is assigned directly to the <a href="#aV.infoBox.hide">hide</a> method
  * of the infoBox to provide hide-on-click support.
  *
  * @private
  * @event
  */
-aV.Visual.infoBox.onclick=aV.Visual.infoBox.hide;
+aV.infoBox.onclick=aV.infoBox.hide;
 
 aV.Events.add(window, 'domready',
 	function(event)
 	{
 //		if (aV.AJAX)
 //			aV.AJAX.loadResource("/JSLib/css/aV.plg.infoBox.css", "css", "aVinfoBoxCSS");
-		document.body.appendChild(aV.Visual.infoBox);
+		document.body.appendChild(aV.infoBox);
 	}		
 );

@@ -16,8 +16,8 @@
  * @requires {@link aV.Events} aV.main.events.js
  * @requires {@link aV.AJAX} aV.main.ajax.js
  * @requires {@link aV.History} aV.main.history.js
- * @requires {@link aV.Visual} aV.main.visual.js
- * @requires {@link aV.Visual.infoBox} aV.plg.infoBox.js
+ * @requires {@link aV.Effect} aV.main.effect.js
+ * @requires {@link aV.infoBox} aV.plg.infoBox.js
  * @requires {@link aV.DBGrid} aV.module.DBGrid.js
  * 
  * @param {String} name The name of the search, which the object will be associated with.
@@ -99,7 +99,7 @@ aV.DynamicSearch.prototype._initialize=function()
 		
 		if (!aV.AJAX.isResponseOK(requestObject, "application/json")) 
 		{
-			aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.responseNotValid, aV.config.Visual.infoBox.images.error);
+			aV.infoBox.show(aV.config.DynamicSearch.texts.responseNotValid, aV.config.infoBox.images.error);
 			return;
 		}
 		
@@ -390,13 +390,13 @@ aV.DynamicSearch.prototype._createBasicForm=function(destructive)
 				{
 					this.list.childNodes[i].style.display='';
 					this.labels.childNodes[i].style.display='';
-					new aV.Visual.Effect(this.list.childNodes[i], {fade:{end: 1}}).start();
-					new aV.Visual.Effect(this.labels.childNodes[i], {fade:{end: 1}}).start();
+					new aV.Effect(this.list.childNodes[i], {fade:{end: 1}}).start();
+					new aV.Effect(this.labels.childNodes[i], {fade:{end: 1}}).start();
 				}
 				else
 				{
-					new aV.Visual.Effect(this.list.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
-					new aV.Visual.Effect(this.labels.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
+					new aV.Effect(this.list.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
+					new aV.Effect(this.labels.childNodes[i], {fade:{end: 0}}, {onfinish: function(effect){effect.element.style.display = 'none'}}).start();
 				}
 			}
 		}
@@ -631,7 +631,7 @@ aV.DynamicSearch.prototype.removeCondition = function(condition)
 		return true;
 	}
 	else if (!this.supressRemoveWarning)
-		aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.removeConditionError, aV.config.Visual.infoBox.images.info);
+		aV.infoBox.show(aV.config.DynamicSearch.texts.removeConditionError, aV.config.infoBox.images.info);
 	return false;
 };
 
@@ -919,9 +919,9 @@ aV.DynamicSearch._onFormSubmit=function(event)
 					if (!DynamicSearchObject.properties.fieldList[element.condition.field.value].checkFunction(element.condition) || (element.condition.value == '' && form == DynamicSearchObject.container.content.formAdvanced)) 
 					{
 						if (element.condition.value != '' && !element.condition.hasSampleValue)
-							aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.invalidConditionValue, aV.config.Visual.infoBox.images.error);
+							aV.infoBox.show(aV.config.DynamicSearch.texts.invalidConditionValue, aV.config.infoBox.images.error);
 						else if (!DynamicSearchObject.supressEmptyFieldWarning && form == DynamicSearchObject.container.content.formAdvanced)
-							aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.emptyFieldinAdvanced, aV.config.Visual.infoBox.images.warning);
+							aV.infoBox.show(aV.config.DynamicSearch.texts.emptyFieldinAdvanced, aV.config.infoBox.images.warning);
 						aV.DynamicSearch.releaseForm(form);
 						return false;
 					}
@@ -981,7 +981,7 @@ aV.DynamicSearch._onFormSubmit=function(event)
 		}
 	}
 	else if (!DynamicSearchObject.supressEmptyFieldWarning && form != DynamicSearchObject.container.content.formAdvanced)
-		aV.Visual.infoBox.show(aV.config.DynamicSearch.texts.noCriteria, aV.config.Visual.infoBox.images.error);
+		aV.infoBox.show(aV.config.DynamicSearch.texts.noCriteria, aV.config.infoBox.images.error);
 
 	return false;
 };
@@ -1068,7 +1068,7 @@ aV.DynamicSearch.getOwnerObject=function(element)
 aV.DynamicSearch._generalHelpClickHandler=function(event)
 {
 	var DynamicSearchObject=aV.DynamicSearch.getOwnerObject(event.target);
-	aV.Visual.slideToggle(DynamicSearchObject.container.content.generalHelpBox, 0, 10);
+	aV.Effect(DynamicSearchObject.container.content.generalHelpBox, 'slideToggle');
 };
 
 aV.DynamicSearch.$$lastGuid=1;

@@ -137,7 +137,7 @@ aV.AJAX.destroyRequestObject = function(requestObject)
  * Creates an interface which is nearly the same as native XMLHttpRequestObject for a cross-borwser request based on window.name method.
  * 
  * @deprecated You should not need to use this function directly, use {@link aV.AJAX.makeRequest} to make AJAX calls.
- * @return {XDXMLHttpRequestObject}
+ * @return {XMLHttpRequestObject}
  */
 aV.AJAX.createCrossDomainRequestObject = function()
 {

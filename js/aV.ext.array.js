@@ -231,7 +231,7 @@ Array.prototype.shuffle=function()
 };
 
 /**
- * Returns the index of the least element in the array.
+ * Returns the index of the smallest element in the array.
  * 
  * @param {Function(a,b)} [compareFunction] Custom compare function
  * @return {Number} The index of the least element 
@@ -239,6 +239,9 @@ Array.prototype.shuffle=function()
 Array.prototype.min=function(compareFunction)
 {
 	if (!compareFunction)
+		/**
+		 * @ignore
+		 */
 		compareFunction=function(a, b)
 		{
 			return a-b;

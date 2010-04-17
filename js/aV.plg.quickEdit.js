@@ -5,11 +5,11 @@
  * @author	Burak Yiğit KAYA	<byk@ampliovitam.com>
  * @version	2.2
  *
- * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.ext.string.js">aV.ext.string.js</a>
- * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.events.js">aV.main.events.js</a>
- * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.ajax.js">aV.main.ajax.js</a>
- * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.aParser.js">aV.main.aParser.js</a> 	
- * @requires	<a href="http://ampliovitam.com/JSLib/js/aV.main.visual.js">aV.main.visual.js</a>
+ * @requires	aV.ext.string.js
+ * @requires	aV.main.events.js
+ * @requires	aV.main.ajax.js
+ * @requires	aV.main.aParser.js 	
+ * @requires	aV.main.effect.js
  * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
@@ -24,9 +24,6 @@ if (!aV.AJAX)
 
 if (!aV.aParser)
 	throw new Error("aV aParser functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
-
-if (!aV.Visual)
-	throw new Error("aV visual functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
 
 /**
  * Represents a namespace, aV.QuickEdit, for the new functions and global parameters of those functions.
@@ -402,7 +399,7 @@ aV.QuickEdit.defaultEventHandler=function(event)
 	{
 		var message=(event.responseObject && event.responseObject.message)?event.responseObject.message:aV.config.QuickEdit.texts.defaultErrorMessage;
 		if (aV.config.QuickEdit.useInfoBox)
-			aV.Visual.infoBox.show(message, aV.config.Visual.infoBox.images.error);
+			aV.infoBox.show(message, aV.config.infoBox.images.error);
 		else
 			alert(message);
 	}
@@ -438,8 +435,8 @@ aV.QuickEdit._editableElementHover=function(event)
 	if(eval(element.aVquickEdit.condition))
 	{//evaluate the given editing condition and if it is true, continue the operation.
 		aV.DOM.addClass(element, aV.config.QuickEdit.classNames.editableElement);
-		if (element.aVquickEdit.fade!=null) //if there is a "fade" variable, fade the element
-			new aV.Visual.Effect(element, {fade: {end: element.aVquickEdit.fade}}).start();
+		if (element.aVquickEdit.fade != undefined) //if there is a "fade" variable, fade the element
+			new aV.Effect(element, {fade: {value: element.aVquickEdit.fade}}, {id: 'quickEditFade'}).start();
 	}	
 };
 
@@ -460,8 +457,8 @@ aV.QuickEdit._editableElementMouseOut=function(event)
 	
 	if(!element.aVquickEdit.active) //if the element is not clicked (or being edited)
 	{
-		if (element.aVquickEdit.fade!=null) //if fading assigned, return to opaque mode
-			new aV.Visual.Effect(element, {fade: {end: 1}}).start();
+		if (element.aVquickEdit.fade != undefined) //if fading assigned, return to opaque mode
+			new aV.Effect(element, {fade: {value: 1}}, {id: 'quickEditFade'}).start();
 		aV.DOM.removeClass(element, aV.config.QuickEdit.classNames.editableElement);
 	}
 };
@@ -472,7 +469,6 @@ aV.QuickEdit._editableElementMouseOut=function(event)
  *
  * @method
  * @private
- * @deprecated It is an event handler, do not call directly.
  * @param {EventObject} event
  */
 aV.QuickEdit._editableElementClick=function(event)
@@ -607,7 +603,7 @@ aV.QuickEdit.init=function(event)
 		aV.QuickEdit._setEditableElement
 	);
 
-	aV.config.QuickEdit.useInfoBox=(aV.config.QuickEdit.useInfoBox && aV.Visual.infoBox);
+	aV.config.QuickEdit.useInfoBox=(aV.config.QuickEdit.useInfoBox && aV.infoBox);
 };
 
 aV.AJAX.loadResource("/JSLib/css/aV.plg.quickEdit.css", "css", "aVquickEditCSS");

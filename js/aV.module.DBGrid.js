@@ -24,14 +24,6 @@ aV.config.DBGrid.unite(
 		maxRowsInPage: 50,
 		infoBoxTimeout: 180000, //in milliseconds
 		exportTypeId: 'export',
-		paths:
-		{
-			css:
-			[
-				'/JSLib/css/aV.module.DBGrid-css.php',
-				'/css/file_types.css'
-			]
-		},
 		texts:
 		{
 			title: '%s - %s/%s records',
@@ -212,9 +204,8 @@ aV.config.DBGrid.unite(
  * @requires {@link Object} (aV.ext.object.js)
  * @requires {@link aV.Events} (aV.main.events.js)
  * @requires {@link aV.AJAX} (aV.main.ajax.js)
- * @requires {@link aV.Visual} (aV.main.visual.js)
- * @requires {@link aV.Visual.customHint} (aV.plg.customHint.js)
- * @requires {@link aV.Visual.infoBox} (aV.plg.infoBox.js)
+ * @requires {@link aV.Effect} (aV.main.effect.js)
+ * @requires {@link aV.infoBox} (aV.plg.infoBox.js)
  * 
  * @param	 {String} sourceURL The address to the data XML
  * @param {String | Object} parameters Parameters for the POST call to the *sourceURL*
@@ -295,8 +286,7 @@ aV.DBGrid.getOwnerObject = function(element)
 
 aV.DBGrid._toggleMenu = function(guid, menuIdentifier, alignElement, offset)
 {
-	var margin = 8,
-	    subElement = document.getElementById(aV.config.DBGrid.idFormats[menuIdentifier].format(guid)),
+	var subElement = document.getElementById(aV.config.DBGrid.idFormats[menuIdentifier].format(guid)),
 	    topCoordinate,
 	    possibleHeights;
 	
@@ -304,18 +294,23 @@ aV.DBGrid._toggleMenu = function(guid, menuIdentifier, alignElement, offset)
 		offset = {x: 0, y: 0};
 	else if (typeof offset == "number")
 		offset = {x: offset, y: offset};
-	if (subElement.offsetHeight <= margin) 
+
+	if (!(subElement.clientHeight && subElement.opening)) 
 	{
 		subElement.style.left = (aV.DOM.getElementCoordinates(alignElement.x).x + offset.x) + "px";
 		topCoordinate = aV.DOM.getElementCoordinates(alignElement.y).y + offset.y;
 		subElement.style.top = topCoordinate + "px";
 		possibleHeights = [subElement.scrollHeight, Math.floor(aV.DOM.windowClientHeight() * 0.5), aV.DOM.windowClientHeight() - topCoordinate + aV.DOM.windowScrollTop() - 20];
+		new aV.Effect(subElement, {style: {height: Math.min.apply(Math, possibleHeights) + "px"}, fade: {value :1}}, {id: 'aVDBGridEffect', onfinish: function(){this.element.style.overflowY = 'auto';}}).start();
 		subElement.style.overflowY = 'hidden';
 		subElement.style.visibility = 'visible';
-		aV.Visual.slideToggle(subElement, Math.min.call(window, possibleHeights), margin, false, function(obj){obj.style.overflowY = 'auto';});
+		subElement.opening = true;
 	}
 	else
-		aV.Visual.fadeNSlide(subElement, 0, -1, false, function(obj){obj.style.visibility = 'hidden';});
+	{
+		new aV.Effect(subElement, {style: {height: "0px"},	fade:	{value: 0}}, {id: 'aVDBGridEffect', onfinish: function(){this.element.style.visibility = 'hidden';}}).start();
+		subElement.opening = false;
+	}	
 };
 
 aV.DBGrid._documentClickHandler = function(event)
@@ -325,7 +320,7 @@ aV.DBGrid._documentClickHandler = function(event)
 			guid;
 	for (guid in aV.DBGrid.list)
 		if (guid != excludeId && aV.DBGrid.list.hasOwnProperty(guid) && aV.DBGrid.list[guid].tableElement)
-			aV.Visual.fadeNSlide(aV.DBGrid.list[guid].tableElement.columnList, 0, -1, false, function(obj){obj.style.visibility = 'hidden';});
+			new aV.Effect(aV.DBGrid.list[guid].tableElement.columnList, {style: {height: "0px"},	fade:	{value: 0}}, {id: 'aVDBGridEffect', onfinish: function(){this.element.style.visibility = 'hidden';}}).start();
 };
 
 aV.DBGrid._windowResizeHandler = function(event)
@@ -1013,7 +1008,7 @@ aV.DBGrid.prototype._print = function(clear, element)
 	/* ColumnList button */
 	aV.Events.add(aV.DBGrid._addCaptionButton(this.tableElement, "ColumnList"), "click", aV.DBGrid._columnManagerClickHandler);
 	/* Show/Hide Filters Button */
-	aV.Events.add(aV.DBGrid._addCaptionButton(this.tableElement, "Filter"), "click", function() {aV.Visual.toggle(this.parentNode.parentNode.tHead.filterRow);});
+	aV.Events.add(aV.DBGrid._addCaptionButton(this.tableElement, "Filter"), "click", function() {aV.DOM.toggle(this.parentNode.parentNode.tHead.filterRow);});
 	/* GroupAll / UngroupAll button */
 	aV.Events.add(aV.DBGrid._addCaptionButton(this.tableElement, "GroupAll"), "click", aV.DBGrid._groupButtonClickHandler);
 
@@ -1513,11 +1508,11 @@ aV.DBGrid.prototype.updateStatus = function(text, type, forceInfoBox)
 {
 	if (this.tableElement && !forceInfoBox) 
 	{
-		aV.Visual.infoBox.hide();
-		this.tableElement.statusArea.innerHTML = ' <img src="%1:s" alt="(%0:s)"/>'.format(type, aV.config.Visual.infoBox.images[type]) + text;
+		aV.infoBox.hide();
+		this.tableElement.statusArea.innerHTML = ' <img src="%1:s" alt="(%0:s)"/>'.format(type, aV.config.infoBox.images[type]) + text;
 	}
-	else 
-		aV.Visual.infoBox.show("DBGrid[%0:s] - ".format(this.guid) + text, aV.config.Visual.infoBox.images[type], false, aV.config.DBGrid.infoBoxTimeout);
+	else
+		aV.infoBox.show("DBGrid[%0:s] - ".format(this.guid) + text, aV.config.infoBox.images[type], false, aV.config.DBGrid.infoBoxTimeout);
 };
 
 aV.Events.add(document, "mouseup", aV.DBGrid._unlockResize);
@@ -1527,6 +1522,3 @@ aV.Events.add(document, "selectstart", function() {return !aV.DBGrid._activeResi
 aV.Events.add(document, "dragstart", function() {return !aV.DBGrid._activeResizer});
 if (aV.QuickEdit)
 	aV.Events.add(aV.QuickEdit, "afteredit", aV.DBGrid._onAfterEditHandler);
-
-for (var i = 0; i < aV.config.DBGrid.paths.css.length; i++)
-	aV.AJAX.loadResource(aV.config.DBGrid.paths.css[i], "css", "aVDBGridCSS" + i);

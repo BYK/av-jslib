@@ -1,12 +1,14 @@
 /**
-*
-*  Base64 encode / decode
-*  http://www.webtoolkit.info/
-*
+ *
+ *  Base64 encode / decode
+ *  http://www.webtoolkit.info/
+ *
 **/
 
+/**
+ * @ignore
+ */
 var Base64 = {
-
 	// private property
 	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
@@ -38,23 +40,19 @@ var Base64 = {
 			output = output +
 			this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
 			this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-
 		}
 
 		return output;
 	},
-
 	// public method for decoding
 	decode : function (input) {
 		var output = "";
 		var chr1, chr2, chr3;
 		var enc1, enc2, enc3, enc4;
 		var i = 0;
-
 		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
 		while (i < input.length) {
-
 			enc1 = this._keyStr.indexOf(input.charAt(i++));
 			enc2 = this._keyStr.indexOf(input.charAt(i++));
 			enc3 = this._keyStr.indexOf(input.charAt(i++));
@@ -74,11 +72,8 @@ var Base64 = {
 			}
 
 		}
-
 		output = Base64._utf8_decode(output);
-
 		return output;
-
 	},
 
 	// private method for UTF-8 encoding
@@ -87,7 +82,6 @@ var Base64 = {
 		var utftext = "";
 
 		for (var n = 0; n < string.length; n++) {
-
 			var c = string.charCodeAt(n);
 
 			if (c < 128) {
@@ -102,9 +96,7 @@ var Base64 = {
 				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
 				utftext += String.fromCharCode((c & 63) | 128);
 			}
-
 		}
-
 		return utftext;
 	},
 
@@ -115,7 +107,6 @@ var Base64 = {
 		var c = c1 = c2 = 0;
 
 		while ( i < utftext.length ) {
-
 			c = utftext.charCodeAt(i);
 
 			if (c < 128) {
@@ -133,10 +124,7 @@ var Base64 = {
 				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
 				i += 3;
 			}
-
 		}
-
 		return string;
 	}
-
 }

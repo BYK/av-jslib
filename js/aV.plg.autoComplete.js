@@ -15,7 +15,7 @@ if (!aV)
  * @requires {@link String} (aV.ext.string.js)
  * @requires {@link aV.Events} (aV.main.events.js)
  * @requires {@link aV.AJAX} (aV.main.ajax.js)
- * @requires {@link aV.Visual} (aV.main.visual.js)
+ * @requires {@link aV.Effect} (aV.main.effect.js)
  * @requires {@link aV.aParser} (aV.main.aParser.js)
  *
  * @param {String} [config.ruleFile='autoCompleteRules.txt'] Path to the external file which contains the rule definitons for editable items.
@@ -116,14 +116,15 @@ aV.AutoComplete._removeListBox = function(element)
 {
 	if (!element.aVautoComplete.listBox) 
 		return;
-	new aV.Visual.Effect(element.aVautoComplete.listBox, {fade: {end: 0}},
+	new aV.Effect(element.aVautoComplete.listBox, {fade: {value: 0}},
 		{
-			afterfinish: function(effect)
+			onfinish: function()
 			{
-				var listbox = effect.element;
+				var listbox = this.element;
 				listBox.parentNode.removeChild(listBox);
 				delete element.aVautoComplete.listBox;
-			}
+			},
+			id: 'aVautoCompleteEffect'
 		}
 	).start();
 };
@@ -189,7 +190,7 @@ aV.AutoComplete._showListBox = function(element)
 				type: 'showlistbox',
 				target: element
 			});
-		new aV.Visual.Effect(element.aVautoComplete.listBox, {fade: {end: 1}}).start();
+		new aV.Effect(element.aVautoComplete.listBox, {fade: {value: 1}}, {id: 'aVautoCompleteEffect'}).start();
 		if (element.aVautoComplete.autoSelectFirst) 
 		{
 			element.aVautoComplete.list.selectedIndex = 0;

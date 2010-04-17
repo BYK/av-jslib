@@ -24,6 +24,7 @@ aV.config.Effect.unite(
 			duration: 750,
 			converger: 'exponential'
 		},
+		uniqueOptions: ['onfinish', 'ontick', 'id'],
 		convergers: 
 		{
 			linear: function(step, steps)
@@ -55,7 +56,7 @@ aV.config.Effect.unite(
 				return [
 					{
 						start: startValue,
-						end: parseFloat(matchInfo[2]) || (startValue < 0.5) ? 1 : 0,
+						end: parseFloat(matchInfo[2]) || ((startValue < 0.5) ? 1 : 0),
 						set: aV.CSS.setOpacity,
 						converger: options.converger
 					}
@@ -132,12 +133,20 @@ aV.config.Effect.unite(
 		},
 		sets:
 		{
-			appear: function(element)
+			fade: function()
 			{
-				aV.CSS.setOpacity(element, 0);
-				if (element.style.display == 'none')
-					element.style.display = ''; //to remove 'none' if exists
-				return {fade: {value: 1}};
+				var show = aV.CSS.getOpacity(this.element) < 0.5 || this.element.style.display == 'none',
+				animations = {fade: {value: show ? 1 : 0}};
+				if (show)
+					this.element.style.display = ''; //to remove 'none' if exists
+				else
+					this.options.onfinish.push(function(){this.element.style.display = 'none'});
+				return animations;
+			},
+			slideToggle: function()
+			{
+				var toHeight = (this.element.clientHeight < this.element.scrollHeight) ? this.element.scrollHeight : 0;
+        return {style: {height: toHeight + "px"}, fade: {value: (toHeight) ? 1 : 0}};
 			}
 		}
 	},
@@ -149,16 +158,26 @@ aV.Effect = function(element, animations, options)
 	if (!element)
 		return false;
 
+	/**
+	 * 
+	 */
 	this.element = element;
+	/**
+	 * 
+	 */
 	this.options = (options || {}).unite(
 		{
 			interval: aV.config.Effect.defaults.interval,
 			duration: aV.config.Effect.defaults.duration,
 			defaultConverger: aV.config.Effect.defaults.converger,
+			onfinish: [],
 			ontick: function(){}
 		},
 		false
 	);
+
+	if (!(this.options.onfinish instanceof Array))
+		this.options.onfinish = [this.options.onfinish];
 
 	this.step = 0;
 	this.steps = Math.round(this.options.duration / this.options.interval)
@@ -167,8 +186,19 @@ aV.Effect = function(element, animations, options)
 		animations = aV.config.Effect.sets[animations] || {};
 	
 	if (typeof animations == 'function')
-		animations = animations(element);
+		animations = animations.call(this);
+	
+	if (this.options.id)
+	{
+		if (!this.element.aVactiveEffects)
+			this.element.aVactiveEffects = {};
 		
+		if (this.element.aVactiveEffects[this.options.id])
+			this.element.aVactiveEffects[this.options.id].stop(true);
+		
+		this.element.aVactiveEffects[this.options.id] = this;
+	}
+	
 	if (animations instanceof Array)
 	{
 		var activeEffect = this;
@@ -196,7 +226,7 @@ aV.Effect.prototype._progress = function()
 	var finished = ++this.step == this.steps;
 	for (var i = 0, length = this.animations.length; i < length; i++) 
 		this._progressAnimation(i, finished);
-	this.options.ontick(this);
+	this.options.ontick.call(this);
 	if (finished)
 		this.stop();
 	return this;
@@ -243,13 +273,17 @@ aV.Effect.prototype.stop = function(stopAll)
 	{
 		window.clearInterval(this.ticker);
 		this.ticker = undefined;
-		if (this.options.onfinish instanceof Function)
-			this.options.onfinish(this);
+		for (var i = 0, length = this.options.onfinish.length; i < length; i++)
+			this.options.onfinish[i].call(this);
 		if (!stopAll && this.chainEffect)
 			this.chainEffect.start();
 	}
 	else if (stopAll && this.chainEffect)
 		this.chainEffect.stop(true);
+	
+	if (this.options.id && this.element.aVactiveEffects)
+		delete this.element.aVactiveEffects[this.options.id];
+
 	return this;
 };
 
@@ -279,7 +313,15 @@ aV.Effect.prototype.pause = function()
 
 aV.Effect.prototype.chain = function(animations, options, element)
 {
-	this.chainEffect = new aV.Effect(element || this.element, animations, options || this.options);
+	if (!options)
+	{
+		options = this.options.clone();
+		for (var i = 0, length = aV.config.Effects.uniqueOptions.length; i < length; i++)
+			if (options[aV.config.Effects.uniqueOptions])
+				delete options[aV.config.Effects.uniqueOptions];
+	}//reset event handlers to prevent chaos
+
+	this.chainEffect = new aV.Effect(element || this.element, animations, options);
 	this.chainEffect.baseEffect = this.baseEffect || this;
 	this.baseEffect = undefined;
 	return this.chainEffect;

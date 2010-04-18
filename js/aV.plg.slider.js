@@ -6,7 +6,7 @@
  * @version	1.2.1
  *
  * @requires	<a href="http://ampliovitam.com/JSLib_files/aV.main.visual.js">aV.main.visual.js</a>
- * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV || !aV.Visual)

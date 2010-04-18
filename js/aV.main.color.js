@@ -7,7 +7,7 @@
  * 
  * @requires aV.ext.object
  * @requires aV.ext.string
- * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)

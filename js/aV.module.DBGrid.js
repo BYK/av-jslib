@@ -6,7 +6,7 @@
  *
  * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 2.4
- * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV.config.DBGrid)

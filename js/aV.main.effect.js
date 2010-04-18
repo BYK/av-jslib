@@ -7,7 +7,7 @@
  *
  * @requires aV.ext.object
  * @requires aV.main.CSS
- * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!aV)
@@ -316,9 +316,9 @@ aV.Effect.prototype.chain = function(animations, options, element)
 	if (!options)
 	{
 		options = this.options.clone();
-		for (var i = 0, length = aV.config.Effects.uniqueOptions.length; i < length; i++)
-			if (options[aV.config.Effects.uniqueOptions])
-				delete options[aV.config.Effects.uniqueOptions];
+		for (var i = 0, length = aV.config.Effect.uniqueOptions.length; i < length; i++)
+			if (options[aV.config.Effect.uniqueOptions])
+				delete options[aV.config.Effect.uniqueOptions];
 	}//reset event handlers to prevent chaos
 
 	this.chainEffect = new aV.Effect(element || this.element, animations, options);

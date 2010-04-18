@@ -5,7 +5,7 @@
  * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version	1.3
  * 
- * @copyright &copy;2010 amplio-Vita under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
 if (!window.aV)

@@ -317,8 +317,8 @@ aV.Effect.prototype.chain = function(animations, options, element)
 	{
 		options = this.options.clone();
 		for (var i = 0, length = aV.config.Effect.uniqueOptions.length; i < length; i++)
-			if (options[aV.config.Effect.uniqueOptions])
-				delete options[aV.config.Effect.uniqueOptions];
+			if (options[aV.config.Effect.uniqueOptions[i]])
+				delete options[aV.config.Effect.uniqueOptions[i]];
 	}//reset event handlers to prevent chaos
 
 	this.chainEffect = new aV.Effect(element || this.element, animations, options);

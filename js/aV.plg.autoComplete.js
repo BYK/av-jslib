@@ -111,7 +111,7 @@ aV.AutoComplete._getRegExp = function(element)
 	var filter = element.aVautoComplete.currentFilter.escapeRegExp();
 	var regExpPattern = eval(element.aVautoComplete.regExpPattern || aV.config.AutoComplete.regExpPattern);
 	return new RegExp(regExpPattern, 'i');
-}
+};
 aV.AutoComplete._removeListBox = function(element)
 {
 	if (!element.aVautoComplete.listBox) 
@@ -120,9 +120,12 @@ aV.AutoComplete._removeListBox = function(element)
 		{
 			onfinish: function()
 			{
-				var listbox = this.element;
-				listBox.parentNode.removeChild(listBox);
-				delete element.aVautoComplete.listBox;
+				var listBox = this.element;
+				if (listBox && listBox.parentNode) 
+				{
+					listBox.parentNode.removeChild(listBox);
+					delete element.aVautoComplete.listBox;
+				}
 			},
 			id: 'aVautoCompleteEffect'
 		}
@@ -182,7 +185,7 @@ aV.AutoComplete._showListBox = function(element)
 			element.aVautoComplete.listBox.appendChild(newLi);
 		}
 	}
-	if (element.aVautoComplete.listBox.innerHTML != '') 
+	if (element.aVautoComplete.listBox.hasChildNodes()) 
 	{
 		if (element.aVautoComplete.onshowlistbox) 
 			element.aVautoComplete.onshowlistbox(
@@ -197,11 +200,10 @@ aV.AutoComplete._showListBox = function(element)
 			element.aVautoComplete.listBox.childNodes[0].className = aV.config.AutoComplete.classNames.selectedItem;
 		}
 		if (element.aVautoComplete.listBox.scrollHeight > element.aVautoComplete.listBox.clientHeight) //check if there is a vertical scrollbar
-
 			element.aVautoComplete.listBox.style.width = (element.aVautoComplete.listBox.clientWidth + 37) + 'px'; //expand the width according to the default scrollbar width to avoid overlapping with it
-
 	}
-	else aV.AutoComplete._removeListBox(element);
+	else
+		aV.AutoComplete._removeListBox(element);
 };
 aV.AutoComplete._itemize = function(value)
 {
@@ -263,7 +265,8 @@ aV.AutoComplete._doKeyUp = function(element)
 		aV.DOM.addClass(element, aV.config.AutoComplete.classNames.loading);
 		element.aVautoComplete.request = aV.AJAX.makeRequest(element.aVautoComplete.HTTPMethod || aV.config.AutoComplete.defaultHTTPMethod, element.aVautoComplete.source, params, processResponse);
 	}
-	else aV.AutoComplete._showListBox(element);
+	else
+		aV.AutoComplete._showListBox(element);
 	delete element.aVautoComplete.keyUpTimer;
 };
 aV.AutoComplete._onKeyUpHandler = function(event)

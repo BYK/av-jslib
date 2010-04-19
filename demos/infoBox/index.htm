@@ -1,23 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
 	<head>
 		<title>InfoBox Demo Page</title>
 		<script type="text/javascript" src="../../js/aV.ext.object.js"></script>
 		<script type="text/javascript" src="../../js/aV.ext.array.js"></script>
 		<script type="text/javascript" src="../../js/aV.ext.string.js"></script>
 		<script type="text/javascript" src="../../js/aV.ext.DOM.js"></script>
+		<script type="text/javascript" src="../../js/aV.main.CSS.js"></script>
 		<script type="text/javascript" src="../../js/aV.main.events.js"></script>
 		<script type="text/javascript" src="../../js/aV.main.ajax.js"></script>
 		<script type="text/javascript" src="../../js/aV.main.effect.js"></script>
 		<script type="text/javascript" src="../../js/aV.plg.infoBox.js"></script>
 		<script type="text/javascript" src="config.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/aV.plg.infoBox.css">
 	</head>
 	<body>
 		<h1>InfoBox Demo Page</h1>
 		<div id="content">
-			<a href="javascript:void(0)" onclick="aV.Visual.infoBox.show(generalVars['msg1'], aV.config.Visual.infoBox.images.info);">Click to show a message!</a><br />
-			<a href="javascript:void(0)" onmouseover="aV.Visual.infoBox.show(generalVars['msg2']);">Hover to show another message</a>
+			<a href="javascript:void(0)" onclick="aV.infoBox.show(generalVars['msg1'], aV.config.infoBox.images.info);">Click to show a message!</a><br />
+			<a href="javascript:void(0)" onmouseover="aV.infoBox.show(generalVars['msg2']);">Hover to show another message</a>
 		</div>
 	</body>
 </html>

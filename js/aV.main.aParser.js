@@ -123,14 +123,12 @@ aV.aParser.assignAttributesFromText=function(ruleText, propertyName, beforeSet, 
  * @param {String} fileAddress The address of the file which contains the rules with a CSS file like structure.
  * @param {Boolean} [includeStyleTags=true] Tells the function that whether it should use the inline style tags for additional rules.
  */
-aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags, includeInnerDefinitions)
+aV.aParser.assignAttributesFromFile=function(fileAddress, propertyName, beforeSet, afterSet, includeStyleTags)
 {
 	var secondaryInitializer=function()
 	{
 		if (includeStyleTags!==false)
 			aV.aParser.assignAttributesFromStyleTag(propertyName, beforeSet, afterSet);
-		if (includeInnerDefinitions!==false)
-			aV.aParser.assignAttributesFromInnerDefinitions(propertyName, beforeSet, afterSet);
 	};
 
 	var initializer=function(requestObject)
@@ -161,9 +159,4 @@ aV.aParser.assignAttributesFromStyleTag=function(propertyName, beforeSet, afterS
 	var styleTags=cssQuery('style[type="text/' + propertyName + '"]');
 	for (var i=0; i<styleTags.length; i++)
 		aV.aParser.assignAttributesFromText(styleTags[i].innerHTML, propertyName, beforeSet, afterSet);
-};
-
-aV.aParser.assignAttributesFromInnerDefinitions=function(propertyName, beforeSet, afterSet)
-{
-	aV.aParser.assignAttributesFromText("*[" + propertyName + "]{*}", propertyName, beforeSet, afterSet);
 };

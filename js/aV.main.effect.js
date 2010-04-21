@@ -51,7 +51,7 @@ aV.config.Effect.unite(
 			{
 				var pattern = /^([.\d]+_|)([.\d]+)/, matchInfo, startValue;
 				matchInfo = pattern.exec(options.value);
-				startValue = parseFloat(matchInfo[1]) || aV.CSS.getOpacity(element) || 0;
+				startValue = parseFloat(matchInfo[1] || aV.CSS.getOpacity(element)) || 0;
 				
 				return [
 					{
@@ -179,7 +179,6 @@ aV.Effect = function(element, animations, options)
 	if (!(this.options.onfinish instanceof Array))
 		this.options.onfinish = [this.options.onfinish];
 
-	this.step = 0;
 	this.steps = Math.round(this.options.duration / this.options.interval)
 	
 	if (typeof animations == 'string')
@@ -228,7 +227,10 @@ aV.Effect.prototype._progress = function()
 		this._progressAnimation(i, finished);
 	this.options.ontick.call(this);
 	if (finished)
-		this.stop();
+		if (this.options.loop)
+			this.start();
+		else
+			this.stop();
 	return this;
 };
 
@@ -242,6 +244,7 @@ aV.Effect.prototype.start = function()
 	}
 	
 	this.animations = [];
+	this.step = 0;
 	var animations = this.animationInitializers,
 	start, animationName, animationSet, animation;
 
@@ -291,7 +294,7 @@ aV.Effect.prototype.resume = function()
 {
 	if (this.activeEffect) 
 		return this.activeEffect.resume();
-	else 
+	else if (!this.ticker)
 	{
 		var self = this;
 		this.ticker = window.setInterval(function() {self._progress()}, this.options.interval);

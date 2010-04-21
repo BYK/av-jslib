@@ -12,11 +12,12 @@ if (!aV)
  * Represents the namespace for AutoComplete functions.
  *
  * @namespace
- * @requires {@link String} (aV.ext.string.js)
- * @requires {@link aV.Events} (aV.main.events.js)
- * @requires {@link aV.AJAX} (aV.main.ajax.js)
- * @requires {@link aV.Effect} (aV.main.effect.js)
- * @requires {@link aV.aParser} (aV.main.aParser.js)
+ * @requires aV.ext.string.js
+ * @requires aV.ext.array.js
+ * @requires aV.main.events.js
+ * @requires aV.main.ajax.js
+ * @requires aV.main.effect.js
+ * @requires aV.main.aParser.js
  *
  * @param {String} [config.ruleFile='autoCompleteRules.txt'] Path to the external file which contains the rule definitons for editable items.
  * @param {integer} [config.listBoxOfset=3] The vertical offset from the input boxes for the list boxes which will be displayed.
@@ -114,22 +115,9 @@ aV.AutoComplete._getRegExp = function(element)
 };
 aV.AutoComplete._removeListBox = function(element)
 {
-	if (!element.aVautoComplete.listBox) 
+	if (!element.aVautoComplete.listBox || element.aVautoComplete.listBox.style.display == 'none')
 		return;
-	new aV.Effect(element.aVautoComplete.listBox, {fade: {value: 0}},
-		{
-			onfinish: function()
-			{
-				var listBox = this.element;
-				if (listBox && listBox.parentNode) 
-				{
-					listBox.parentNode.removeChild(listBox);
-					delete element.aVautoComplete.listBox;
-				}
-			},
-			id: 'aVautoCompleteEffect'
-		}
-	).start();
+	new aV.Effect(element.aVautoComplete.listBox, 'fade',	{id: 'aVautoCompleteEffect'}).start();
 };
 aV.AutoComplete._showListBox = function(element)
 {
@@ -139,7 +127,7 @@ aV.AutoComplete._showListBox = function(element)
 		element.aVautoComplete.listBox.id = aV.config.AutoComplete.classNames.listbox + aV.AutoComplete.listBoxCounter++;
 		element.aVautoComplete.listBox.className = aV.config.AutoComplete.classNames.listbox;
 		element.aVautoComplete.listBox.style.position = 'absolute';
-		aV.CSS.setOpacity(element.aVautoComplete.listBox, 0);
+		element.aVautoComplete.listBox.style.display = 'none';
 		document.body.appendChild(element.aVautoComplete.listBox);
 	}
 	element.aVautoComplete.listBox.innerHTML = '';
@@ -193,7 +181,8 @@ aV.AutoComplete._showListBox = function(element)
 				type: 'showlistbox',
 				target: element
 			});
-		new aV.Effect(element.aVautoComplete.listBox, {fade: {value: 1}}, {id: 'aVautoCompleteEffect'}).start();
+		if (element.aVautoComplete.listBox.style.display == 'none')
+			new aV.Effect(element.aVautoComplete.listBox, 'fade', {id: 'aVautoCompleteEffect'}).start();
 		if (element.aVautoComplete.autoSelectFirst) 
 		{
 			element.aVautoComplete.list.selectedIndex = 0;

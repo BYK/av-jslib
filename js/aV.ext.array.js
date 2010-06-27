@@ -5,7 +5,7 @@
  * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 1.1
  *
- * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @copyright (c)2010 amplioVitam under Apache License, Version 2.0
  */
 
 /* backup the original indexOf if exists */
@@ -22,16 +22,16 @@ if (Array.prototype.indexOf)
  * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
  * @return {Integer} The index of the found element or -1
  */
-Array.prototype.indexOf=function(element, strictMatch, startFrom, compareFunction)
+Array.prototype.indexOf = function(element, strictMatch, startFrom, compareFunction)
 {
 	if (!compareFunction)
 		/**
 		 * @ignore
 		 */
-		compareFunction=(strictMatch)?function(a, b){return (a===b)}:function(a, b){return (a==b)};
-	if (!(startFrom>0))
-		startFrom=0;
-	for (; startFrom<this.length; startFrom++)
+		compareFunction = (strictMatch) ? function(a, b){return (a === b)} : function(a, b){return (a == b)};
+	if (!(startFrom > 0))
+		startFrom = 0;
+	for (; startFrom < this.length; startFrom++)
 		if (compareFunction(this[startFrom], element))
 			return startFrom;
 	return -1;
@@ -43,16 +43,16 @@ Array.prototype.indexOf=function(element, strictMatch, startFrom, compareFunctio
  * @param {Boolean} [recursive=false] Indicates wheter the function should be applied to possible sub-elements.
  * @return {Array} Returns the modified array, a.k.a itself.
  */
-Array.prototype.each=function(unitFunction, recursive)
+Array.prototype.each = function(unitFunction, recursive)
 {
 	if (!unitFunction)
 		return false;
 	
-	for (var i=0; i<this.length; i++)
+	for (var i = 0; i < this.length; i++)
 		if (recursive && (this[i] instanceof Array))
-			this[i]=this[i].each(unitFunction, true);
+			this[i] = this[i].each(unitFunction, true);
 		else
-			this[i]=unitFunction(this[i]);
+			this[i] = unitFunction(this[i]);
 	
 	return this;
 };
@@ -65,21 +65,21 @@ Array.prototype.each=function(unitFunction, recursive)
  * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The deduplicated array, itself.
  */
-Array.prototype.deduplicate=function(strictMatch, compareFunction, recursive)
+Array.prototype.deduplicate = function(strictMatch, compareFunction, recursive)
 {
 	var dupIndex;
-	for (var i=0; i<this.length; i++)
+	for (var i = 0; i < this.length; i++)
 		if (recursive && (this[i] instanceof Array))
-			this[i]=this[i].deduplicate(strictMatch, true);
+			this[i] = this[i].deduplicate(strictMatch, true);
 		else
-			while ((dupIndex=this.indexOf(this[i], strictMatch, i+1, compareFunction))>-1)
+			while ((dupIndex = this.indexOf(this[i], strictMatch, i + 1, compareFunction)) > -1)
 				this.splice(dupIndex, 1);
 	
 	return this;
 };
 
 /**
- * Scans the whole array and destroy any element which the array has more than one copy of it.
+ * Scans the whole array and destroys any element which the array has more than one copy of it.
  * Note that this function is just like Array.prototype.deduplicate but it removes the original elements having duplicates also. 
  * 
  * @param {Boolean} [strictMatch=false] Wheter the function should use a "forced type equality comparator" while comparing two elements or not.
@@ -87,7 +87,7 @@ Array.prototype.deduplicate=function(strictMatch, compareFunction, recursive)
  * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The simplified array, itself.
  */
-Array.prototype.simplify=function(strictMatch, compareFunction, recursive)
+Array.prototype.simplify = function(strictMatch, compareFunction, recursive)
 {
 	var dupIndex;
 	var i=0;
@@ -120,7 +120,7 @@ Array.prototype.simplify=function(strictMatch, compareFunction, recursive)
  */
 Array.prototype.pad=function(newLength, value)
 {
-	while (this.length<newLength)
+	while (this.length < newLength)
 		this.push(value);
 	return this;
 };

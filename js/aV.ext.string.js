@@ -157,6 +157,7 @@ String.prototype.trimToLength = function(length, replacement)
  *
  * @return {String} The left-trimmed string.
  */
+if (!String.prototype.trimLeft)
 String.prototype.trimLeft = function(trimChars)
 {
 	if (!trimChars)
@@ -172,6 +173,7 @@ String.prototype.trimLeft = function(trimChars)
  *
  * @return {String} The right-trimmed string.
  */
+if (!String.prototype.trimRight)
 String.prototype.trimRight = function(trimChars)
 {
 	if (!trimChars)
@@ -187,6 +189,7 @@ String.prototype.trimRight = function(trimChars)
  *
  * @return {String} The trimmed string.
  */
+if (!String.prototype.trim)
 String.prototype.trim = function(trimChars)
 {
 	if (!trimChars)

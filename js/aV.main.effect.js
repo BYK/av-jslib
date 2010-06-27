@@ -227,10 +227,7 @@ aV.Effect.prototype._progress = function()
 		this._progressAnimation(i, finished);
 	this.options.ontick.call(this);
 	if (finished)
-		if (this.options.loop)
-			this.start();
-		else
-			this.stop();
+		this.stop();
 	return this;
 };
 
@@ -280,6 +277,8 @@ aV.Effect.prototype.stop = function(stopAll)
 			this.options.onfinish[i].call(this);
 		if (!stopAll && this.chainEffect)
 			this.chainEffect.start();
+		else if (this.options.loop)
+			this.start();
 	}
 	else if (stopAll && this.chainEffect)
 		this.chainEffect.stop(true);

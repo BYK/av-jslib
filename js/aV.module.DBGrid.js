@@ -785,7 +785,7 @@ aV.DBGrid.prototype.refreshData = function(fullRefresh, preserveState)
 		this.parameters,
 		completedFunction,
 		loadingFunction,
-		null,
+		{'Range': 'rows=0-'},
 		false
 	);
 };

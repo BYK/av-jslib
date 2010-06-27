@@ -5,7 +5,8 @@
  * @author Burak Yiğit KAYA	<byk@ampliovitam.com>
  * @version 1.0
  *
- * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires aV.ext.string.js
+ * @copyright (c)2010 amplioVitam under Apache License, Version 2.0
  */
 
 if (!window.aV)
@@ -24,7 +25,7 @@ aV.DOM = {};
  *
  * @return {Integer} Internal usable width of the page.
  */
-aV.DOM.windowClientWidth=function()
+aV.DOM.windowClientWidth = function()
 {
 	return aV.DOM._filterResults (
 		window.innerWidth ? window.innerWidth : 0,
@@ -38,7 +39,7 @@ aV.DOM.windowClientWidth=function()
  *
  * @return {Integer} The internal usable height of the page.
  */
-aV.DOM.windowClientHeight=function()
+aV.DOM.windowClientHeight = function()
 {
 	return aV.DOM._filterResults (
 		window.innerHeight ? window.innerHeight : 0,
@@ -52,7 +53,7 @@ aV.DOM.windowClientHeight=function()
  *
  * @return {Integer} The scroll offset of the page from the left for page.
  */
-aV.DOM.windowScrollLeft=function()
+aV.DOM.windowScrollLeft = function()
 {
 	return aV.DOM._filterResults (
 		window.pageXOffset ? window.pageXOffset : 0,
@@ -66,7 +67,7 @@ aV.DOM.windowScrollLeft=function()
  *
  * @return {Integer} The scroll offset of the page from the top for page.
  */
-aV.DOM.windowScrollTop=function()
+aV.DOM.windowScrollTop = function()
 {
 	return aV.DOM._filterResults (
 		window.pageYOffset ? window.pageYOffset : 0,
@@ -81,7 +82,7 @@ aV.DOM.windowScrollTop=function()
  * @private
  * @return	{Integer}
  */
-aV.DOM._filterResults=function(n_win, n_docel, n_body)
+aV.DOM._filterResults = function(n_win, n_docel, n_body)
 {
 	var n_result = n_win ? n_win : 0;
 	if (n_docel && (!n_result || (n_result > n_docel)))
@@ -98,11 +99,11 @@ aV.DOM._filterResults=function(n_win, n_docel, n_body)
  * @param {String} [seperator=' '] The seperator, which seperates the multiple, different classnames.
  * @return {Object} If the element has class, returns the regexp result object, else undefined.
  */
-aV.DOM.hasClass=function(element, className, seperator)
+aV.DOM.hasClass = function(element, className, seperator)
 {
-	if (!seperator || seperator.length>1)
-		seperator=' ';
-	var matcher=new RegExp("[%0:s]?%1:s[%0:s]?".format(seperator.escapeRegExp(), className.escapeRegExp()));
+	if (!seperator || seperator.length > 1)
+		seperator = ' ';
+	var matcher = new RegExp("[%0:s]?%1:s[%0:s]?".format(seperator.escapeRegExp(), className.escapeRegExp()));
 	return element.className.match(matcher);
 };
 
@@ -114,12 +115,12 @@ aV.DOM.hasClass=function(element, className, seperator)
  * @param {String} [seperator=' '] The seperator, which seperates the multiple, different classnames.
  * @return {HTMLElementObject} The element given in the element parameter.
  */
-aV.DOM.addClass=function(element, className, seperator)
+aV.DOM.addClass = function(element, className, seperator)
 {
 	if (!seperator)
-		seperator=' ';
+		seperator = ' ';
 	if (!aV.DOM.hasClass(element, className, seperator))
-		element.className+=seperator + className;
+		element.className += seperator + className;
 	else
 		return false;
 	return element;
@@ -133,12 +134,12 @@ aV.DOM.addClass=function(element, className, seperator)
  * @param {String} [seperator=' '] The seperator, which seperates the multiple, different classnames.
  * @return {Boolean} Returns true if the element no longer has the given class else, returns false.
  */
-aV.DOM.removeClass=function(element, className, seperator)
+aV.DOM.removeClass = function(element, className, seperator)
 {
 	if (!seperator)
-		seperator=' ';
-	var matcher=new RegExp("[%0:s]?%1:s[%0:s]?".format(seperator.escapeRegExp(), className.escapeRegExp()));
-	element.className=element.className.replace(matcher, '');
+		seperator = ' ';
+	var matcher = new RegExp("[%0:s]?%1:s[%0:s]?".format(seperator.escapeRegExp(), className.escapeRegExp()));
+	element.className = element.className.replace(matcher, '');
 	return !element.className.match(matcher);
 };
 
@@ -155,13 +156,13 @@ aV.DOM.hasAsParent=function(element, target, maxDepth)
 	if (!element || !target)
 		return false;
 	else
-		element=element.parentNode;
+		element = element.parentNode;
 
-	var counter=0;
-	while (element && element!=target && (!maxDepth || ++counter<=maxDepth))
+	var counter = 0;
+	while (element && element != target && (!maxDepth || ++counter <= maxDepth))
 		element=element.parentNode;
 	
-	return (element && element==target)?counter:false;
+	return (element && element == target)?counter : false;
 };
 
 /**
@@ -184,13 +185,15 @@ aV.DOM.removeChildren=function(element)
  * @param {HTMLElement} element The element whoose coordinates will be calculated.
  * @return {Object} Returns an object having x and y properties holding the coordinates.
  */
-aV.DOM.getElementCoordinates=(document.documentElement.getBoundingClientRect)?
+aV.DOM.getElementCoordinates = (document.documentElement.getBoundingClientRect) ?
 function(element)
 {
 	if (!element.ownerDocument)
 		return false;
 
-  var result={x: 0, y:0}, elementBox = element.getBoundingClientRect(), docElement = element.ownerDocument.documentElement;
+  var result = {x: 0, y:0},
+	elementBox = element.getBoundingClientRect(),
+	docElement = element.ownerDocument.documentElement;
 
   result.x = elementBox.left - docElement.clientLeft + aV.DOM.windowScrollLeft();
   result.y = elementBox.top - docElement.clientTop + aV.DOM.windowScrollTop();
@@ -204,10 +207,10 @@ function(element)
 	
 	do
 	{
-		result.x+=element.offsetLeft - element.scrollLeft;
-		result.y+=element.offsetTop - element.scrollTop;
+		result.x += element.offsetLeft - element.scrollLeft;
+		result.y += element.offsetTop - element.scrollTop;
 	}
-	while ((element=element.offsetParent) && (element!=document.documentElement))
+	while ((element = element.offsetParent) && (element != document.documentElement))
 
   return result;
 };

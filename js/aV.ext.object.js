@@ -5,7 +5,8 @@
  * @author Burak Yiğit KAYA <byk@ampliovitam.com>
  * @version 1.0
  *
- * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
+ * @requires aV.ext.string.js
+ * @copyright 2010 amplioVitam under Apache License, Version 2.0
  */
 
 /**
@@ -16,18 +17,18 @@
   */
 Object.prototype.toQueryString=function(format, encodeURI)
 {
-	if (typeof format!='string')
-		format='%s';
-	var result='';
+	if (typeof format != 'string')
+		format = '%s';
+	var result = '';
 	for (var paramName in this) 
 	{
-		if (this.constructor==Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName]===undefined || this[paramName]===null)
+		if (this.constructor == Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName] === undefined || this[paramName] === null)
 			continue;
 
-		if (this[paramName].constructor==Object || this[paramName].constructor==Array)
+		if (this[paramName].constructor == Object || this[paramName].constructor == Array)
 			result += '&' + this[paramName].toQueryString(format.format(paramName) + '[%s]', encodeURI);
 		else
-			result += '&' + format.format(paramName) + '=' + ((encodeURI!==false)?encodeURIComponent(this[paramName]):this[paramName]);
+			result += '&' + format.format(paramName) + '=' + ((encodeURI !== false) ? encodeURIComponent(this[paramName]) : this[paramName]);
 	}
 	return result.substr(1);
 };
@@ -38,10 +39,10 @@ Object.prototype.toQueryString=function(format, encodeURI)
  * @param {Object} additive The object which should be merged with the current object.
  * @param {Boolean} [overwrite=true] Indicates whter the function should overwrite the possible existing values in the base object with the ones from the additive.
  */
-Object.prototype.unite=function(additive, overwrite)
+Object.prototype.unite = function(additive, overwrite)
 {
-	if (overwrite!==false)
-		overwrite=true;
+	if (overwrite !== false)
+		overwrite = true;
 	if (!additive || !additive.hasOwnProperty)
 		return this;
 	for (var property in additive) 
@@ -99,9 +100,9 @@ Object.fromQueryString=function(source)
 {
 	var itemList;
 	if (source instanceof Array)
-		itemList=source;
-	else if (typeof source=='string')
-		itemList=source.split('&');
+		itemList = source;
+	else if (typeof source == 'string')
+		itemList = source.split('&');
 	else
 		return false;
 
@@ -115,8 +116,8 @@ Object.fromQueryString=function(source)
 		if (!(pair && pair[1]))
 			continue;
 		
-		var currentObject=result;
-		var arr=pair[1].match(objectPattern);
+		var currentObject = result;
+		var arr = pair[1].match(objectPattern);
 		for (var j = 0; j < arr.length - 1; j++) 
 		{
 			if (!currentObject[arr[j]])
@@ -145,21 +146,21 @@ Object.fromQueryString=function(source)
  * @param {Boolean} [includeRoot] Whether the "required" main container node should be a part of the resultant object or not.
  * @return {Object} The native JavaScript object which is contructed from the given XML data or false if any error occured.
  */
-Object.fromXML=function(source, includeRoot)
+Object.fromXML = function(source, includeRoot)
 {
 	if (typeof source=='string')
 	{
 		try
 		{
 			if (window.DOMParser)
-				source=(new DOMParser()).parseFromString(source, "application/xml");
+				source = new DOMParser().parseFromString(source, "application/xml");
 			else if (window.ActiveXObject)
 			{
-				var xmlObject=new ActiveXObject("Microsoft.XMLDOM");
-				xmlObject.async=false;
+				var xmlObject = new ActiveXObject("Microsoft.XMLDOM");
+				xmlObject.async = false;
 				xmlObject.loadXML(source);
-				source=xmlObject;
-				xmlObject=undefined;
+				source = xmlObject;
+				xmlObject = undefined;
 			}
 			else
 				throw new Error("Cannot find an XML parser!");
@@ -169,11 +170,12 @@ Object.fromXML=function(source, includeRoot)
 			return false;
 		}
 	}
-	var result={};
-	if (source.nodeType==9)
-		source=source.firstChild;
+
+	var result = {};
+	if (source.nodeType == 9)
+		source = source.firstChild;
 	if (!includeRoot)
-		source=source.firstChild;
+		source = source.firstChild;
 
 	while (source) 
 	{
@@ -204,7 +206,7 @@ Object.fromXML=function(source, includeRoot)
  */
 if (window.JSON)
 {
-	Object.prototype.toJSONStr=function(replacer, space)
+	Object.prototype.toJSONStr = function(replacer, space)
 	{
 		return JSON.stringify(this, replacer, space);
 	};

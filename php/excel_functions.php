@@ -136,4 +136,8 @@
 			return arrayToExcel97($array,$fields,$tableName);
 		}	
 	}
+	function tagName($tag_name)
+	{
+		return str_replace('/','_',$tag_name);
+	}
 ?>

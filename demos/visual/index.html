@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<!--
+	<!--
+
 Design by Free CSS Templates
 http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
@@ -8,22 +8,51 @@ Released for free under a Creative Commons Attribution 2.5 License
 Title      : MiscellaneousVersion    : 1.0
 Released   : 20081010
 Description: A two-column, fixed-width and lightweight template ideal for 1024x768 resolutions. Suitable for blogs and small websites.
+
 -->
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Miscellaneous by Free Css Templates</title>
-	<meta name="keywords" content="" />
-	<meta name="description" content="" />
-	<link href="default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../../js/aV.ext.object.js"></script>
-	<script type="text/javascript" src="../../js/aV.ext.string.js"></script>
-	<script type="text/javascript" src="../../js/aV.ext.array.js"></script>
-	<script type="text/javascript" src="../../js/aV.ext.math.js"></script>
-	<script type="text/javascript" src="../../js/aV.ext.DOM.js"></script>
-	<script type="text/javascript" src="../../js/aV.main.events.js"></script>
-	<script type="text/javascript" src="../../js/aV.main.color.js"></script>
-	<script type="text/javascript" src="../../js/aV.main.CSS.js"></script>
-	<script type="text/javascript" src="../../js/aV.main.effect.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Miscellaneous by Free Css Templates</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="default.css" rel="stylesheet" type="text/css" />
+<script src="../../js/ext.main.domQuery.js" type="text/javascript"></script>
+<script type="text/javascript" src="../../js/aV.ext.string.js"></script>
+<script type="text/javascript" src="../../js/aV.ext.array.js"></script>
+<script type="text/javascript" src="../../js/aV.ext.object.js"></script>
+<script type="text/javascript" src="../../js/aV.ext.math.js"></script>
+<script type="text/javascript" src="../../js/aV.ext.DOM.js"></script>
+<script type="text/javascript" src="../../js/aV.main.events.js"></script>
+<script type="text/javascript" src="../../js/aV.main.ajax.js"></script>
+<script type="text/javascript" src="../../js/aV.main.color.js"></script>
+<script type="text/javascript" src="../../js/aV.main.CSS.js"></script>
+<script type="text/javascript" src="../../js/aV.main.aParser.js"></script>
+<script type="text/javascript" src="../../js/aV.main.effect.js"></script>
+<script type="text/javascript" src="../../js/aV.plg.infoBox.js"></script>
+<script type="text/javascript" src="../../js/aV.module.DBGrid.js"></script>
+<script type="text/javascript" src="../../js/aV.plg.autoComplete.js"></script>
+<script type="text/javascript" src="../../js/aV.plg.quickEdit.js"></script>
+<script type="text/javascript" src="ultimateDemo.js"></script>
+<link type="text/css" href="file_types.css" rel="stylesheet" />
+<link type="text/css" href="../../css/aV.module.DBGrid-css.php" rel="stylesheet" />
+<link type="text/css" href="../../css/aV.plg.infoBox.css" rel="stylesheet" />
+<link type="text/css" href="../../css/aV.plg.autoComplete.css" rel="stylesheet" />
+<link type="text/css" href="../../css/aV.plg.quickEdit.css" rel="stylesheet" />
+<style type="text/aVquickEdit">
+	table.aVDBGrid tbody td
+	{
+		action: 'update.php',
+		params: 'code=' + aV.DBGrid.getOwnerObject(element).properties.row[element.parentNode.dataIndex].Code
+				+ '&column=' + element.getAttribute('column')
+				+ '&value',
+		condition: 1
+	}
+	table.aVDBGrid tr.groupedRow td, table.aVDBGrid tbody td:nth-child(1)
+	{
+		condition: 0
+	}
+</style>
 </head>
 <body>
 <div id="wrapper">
@@ -37,7 +66,7 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 		<ul>
 			<li class="active"><a href="#">homepage</a></li>
 			<li><a href="#" onclick="new aV.Effect(document.getElementById('welcomePage'), 'fade').chain('fade', null, document.getElementById('photoGalleryPage')).start()">photo gallery</a></li>
-			<li><a href="#">about us</a></li>
+			<li><a href="#" onclick="new aV.Effect(document.getElementById('welcomePage'), 'fade',{onfinish:startUltimateDemo}).chain('fade', null, document.getElementById('ultimateDemoPage')).start()">Ultimate Demo</a></li>
 			<li><a href="#">contact us</a></li>
 		</ul>
 	</div>
@@ -52,7 +81,7 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 	<div id="content">
 		<div id="welcomePage">
 			<div class="post">
-				<h1 class="title"">Welcome to Miscellaneous</h1>
+				<h1 class="title" onclick="aV.Visual.newFade(document.getElementById('welcomeEntry'), {to: 0, duration: 750, callback: function(element){alert('%s is hidden now!'.format(element.id));}})">Welcome to Miscellaneous</h1>
 				<div id="welcomeEntry" class="entry">
 					<p>This is Miscellaneous, a free, fully standards-compliant CSS template designed byFreeCssTemplates<a href="http://www.nodethirtythree.com/"></a> for <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>. This free template is released under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attributions 2.5</a> license, so you’re pretty much free to do whatever you want with it (even use it commercially) provided you keep the links in the footer intact. Aside from that, have fun with it :)</p>
 					<p>Donec a ante. Donec neque purus, adipiscing id, eleifend a, cursus vel, odio. Vivamus varius justo sit amet leo. Morbi sed libero. Vestibulum blandit augue at mi. Praesent fermentum lectus eget diam. Nam cursus, orci sit amet porttitor iaculis, ipsum massa aliquet nulla, non elementum mi elit a mauris. In hac habitasse platea.</p>
@@ -62,31 +91,9 @@ Description: A two-column, fixed-width and lightweight template ideal for 1024x7
 				</div>
 			</div>
 			<div class="post">
-				<h2 class="title">Sample Code</h2>
+				<h2 class="title">Lorem Ipsum Dolor Volutpat</h2>
 				<div class="entry">
-					<textarea id="sampleCode" rows="20" cols="80">
-window.sampleEffect = new aV.Effect(
-	document.getElementById('sideList1'),
-	{style: {height: '0', width: '0', converger: 'power'}},
-	{duration: 2000}
-).chain(
-	{fade: {value: '0'}},
-	{duration: 1000},
-	document.getElementById('welcomeEntry')
-).chain(
-	{fade: {value: '1', converger: 'trigonometric'}}
-).chain(
-	{color: {backgroundColor: 'ffff00', converger: 'trigonometric'}}
-).chain(
-	{color: {backgroundColor: 'fff'}}
-).chain(
-	{style: {height: '100_224px', width: '100_200px', converger: 'trigonometric'}},
-	{duration: 1000},
-	document.getElementById('sideList1')
-).start();
-setTimeout(function(){window.sampleEffect.pause();}, 2500);
-setTimeout(function(){window.sampleEffect.resume();}, 3500);</textarea><br />
-					<button onclick="eval(document.getElementById('sampleCode').value)">Run Code</button>
+					<p>Curabitur tellus. Phasellus tellus turpis, iaculis in, faucibus lobortis, posuere in, lorem. Donec a ante. Donec neque purus, adipiscing id, eleifend a, cursus vel, odio. Vivamus varius justo sit amet leo. Morbi sed libero. Vestibulum blandit augue at mi. Praesent fermentum lectus eget diam. Nam cursus, orci sit amet porttitor iaculis, ipsum massa aliquet nulla, non elementum mi elit a mauris. In hac habitasse platea. Donec a ante. Donec neque purus, adipiscing id, eleifend a, cursus vel, odio. Vivamus varius justo sit amet leo. Morbi sed libero. </p>
 				</div>
 				<div class="meta">
 					<p class="links"><a href="#" class="more">Read full article</a>&nbsp;&nbsp;&raquo;&nbsp;&nbsp;<a href="#" class="comments">View Comments (32)</a></p>
@@ -110,6 +117,14 @@ setTimeout(function(){window.sampleEffect.resume();}, 3500);</textarea><br />
 				</div>
 			</div>
 		</div>
+		<div id="ultimateDemoPage" style="display: none;">
+			<div class="post">
+				<h1 class="title">Ultimate Demo</h1>
+				<div class="entry">
+					<div id="ultDBGrid"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<!-- end content -->
 	<!-- start sidebar -->
@@ -125,7 +140,7 @@ setTimeout(function(){window.sampleEffect.resume();}, 3500);</textarea><br />
 				</form>
 			</li>
 			<li>
-				<h2>Lorem Ipsum</h2>
+				<h2 onclick="aV.Visual.resize(document.getElementById('sideList1'), 0, 0, 2000, 'power')">Lorem Ipsum</h2>
 				<ul id="sideList1">
 					<li><a href="#">Fusce dui neque fringilla</a></li>
 					<li><a href="#">Eget tempor eget nonummy</a></li>

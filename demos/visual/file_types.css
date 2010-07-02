@@ -1,0 +1,50 @@
+a[href $='.xls'], a[href $='.xlsb']
+{
+	background: transparent url('file_types/xls.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a[href $='.pdf']
+{
+	background: transparent url('file_types/pdf.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a[href $='.xml']
+{
+	background: transparent url('file_types/xml.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a[href $='.js'], a[href $='.json']
+{
+	background: transparent url('file_types/script.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+
+/* For IE6 */
+a.xls_file, a.xlsb_file
+{
+	background: transparent url('file_types/xls.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a.pdf_file
+{
+	background: transparent url('file_types/pdf.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a.xml_file
+{
+	background: transparent url('file_types/xml.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}
+a.js_file, a.json_file
+{
+	background: transparent url('file_types/script.gif') no-repeat center right;
+	padding: 5px 20px 5px 0;
+	line-height: 16px;
+}

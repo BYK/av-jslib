@@ -1,0 +1,17 @@
+.aVDBGrid
+{
+	border-collapse: collapse!important;
+}
+.aVDBGrid caption .title
+{
+	width: 75%;
+	text-align: left!important;
+}
+.aVDBGridColumnList
+{
+	margin-top: 63px;
+}
+.aVDBGrid tbody
+{
+	height: auto!important;
+}

@@ -15,7 +15,7 @@ if (!aV.config.DBGrid)
 aV.config.DBGrid.unite(
 	{
 		maxSortAccumulation: 4,
-		resizeLockOffset: 10,
+		resizeLockOffset: 6,
 		minColWidth: 20, //should be >= 2*resizeLockOffset
 		maxBodyHeight: -1,
 		minCharsToFilter: 2,
@@ -36,6 +36,7 @@ aV.config.DBGrid.unite(
 				fetchbegin: 'Gathering data...',
 				printbegin: 'Creating table...',
 				sortbegin: 'Sorting table...',
+				sortend: 'Table sorted.',
 				groupbegin: 'Groping rows...',
 				ungroupbegin: 'Ungrouping rows...',
 				printend: 'Table is ready to use.',
@@ -349,11 +350,11 @@ aV.DBGrid._columnHeaderClickHandler = function(event)
 aV.DBGrid._titleMouseMoveHandler = function(event)
 {
 	var obj = event.target;
-	
+
 	if (aV.DBGrid._activeResizer == obj)
 		return;
-	
-	var clientX = (event.layerX)?event.layerX-obj.offsetLeft:event.clientX-aV.DOM.getElementCoordinates(obj).x;
+
+	var clientX = event.clientX - aV.DOM.getElementCoordinates(obj).x;
 	obj.initialPos = clientX;
 	if ((obj.offsetWidth - clientX) <= aV.config.DBGrid.resizeLockOffset)
 		obj.style.cursor = "e-resize";
@@ -366,7 +367,7 @@ aV.DBGrid._titleMouseMoveHandler = function(event)
 aV.DBGrid._lockResize = function(event)
 {
 	var obj = event.target,
-	    clientX = (event.layerX)?event.layerX-obj.offsetLeft:event.clientX-aV.DOM.getElementCoordinates(obj).x;
+	clientX = event.clientX - aV.DOM.getElementCoordinates(obj).x;
 	
 	if ((obj.offsetWidth - clientX) > aV.config.DBGrid.resizeLockOffset && clientX > aV.config.DBGrid.resizeLockOffset)
 		return;
@@ -425,8 +426,8 @@ aV.DBGrid._doResize = function(event)
 	if (!obj.initialPos)
 		return true;
 
-	var clientX = (event.layerX)?event.layerX-obj.offsetLeft:event.clientX-aV.DOM.getElementCoordinates(obj).x,
-	    change = clientX - obj.initialPos;
+	var clientX = event.clientX-aV.DOM.getElementCoordinates(obj).x,
+	change = clientX - obj.initialPos;
 	
 	if ((obj.initialWidth + change) < aV.config.DBGrid.minColWidth || (obj.visibleNextSibling && (obj.visibleNextSibling.initialWidth - change) < aV.config.DBGrid.minColWidth))
 		return false;
@@ -1270,14 +1271,11 @@ aV.DBGrid.prototype._adjustHeight = function()
 	if (!this.tableElement)	return;
 
 	var tableBody = this.tableElement.tBodies[0],
-	    maxBodyHeight = (this.properties.maxBodyHeight !== undefined)?this.properties.maxBodyHeight:aV.config.DBGrid.maxBodyHeight,
-	    calculatedHeight = (maxBodyHeight > 0)?maxBodyHeight:aV.DOM.windowClientHeight() - this.tableElement.caption.offsetHeight - this.tableElement.tHead.offsetHeight - this.tableElement.tFoot.offsetHeight - 10
-	//IE conditional comments to force unlimited height
-	/*@cc_on
-	calculatedHeight = 0;
-	@*/
+  maxBodyHeight = (this.properties.maxBodyHeight !== undefined) ? this.properties.maxBodyHeight : aV.config.DBGrid.maxBodyHeight,
+  calculatedHeight = (maxBodyHeight > 0) ? maxBodyHeight:aV.DOM.windowClientHeight() - this.tableElement.caption.offsetHeight - this.tableElement.tHead.offsetHeight - this.tableElement.tFoot.offsetHeight - 10
 
-	if (!calculatedHeight || !this.properties.row.length || tableBody.scrollHeight <= calculatedHeight) 
+	tableBody.style.height = "10px";
+	if (!calculatedHeight || !this.properties.row.length || tableBody.scrollHeight <= calculatedHeight || tableBody.clientHeight != parseInt(tableBody.style.height)) 
 	{
 		tableBody.style.height = 'auto';
 		this.tableElement.dummyColumn.each(function(element){element.style.display = 'none'; return element;});

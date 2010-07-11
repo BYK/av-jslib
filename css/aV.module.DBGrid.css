@@ -1,22 +1,15 @@
 .aVDBGrid
 {
-	[if lt IE 8] border-collapse: collapse;
-	[if ! lt IE 8] border-collapse: separate;
-	[if ! lt IE 8] border-spacing: 0px;
+	border-collapse: separate;
+	border-spacing: 0px;
 	border: 1px solid;
 	border-top: none;
-	overflow: hidden;
 	font-size: 8pt;
-	table-layout: fixed;
 	width: 99%;
 	z-index: 5;
 	font-family: verdana;
 	margin: auto;
 	margin-bottom: 4px;
-	/* Conditional lines for Firefox 2 and below bug */
-	[if lt Gecko 1.9] float: left;
-	[if lt Gecko 1.9] clear: both;
-	[if lt Gecko 1.9] margin: 0px 0.5% 4px 0.5%;
 }
 .aVDBGrid caption
 {
@@ -27,8 +20,6 @@
 	padding: 3px 2px 3px 1px;
 	z-index: 3;
 	background: #eeeeff url('/JSLib/images/DBGrid/caption_background.gif') repeat-x top left;
-	/* Conditional line for Firefox 2 and below bug */
-	[if lt Gecko 1.9] margin: 4px 0.5% 0px 0.5%;
 }
 .aVDBGrid caption .title
 {
@@ -38,7 +29,6 @@
 	margin-top: 6px;
 	margin-left: 2px;
 	padding: 2px 1px;
-	[if lt IE 8] width: 75%;
 }
 .aVDBGrid .statusArea
 {
@@ -101,7 +91,6 @@
 	font-weight: normal;
 	overflow-y: auto;
 	overflow-x: hidden;
-	[if lt IE 8] margin-top: 63px;
 }
 .aVDBGridColumnList li
 {
@@ -134,7 +123,6 @@
 {
 	overflow-x: hidden;
 	overflow-y: auto;
-	[if lt IE 8] height: auto!important;
 }
 .aVDBGrid td
 {

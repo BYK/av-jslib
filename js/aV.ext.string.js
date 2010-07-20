@@ -15,10 +15,9 @@
  */
 String.prototype.escapeRegExp = function()
 {
-	var matcher = new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi');
-	var result;
-	var outText = '';
-	var lastMatch = 0;
+	var matcher = new RegExp('\\\\|\\||\\(|\\)|\\[|\\{|\\^|\\$|\\*|\\+|\\?|\\.', 'gi'),
+	result, outText = '', lastMatch = 0;
+
 	while (result = matcher.exec(this))
 	{
 		outText += this.substring(lastMatch, result.index);
@@ -40,10 +39,9 @@ String.prototype.escapeRegExp = function()
  */
 String.prototype.ucWords = function() 
 {
-	var matcher = /\b\S+/g;
-	var result;
-	var outText = '';
-	var lastMatch = 0;
+	var matcher = /\b\S+/g,
+	result, outText = '', lastMatch = 0;
+
 	while (result = matcher.exec(this))
 	{
 		outText += this.substring(lastMatch, result.index);
@@ -69,22 +67,19 @@ String.prototype.ucWords = function()
  */
 String.prototype.arrayReplace = function(fromArray, toArray, dontEscape)
 {
-	var expression = '';
-	var replacementArray = {};
-	var maxToIndex = toArray.length - 1;
+	var expression = '',
+	replacementArray = {},
+	maxToIndex = toArray.length - 1;
 	
 	for (var i = 0; i < fromArray.length; i++)
 	{
 		expression += '|' + ((dontEscape)?fromArray[i]:fromArray[i].escapeRegExp());
 		replacementArray[fromArray[i]]=toArray[Math.min(i, maxToIndex)];
 	}
-	
+
 	expression = expression.substr(1);
-	var matcher = new RegExp(expression, "gi");
-	
-	var result;
-	var outText = '';
-	var lastMatch = 0;
+	var matcher = new RegExp(expression, "gi"),
+	result, outText = '', lastMatch = 0;
 	
 	while (result = matcher.exec(this))
 	{
@@ -122,8 +117,7 @@ String.prototype.strCount = function(searchStr, dontEscape)
  */
 String.prototype.LBtoBR = function()
 {
-	var outText = this.replace(/\r\n|\r|\n/g, "<br>");
-	return outText;
+	return this.replace(/\r\n|\r|\n/g, "<br>");
 };
 
 /**
@@ -133,8 +127,7 @@ String.prototype.LBtoBR = function()
  */
 String.prototype.BRtoLB = function()
 {
-	outText = this.replace(/<br>|<br\s\/>/gi, "\n");
-	return outText;
+	return this.replace(/<br>|<br\s\/>/gi, "\n");
 };
 
 /**

@@ -183,6 +183,8 @@ aV.config.DBGrid.unite(
 					activeCell.newInnerHTML += cellContent;
 					activeCell.lastStr = cellContent;
 				}
+				else
+					activeCell.newInnerHTML += '"';
 			},
 			dt_int: function(row, activeCell, cellContent)
 			{

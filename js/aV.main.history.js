@@ -43,11 +43,6 @@ aV.History=
 	onchange: null
 };
 
-aV.History._URIComponentComparator=function(a, b)
-{
-	return (decodeURIComponent(a)==decodeURIComponent(b));
-};
-
 aV.History._listener=function()
 {
 	if (!aV.History.onchange || document.location.hash.length<=1)
@@ -58,7 +53,7 @@ aV.History._listener=function()
 	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
 		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
 	var newList = paramStr.split('&');
-	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).simplify(false, aV.History._URIComponentComparator);
+	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).map(decodeURIComponent).simplify();
 	var pair;
 	var matcher=/^([^&=]+)=([^&]+)$/;
 	for (var i = 0; i < changeList.length; i++) 

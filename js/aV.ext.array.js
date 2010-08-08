@@ -8,101 +8,237 @@
  * @copyright (c)2010 amplioVitam under Apache License, Version 2.0
  */
 
-/* backup the original indexOf if exists */
-if (Array.prototype.indexOf)
-	Array.prototype.indexOfOriginal=Array.prototype.indexOf;
-
+if(!Array.isArray)
 /**
- * Finds the index of the given element int the array.
- * Returns -1 if there is no match
- * 
- * @param {Object} element The element whose index should be found.
- * @param {Boolean} [strictMatch=false] Indicates wheter the comparison would be type sensitive (uses === comparator)
- * @param {Integer} [startFrom=0] Where to start searching from
- * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
- * @return {Integer} The index of the found element or -1
+ * Returns true if an variable is an array, if not false.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/isArray
+ * @param {Object} obj The object to be checked
+ * @return {Boolean} true if obj is an array, false otherwise
  */
-Array.prototype.indexOf = function(element, strictMatch, startFrom, compareFunction)
+Array.isArray = function(obj) { return Object.prototype.toString.call(obj) === '[object Array]'; };
+
+if (!Array.prototype.indexOf)
+/**
+ * Returns the first index at which a given element can be found in the array, or -1 if it is not present.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+ * @param {Object} searchElement Element to locate in the array.
+ * @param {Number} [fromIndex=0] The index at which to begin the search. Defaults to 0, i.e. the whole array will be searched. If the index is greater than or equal to the length of the array, -1 is returned, i.e. the array will not be searched. If negative, it is taken as the offset from the end of the array. Note that even when the index is negative, the array is still searched from front to back. If the calculated index is less than 0, the whole array will be searched.
+ * @return {Number} The index of the found element or -1
+ */
+Array.prototype.indexOf = function(searchElement, fromIndex)
 {
-	if (!compareFunction)
-		/**
-		 * @ignore
-		 */
-		compareFunction = (strictMatch) ? function(a, b){return (a === b)} : function(a, b){return (a == b)};
-	if (!(startFrom > 0))
-		startFrom = 0;
-	for (; startFrom < this.length; startFrom++)
-		if (compareFunction(this[startFrom], element))
-			return startFrom;
+	var len = this.length >>> 0,
+	from = Number(fromIndex) || 0;
+
+	from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+	if (from < 0)
+		from += len;
+
+	for (; from < len; from++)
+	{
+		if (from in this &&
+			this[from] === searchElement)
+		return from;
+	}
 	return -1;
 };
 
+if (!Array.prototype.lastIndexOf)
 /**
- * Applies the given unitFunction to each element in the array and replaces it with the result.
- * @param {Function(x)} unitFunction The unit function which will be applied to the elements
- * @param {Boolean} [recursive=false] Indicates wheter the function should be applied to possible sub-elements.
- * @return {Array} Returns the modified array, a.k.a itself.
+ * Returns the last index at which a given element can be found in the array, or -1 if it is not present. The array is searched backwards, starting at fromIndex.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
+ * @param {Object} searchElement Element to locate in the array.
+ * @param {Number} [fromIndex=0] The index at which to start searching backwards. Defaults to the array's length, i.e. the whole array will be searched. If the index is greater than or equal to the length of the array, the whole array will be searched. If negative, it is taken as the offset from the end of the array. Note that even when the index is negative, the array is still searched from back to front. If the calculated index is less than 0, -1 is returned, i.e. the array will not be searched.
+ * @return {Number} The index of the found element or -1
  */
-Array.prototype.each = function(unitFunction, recursive)
+Array.prototype.lastIndexOf = function(searchElement, fromIndex)
 {
-	if (!unitFunction)
-		return false;
+	var len = this.length;
 	
-	for (var i = 0; i < this.length; i++)
-		if (recursive && (this[i] instanceof Array))
-			this[i] = this[i].each(unitFunction, true);
-		else
-			this[i] = unitFunction(this[i]);
+	if (isNaN(fromIndex))
+		fromIndex = len - 1;
+	else
+	{
+		fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
+		if (fromIndex < 0)
+			from += len;
+		else if (fromIndex >= len)
+			fromIndex = len - 1;
+	}
 	
-	return this;
+	for (; fromIndex > -1; fromIndex--)
+	{
+		if (fromIndex in this && this[fromIndex] === searchElement)
+			return fromIndex;
+	}
+	return -1;
+};
+
+if (!Array.prototype.forEach)
+/**
+ * Executes a provided function once per array element.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/forEach
+ * @param {Function} callback Function to execute for each element.
+ * @param {Object} [thisObjet] Object to use as this when executing callback.
+ */
+Array.prototype.forEach = function(callback , thisObject)
+{
+  var len = this.length >>> 0;
+  if (typeof callback != "function")
+    throw new TypeError();
+
+  if (!thisObject)
+  	thisObject = this;
+  for (var i = 0; i < len; i++)
+  {
+    if (i in this)
+      callback.call(thisObject, this[i], i, this);
+  }
+};
+
+if (!Array.prototype.map)
+/**
+ * Creates a new array with the results of calling a provided function on every element in this array.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
+ * @param {Function} callback Function that produces an element of the new Array from an element of the current one.
+ * @param {Object} [thisObject] Object to use as this when executing callback.
+ * @return {Array} The newly created/transformed array.
+ */
+Array.prototype.map = function(callback, thisObject)
+{
+  var len = this.length >>> 0;
+  if (typeof callback != "function")
+    throw new TypeError();
+
+  var res = new Array(len);
+  
+  if (!thisObject)
+  	thisObject = this;
+  
+  for (var i = 0; i < len; i++)
+  {
+    if (i in this)
+      res[i] = callback.call(thisObject, this[i], i, this);
+  }
+
+  return res;
 };
 
 /**
  * Scans the whole array and removes all the duplicates of the elements.
- * 
- * @param {Boolean} [strictMatch=false] Wheter the function should use a "forced type equality comparator" while comparing two elements or not.
- * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
- * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The deduplicated array, itself.
  */
-Array.prototype.deduplicate = function(strictMatch, compareFunction, recursive)
+Array.prototype.deduplicate = function()
 {
 	var dupIndex;
 	for (var i = 0; i < this.length; i++)
-		if (recursive && (this[i] instanceof Array))
-			this[i] = this[i].deduplicate(strictMatch, true);
-		else
-			while ((dupIndex = this.indexOf(this[i], strictMatch, i + 1, compareFunction)) > -1)
-				this.splice(dupIndex, 1);
-	
+		while ((dupIndex = this.indexOf(this[i], i + 1)) > -1)
+			this.splice(dupIndex, 1);
+
 	return this;
+};
+
+if (!Array.prototype.every)
+/**
+ * Tests whether all elements in the array pass the test implemented by the provided function.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
+ * @param {Function} callback Function to test for each element.
+ * @param {Object} [thisObject] Object to use as this when executing callback.
+ * @return {Boolean} true if all elements pass the test, false otherwise
+ */
+Array.prototype.every = function(callback, thisObject)
+{
+	var len = this.length >>> 0;
+	if (typeof callback != "function")
+		throw new TypeError();
+	
+	if (!thisObject)
+		thisObject = this;
+
+	for (var i = 0; i < len; i++)
+	{
+		if (i in this && !callback.call(thisObject, this[i], i, this))
+			return false;
+	}
+
+	return true;
+};
+
+if (!Array.prototype.filter)
+/**
+ * Creates a new array with all elements that pass the test implemented by the provided function.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
+ * @param {Function} callback Function to test each element of the array.
+ * @param {Object} [thisObject] Object to use as this when executing callback.
+ * @return {Array} The new, filtered array.
+ */
+Array.prototype.filter = function(callback, thisObject)
+{
+	var len = this.length >>> 0;
+	if (typeof fun != "function")
+		throw new TypeError();
+
+	var res = [];
+	
+	if (!thisObject)
+		thisObject = this;
+
+	for (var i = 0; i < len; i++)
+		if (i in this)
+		{
+			var val = this[i]; // in case callback mutates this
+			if (callback.call(thisObject, val, i, this))
+				res.push(val);
+		}
+
+	return res;
+};
+
+if (!Array.prototype.some)
+/**
+ * Tests whether some element in the array passes the test implemented by the provided function.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
+ * @param {Function} callback Function to test each element of the array.
+ * @param {Object} [thisObject] Object to use as this when executing callback.
+ * @return {Boolean} false if all the elements in the array fails the test, true otherwise
+ */
+Array.prototype.some = function(callback, thisObject)
+{
+	var i = 0,
+	len = this.length >>> 0;
+
+	if (typeof fun != "function")
+		throw new TypeError();
+	
+	if (!thisObject)
+		thisObject = this;
+	
+	for (; i < len; i++)
+		if (i in this && callback.call(thisObject, this[i], i, this))
+			return true;
+
+	return false;
 };
 
 /**
  * Scans the whole array and destroys any element which the array has more than one copy of it.
  * Note that this function is just like Array.prototype.deduplicate but it removes the original elements having duplicates also. 
  * 
- * @param {Boolean} [strictMatch=false] Wheter the function should use a "forced type equality comparator" while comparing two elements or not.
- * @param {Function(a, b)} [compareFunction] A custom compare function for special needs.
- * @param {Boolean} [recursive=false] Wheter the function should look into possible sub arrays or not.
  * @return {Array} The simplified array, itself.
  */
-Array.prototype.simplify = function(strictMatch, compareFunction, recursive)
+Array.prototype.simplify = function()
 {
-	var dupIndex;
-	var i=0;
-	var erased;
+	var dupIndex, i = 0, erased;
 	while (i < this.length) 
 	{
 		erased=false;
-		if (recursive && (this[i] instanceof Array)) 
-			this[i] = this[i].simplify(strictMatch, true);
-		else 
-			while ((dupIndex = this.indexOf(this[i], strictMatch, i + 1, compareFunction)) > -1) 
-			{
-				this.splice(dupIndex, 1);
-				erased = true;
-			}
+		
+		while ((dupIndex = this.indexOf(this[i], i + 1, compareFunction)) > -1) 
+		{
+			this.splice(dupIndex, 1);
+			erased = true;
+		}
+		
 		if (erased) 
 			this.splice(i, 1);
 		else 
@@ -111,6 +247,7 @@ Array.prototype.simplify = function(strictMatch, compareFunction, recursive)
 	
 	return this;
 };
+
 /**
  * Pads the array to the given length by appending the given value to the end of the string iteratively.
  * 
@@ -197,26 +334,95 @@ Array.prototype.rand=function(count)
 };
 
 /**
- * Recursively reduces the array to a single value using the given unitFunction.
- * To understand how reduce exactly works, see PHP array_reduce at http://php.net/array_reduce
- * 
- * @param {Function(x,y)} unitFunction
- * @param {Object} [initialValue=null]
- * @param {Boolean} [recursive=false]
- * @return {Object} The reduced value.
+ * Apply a function against an accumulator and each value of the array (from left-to-right) as to reduce it to a single value.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/reduce
+ * @param {Function} callback Function to execute on each value in the array.
+ * @param {Object} [initialValue] Object to use as the first argument to the first call of the callback.
+ * @return {Object} The reduced single value from array.
  */
-Array.prototype.reduce=function(unitFunction, initialValue, recursive)
+if (!Array.prototype.reduce)
+Array.prototype.reduce = function(callback, initialValue)
 {
-	if (initialValue===undefined)
-		initialValue=null;
-	var result=initialValue;
-	var currentValue;
-	for (var i=0; i<this.length; i++)
+	var len = this.length >>> 0;
+	if (typeof callback != "function")
+		throw new TypeError();
+
+	// no value to return if no initial value and an empty array
+	if (len == 0 && initialValue === undefined)
+		throw new TypeError();
+
+	var i = 0;
+	if (initialValue !== undefined)
+		var rv = initialValue;
+	else
 	{
-		currentValue=(recursive && (this[i] instanceof Array))?this[i].reduce(unitFunction, initialValue, true):this[i];
-		result=unitFunction(result, currentValue);
+		do
+		{
+			if (i in this)
+			{
+				var rv = this[i++];
+				break;
+			}
+
+			// if array contains no values, no initial value to return
+			if (++i >= len)
+				throw new TypeError();
+		}
+		while (true);
 	}
-	return result;
+	
+	for (; i < len; i++)
+	{
+		if (i in this)
+			rv = callback.call(this, rv, this[i], i, this);
+	}
+	
+	return rv;
+};
+
+if (!Array.prototype.reduceRight)
+/**
+ * Apply a function simultaneously against two values of the array (from right-to-left) as to reduce it to a single value.
+ * Taken from https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/reduceRight
+ * @param {Function} callback Function to execute on each value in the array.
+ * @param {Object} [initialValue] Object to use as the first argument to the first call of the callback.
+ * @return {Object} The right-reduced single value from array.
+ */
+Array.prototype.reduceRight = function(callback, initialValue)
+{
+	var len = this.length >>> 0;
+	if (typeof callback != "function")
+		throw new TypeError();
+	
+	// no value to return if no initial value, empty array
+	if (len == 0 && initialValue === undefined)
+		throw new TypeError();
+	
+	var i = len - 1;
+	if (initialValue !== undefined)
+		var rv = initialValue;
+	else
+	{
+		do
+		{
+			if (i in this)
+			{
+				var rv = this[i--];
+				break;
+			}
+
+			// if array contains no values, no initial value to return
+			if (--i < 0)
+				throw new TypeError();
+		}
+		while (true);
+	}
+	
+	for (; i >= 0; i--)
+		if (i in this)
+			rv = callback.call(this, rv, this[i], i, this);
+
+	return rv;
 };
 
 /**
@@ -232,7 +438,6 @@ Array.prototype.shuffle=function()
 
 /**
  * Returns the index of the smallest element in the array.
- * 
  * @param {Function(a,b)} [compareFunction] Custom compare function
  * @return {Number} The index of the least element 
  */
@@ -256,7 +461,6 @@ Array.prototype.min=function(compareFunction)
 
 /**
  * Returns the index of the greatest element in the array.
- * 
  * @param {Function(a,b)} [compareFunction] Custom compare function
  * @return {Number} The index of the greatest element 
  */
@@ -275,7 +479,7 @@ Array.prototype.max=function(compareFunction)
 };
 
 /**
- * Returns the first non-null element in the array.
+ * Returns the first non "falsy" element in the array.
  * @param {Number} [startFrom=0] The index where to start looking for.
  * @return {Object} The first non-null element in the array after the index given instartFrom.
  */
@@ -286,6 +490,6 @@ Array.prototype.coalesce=function(startFrom)
 		startFrom=0;
 
 	while (!result && startFrom<this.length)
-		result=this[startFrom++];
+		result = this[startFrom++];
 	return result;
 };

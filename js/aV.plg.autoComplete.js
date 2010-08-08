@@ -229,13 +229,13 @@ aV.AutoComplete._doKeyUp = function(element)
 				if (aV.AJAX.getMimeType(requestObject) != 'text/plain') 
 					element.aVautoComplete.list = aV.AJAX.getResponseAsObject(requestObject);
 				else 
-				{
-					element.aVautoComplete.list = requestObject.responseText.split("\n");
-					element.aVautoComplete.list.each(aV.AutoComplete._itemize);
-				}
+					element.aVautoComplete.list = requestObject.responseText.split("\n").map(aV.AutoComplete._itemize);
+
 				if (element.aVautoComplete.listProcessor) 
 					element.aVautoComplete.list = element.aVautoComplete.listProcessor(element);
-				else element.aVautoComplete.list.each(aV.AutoComplete._itemTrimmer);
+				else
+					element.aVautoComplete.list = element.aVautoComplete.list.map(aV.AutoComplete._itemTrimmer);
+
 				element.aVautoComplete.list.selectedIndex = -1;
 				aV.AutoComplete._showListBox(element);
 			}

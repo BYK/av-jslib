@@ -233,7 +233,7 @@ Array.prototype.simplify = function()
 	{
 		erased=false;
 		
-		while ((dupIndex = this.indexOf(this[i], i + 1, compareFunction)) > -1) 
+		while ((dupIndex = this.indexOf(this[i], i + 1)) > -1) 
 		{
 			this.splice(dupIndex, 1);
 			erased = true;

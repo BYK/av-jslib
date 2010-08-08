@@ -52,10 +52,10 @@ aV.History._listener=function()
 	hashStr = paramStr = document.location.href.substring(document.location.href.indexOf('#')+1);
 	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
 		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
-	var newList = paramStr.split('&');
-	var changeList = newList.concat(aV.History._get.toQueryString().split('&')).map(decodeURIComponent).simplify();
-	var pair;
-	var matcher=/^([^&=]+)=([^&]+)$/;
+	var newList = paramStr.split('&'),
+	changeList = newList.concat(aV.History._get.toQueryString().split('&')).map(decodeURIComponent).simplify(),
+	pair, matcher=/^([^&=]+)=([^&]+)$/;
+
 	for (var i = 0; i < changeList.length; i++) 
 	{
 		pair = changeList[i].match(matcher);

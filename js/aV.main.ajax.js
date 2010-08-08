@@ -119,8 +119,7 @@ aV.AJAX.createRequestObject = function()
 }
 
 /**
- * Destroys the given XMLHttpRequest object safely.
- * Aborts the request if it is active.
+ * Aborts the given XMLHttpRequest object safely.
  *
  * @param {XMLHttpRequestObject} requestObject The requestObject which will be destroyed
  */
@@ -514,7 +513,7 @@ aV.AJAX.getResponseAsObject = function(requestObject)
 
 /**
  * Loads content to the given container element using an asynchronous HTTP GET call.
- * If the aV.config.AJAX.loadingText is defined, target container element's innerHTML is filled with its valye while the content is loading.
+ * If the aV.config.AJAX.loadingText is defined, target container element's innerHTML is filled with its value while the content is loading.
  *
  * @param {String} address The URL of the content which will be loaded dynamically into the given container.
  * @param {String|Object} element The container element itself or its id, which the dynamic content will be loaded into.

@@ -140,7 +140,7 @@ aV.DOM.removeClass = function(element, className, seperator)
 		seperator = ' ';
 	var matcher = new RegExp("[%0:s]?%1:s[%0:s]?".format(seperator.escapeRegExp(), className.escapeRegExp()));
 	element.className = element.className.replace(matcher, '');
-	return !element.className.match(matcher);
+	return element;
 };
 
 /**

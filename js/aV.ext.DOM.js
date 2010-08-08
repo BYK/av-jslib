@@ -92,7 +92,7 @@ aV.DOM._filterResults = function(n_win, n_docel, n_body)
 /** End of external code */
 
 /**
- * Determines whether the given element has a spesific class or not.
+ * Determines whether the given element has a specific class or not.
  * 
  * @param {HTMLElementObject} element The element which will be tested.
  * @param {String} className The classname which will be tested against.
@@ -108,7 +108,7 @@ aV.DOM.hasClass = function(element, className, seperator)
 };
 
 /**
- * Adds the class whoose name is given, to the spesified HTML element.
+ * Adds the class whoose name is given, to the specified HTML element.
  * 
  * @param {HTMLElementObject} element The element which the class will be added.
  * @param {String} className The classname which will be added.
@@ -127,12 +127,12 @@ aV.DOM.addClass = function(element, className, seperator)
 };
 
 /**
- * Removes the class whoose name is given, from the spesified HTML element.
+ * Removes the class whoose name is given, from the specified HTML element.
  * 
  * @param {HTMLElementObject} element The element which the class will be removed from.
  * @param {String} className The classname which will be removed.
  * @param {String} [seperator=' '] The seperator, which seperates the multiple, different classnames.
- * @return {Boolean} Returns true if the element no longer has the given class else, returns false.
+ * @return {HTMLElementObject} The element given in the element parameter.
  */
 aV.DOM.removeClass = function(element, className, seperator)
 {

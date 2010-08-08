@@ -1109,8 +1109,12 @@ aV.DBGrid.prototype._print = function(clear, element)
 		
 		aV.Events.add(newCell.filterBox, "keyup", aV.DBGrid._filterBoxKeyUpHandler);
 	}
-	this.tableElement.dummyColumn = [this.tableElement.tHead.rows[0].appendChild(document.createElement('td')), this.tableElement.tHead.rows[1].appendChild(document.createElement('td'))];
-	this.tableElement.dummyColumn.each(function(element){element.className = aV.config.DBGrid.classNames.dummyColumn; return element});
+	this.tableElement.dummyColumn =
+	[
+		this.tableElement.tHead.rows[0].appendChild(document.createElement('td')),
+		this.tableElement.tHead.rows[1].appendChild(document.createElement('td'))
+	];
+	this.tableElement.dummyColumn.forEach(function(element){element.className = aV.config.DBGrid.classNames.dummyColumn});
 	
 	this.tableElement.appendChild(document.createElement("tfoot"));
 	/* footer cell */
@@ -1280,12 +1284,12 @@ aV.DBGrid.prototype._adjustHeight = function()
 	if (!calculatedHeight || !this.properties.row.length || tableBody.scrollHeight <= calculatedHeight || tableBody.clientHeight != parseInt(tableBody.style.height)) 
 	{
 		tableBody.style.height = 'auto';
-		this.tableElement.dummyColumn.each(function(element){element.style.display = 'none'; return element;});
+		this.tableElement.dummyColumn.forEach(function(element){element.style.display = 'none';});
 	}
 	else
 	{
 		tableBody.style.height = calculatedHeight + 'px';
-		this.tableElement.dummyColumn.each(function(element){element.style.display = ''; return element;});
+		this.tableElement.dummyColumn.forEach(function(element){element.style.display = '';});
 	}
 };
 

@@ -6,7 +6,7 @@
  * @version 2.1
  *
  * @requires aV.ext.object
- * @requires aV.main.CSS
+ * @requires aV.main.css
  * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
@@ -77,7 +77,7 @@ aV.config.Effect.unite(
 							{
 								start: parseFloat(inputMatch[1] || currentMatch[2]) || 0,
 								end: (inputMatch[2] !== '*') ? parseFloat(inputMatch[2]) || 0 : element['scroll' + propertyName.ucWords()], //the last part here is actually only for height and width values
-								propertyName: propertyName.camelize(),
+								propertyName: propertyName,
 								unit: inputMatch[3] || currentMatch[3] || '',
 								set: function(element, value){element.style[this.propertyName] = value + this.unit;},
 								converger: options.converger
@@ -116,7 +116,7 @@ aV.config.Effect.unite(
 								startColor: startColor,
 								newColor: {h: 0, s:0, l: 0},
 								colorDiff: {h: endColor.h - startColor.h, s: endColor.s - startColor.s, l: endColor.l - startColor.l},
-								propertyName: propertyName.camelize(),
+								propertyName: propertyName,
 								set: function(element, value)
 								{
 									this.newColor.h = this.startColor.h + this.colorDiff.h*value;

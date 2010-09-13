@@ -35,7 +35,7 @@ String.prototype.escapeRegExp = function()
  * @example
  * var myText = "javascript is lovely.";
  * myText.ucWords();
- * <br />Will give you "Javascript Is Lovely."
+ * Will give you "Javascript Is Lovely."
  */
 String.prototype.ucWords = function() 
 {

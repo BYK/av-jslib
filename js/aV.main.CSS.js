@@ -3,9 +3,8 @@
  * @name CSS Library
  *
  * @author Burak Yiğit KAYA	<byk@ampliovitam.com>
- * @version 1.1
+ * @version 1.1.1
  *
- * @requires aV.ext.string.js
  * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
@@ -120,9 +119,11 @@ aV.CSS.deleteRules = function(selector, styleSheetName)
  */
 aV.CSS.setRuleStyle = function(selector, styles, styleSheetName)
 {
-	var rules = aV.CSS.getRules(selector, styleSheetName), length = rules.length, i;
+	var rules = aV.CSS.getRules(selector, styleSheetName), length = rules.length, i, name;
 	for (i = 0; i < length; i++)
-		Element.setStyle(rules[i], styles)
+		for (name in styles)
+			if (styles.hasOwnProperty(name))
+				rules[i].style[name] = styles[name];
 	return rules;
 };
 
@@ -136,13 +137,13 @@ aV.CSS.getElementStyle = function(element, properties)
 		var result = {}, propertyName;
 		for (var i = properties.length - 1; i >= 0; i--) 
 		{
-			propertyName = properties[i].camelize();
+			propertyName = properties[i];
 			result[propertyName] = computedStyle[propertyName];
 		}
 		return result;
 	}
 	else if (typeof properties == 'string')
-		return computedStyle[properties.camelize()];
+		return computedStyle[properties];
 	else
 		return computedStyle;
 };

@@ -3,11 +3,20 @@
  * @name Object Extensions
  *
  * @author Burak Yiğit KAYA <byk@ampliovitam.com>
- * @version 1.0
+ * @version 2.0
  *
  * @requires aV.ext.string.js
  * @copyright 2010 amplioVitam under Apache License, Version 2.0
  */
+
+if (!window.aV)
+	var aV={config: {}};
+	
+/**
+ * Represents the namespace for DOM related functions since they cannot be binded directly to the prototype in all browsers.
+ * @namespace
+ */
+aV.Object = {};
 
 /**
  * This function serializes the object to a standart URI query string which can directly interpreted by PHP.
@@ -15,20 +24,20 @@
  * @param {String} [format] The desired format for the output. Not needed for most usages.
  * @return {String} The URI query string.
   */
-Object.prototype.toQueryString=function(format, encodeURI)
+aV.Object.toQueryString = function toQS(obj, format, encodeURI)
 {
 	if (typeof format != 'string')
 		format = '%s';
 	var result = '';
-	for (var paramName in this) 
+	for (var paramName in obj)
 	{
-		if (this.constructor == Array && isNaN(parseInt(paramName)) || !this.hasOwnProperty(paramName) || this[paramName] === undefined || this[paramName] === null)
+		if (obj.constructor == Array && isNaN(parseInt(paramName)) || !obj.hasOwnProperty(paramName) || obj[paramName] === undefined || obj[paramName] === null)
 			continue;
 
-		if (this[paramName].constructor == Object || this[paramName].constructor == Array)
-			result += '&' + this[paramName].toQueryString(format.format(paramName) + '[%s]', encodeURI);
+		if (obj[paramName].constructor == Object || obj[paramName].constructor == Array)
+			result += '&' + toQS(obj[paramName], format.format(paramName) + '[%s]', encodeURI);
 		else
-			result += '&' + format.format(paramName) + '=' + ((encodeURI !== false) ? encodeURIComponent(this[paramName]) : this[paramName]);
+			result += '&' + format.format(paramName) + '=' + ((encodeURI !== false) ? encodeURIComponent(obj[paramName]) : obj[paramName]);
 	}
 	return result.substr(1);
 };
@@ -39,22 +48,22 @@ Object.prototype.toQueryString=function(format, encodeURI)
  * @param {Object} additive The object which should be merged with the current object.
  * @param {Boolean} [overwrite=true] Indicates whter the function should overwrite the possible existing values in the base object with the ones from the additive.
  */
-Object.prototype.unite = function(additive, overwrite)
+aV.Object.unite = function unite(obj, additive, overwrite)
 {
 	if (overwrite !== false)
 		overwrite = true;
 	if (!additive || !additive.hasOwnProperty)
-		return this;
+		return obj;
 	for (var property in additive) 
 	{
 		if (!additive.hasOwnProperty(property))
 			continue;
-		if (this[property] && (this[property].constructor == Object) && this.hasOwnProperty(property))
-			this[property].unite(additive[property], overwrite);
-		else if (overwrite || !(property in this))
-			this[property] = additive[property];
+		if (obj[property] && (obj[property].constructor == Object) && obj.hasOwnProperty(property))
+			unite(obj[property], additive[property], overwrite);
+		else if (overwrite || !(property in obj))
+			obj[property] = additive[property];
 	}
-	return this;
+	return obj;
 };
 
 /**
@@ -62,32 +71,16 @@ Object.prototype.unite = function(additive, overwrite)
  * 
  * @return {Object} The cloned object which has a different resource id than the original one.
  */
-Object.prototype.clone=function()
+aV.Object.clone = function clone(obj)
 {
-	var result=this.constructor();
-	for (var property in this)
-		if (this.hasOwnProperty(property))
-			if (typeof this[property]=='object')
-				result[property]=this[property].clone();
+	var result = obj.constructor();
+	for (var property in obj)
+		if (obj.hasOwnProperty(property))
+			if (typeof obj[property] == 'object')
+				result[property] = clone(obj[property]);
 			else
-				result[property]=this[property];
+				result[property] = obj[property];
 	return result;
-};
-
-
-/**
- * Tries to convert a given JSON string to a native JavaScript object by simply evaluating it.
- * 
- * @param {String} source The appropriate, JSON string whicih will be converted.
- * @param {Boolean} [secure=false] Wheterher the script should do the conversion using JSON.parse function if the library from http://json.org is loaded.
- * @return {Object} The object constructed from the given JSON string or false if an error is occured.
- */
-Object.fromJSON=function(source, secure)
-{
-	if (!secure || !window.JSON)
-		return eval('(' + source + ')');
-	else if (!window.JSON)
-		return JSON.parse(source);
 };
 
 /**
@@ -96,7 +89,7 @@ Object.fromJSON=function(source, secure)
  * @param {String|Array} source The source string or array which contains the appropriate query/URI string.
  * @return {Object} The object constructed from the given source or false if an error is occured.
  */
-Object.fromQueryString=function(source)
+aV.Object.fromQueryString = function oFromQS(source)
 {
 	var itemList;
 	if (source instanceof Array)
@@ -106,11 +99,11 @@ Object.fromQueryString=function(source)
 	else
 		return false;
 
-	var result={};
-	var pairPattern=/^([^&=]+)=([^&]+)$/;
-	var objectPattern=/([^\s\[\]]+)/g;
+	var result = {};
+	var pairPattern = /^([^&=]+)=([^&]+)$/;
+	var objectPattern = /([^\s\[\]]+)/g;
 	var pair;
-	for (var i=0; i<itemList.length; i++)
+	for (var i = 0; i < itemList.length; i++)
 	{
 		pair = itemList[i].match(pairPattern);
 		if (!(pair && pair[1]))
@@ -121,7 +114,7 @@ Object.fromQueryString=function(source)
 		for (var j = 0; j < arr.length - 1; j++) 
 		{
 			if (!currentObject[arr[j]])
-				currentObject[arr[j]] = (parseInt(arr[j+1])==0) ? [] : {};
+				currentObject[arr[j]] = (parseInt(arr[j+1]) == 0) ? [] : {};
 			currentObject = currentObject[arr[j]];
 		}
 		try 
@@ -130,8 +123,6 @@ Object.fromQueryString=function(source)
 		}
 		catch(error)
 		{
-			if (window.console)
-				console.warn(error);
 			currentObject[arr[j]] = pair[2];
 		}
 	}
@@ -146,9 +137,9 @@ Object.fromQueryString=function(source)
  * @param {Boolean} [includeRoot] Whether the "required" main container node should be a part of the resultant object or not.
  * @return {Object} The native JavaScript object which is contructed from the given XML data or false if any error occured.
  */
-Object.fromXML = function(source, includeRoot)
+aV.Object.fromXML = function oFromXML(source, includeRoot)
 {
-	if (typeof source=='string')
+	if (typeof source == 'string')
 	{
 		try
 		{
@@ -185,10 +176,10 @@ Object.fromXML = function(source, includeRoot)
 			{
 				if (result[source.tagName].constructor != Array) 
 					result[source.tagName] = [result[source.tagName]];
-				result[source.tagName].push(Object.fromXML(source));
+				result[source.tagName].push(oFromXML(source));
 			}
 			else 
-				result[source.tagName] = Object.fromXML(source);
+				result[source.tagName] = oFromXML(source);
 		}
 		else if (source.tagName)
 			result[source.tagName] = source.nodeValue;
@@ -199,15 +190,3 @@ Object.fromXML = function(source, includeRoot)
 
 	return result;
 };
-
-/*
- * if the JSON library at http://www.json.org/json2.js is included,
- * add a "toJSONStr" methdo to all objects.
- */
-if (window.JSON)
-{
-	Object.prototype.toJSONStr = function(replacer, space)
-	{
-		return JSON.stringify(this, replacer, space);
-	};
-}

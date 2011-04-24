@@ -20,7 +20,7 @@ if (!aV)
 if (!aV.config.History)
 	aV.config.History={};
 
-aV.config.History.unite(
+aV.Object.unite(aV.config.History,
 	{
 		compression: true,
 		startOnLoad: true,
@@ -53,7 +53,7 @@ aV.History._listener=function()
 	if (paramStr.charAt(0)=='!' && ULZSS && Base64)
 		paramStr = ULZSS.decode(Base64.decode(paramStr.substring(1)));
 	var newList = paramStr.split('&'),
-	changeList = newList.concat(aV.History._get.toQueryString().split('&')).map(decodeURIComponent).simplify(),
+	changeList = newList.concat(aV.Object.toQueryString(aV.History._get).split('&')).map(decodeURIComponent).simplify(),
 	pair, matcher=/^([^&=]+)=([^&]+)$/;
 
 	for (var i = 0; i < changeList.length; i++) 
@@ -87,7 +87,7 @@ aV.History.set=function(newGet)
 {
 	if (!newGet)
 		newGet = {};
-	var paramStr = newGet.toQueryString();
+	var paramStr = aV.Object.toQueryString(newGet);
 	if (aV.config.History.compression && ULZSS)
 		paramStr = '!' + Base64.encode(ULZSS.encode(paramStr));
 	document.location.hash = '#' + paramStr;

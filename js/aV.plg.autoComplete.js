@@ -33,7 +33,7 @@ if (!aV.config.AutoComplete)
 /**
  * Holds the configuration parameters.
  */
-aV.config.AutoComplete.unite(
+aV.Object.unite(aV.config.AutoComplete,
 {
 	ruleFile: 'autoCompleteRules.txt',
 	listBoxOffset: 1,

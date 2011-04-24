@@ -13,18 +13,6 @@
  * @copyright &copy;2010 amplioVitam under <a href="../license.txt" target="_blank">Apache License, Version 2.0</a>
  */
 
-if (!aV)
-	throw new Error("aV namespace cannot be found.", "aV.plg.quickEdit.js@" + window.location.href);
-
-if (!aV.Events)
-	throw new Error("aV event manager library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
-
-if (!aV.AJAX)
-	throw new Error("aV AJAX functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
-
-if (!aV.aParser)
-	throw new Error("aV aParser functions library is not loaded.", "aV.plg.quickEdit.js@" + window.location.href);
-
 /**
  * Represents a namespace, aV.QuickEdit, for the new functions and global parameters of those functions.
  *
@@ -35,7 +23,7 @@ aV.QuickEdit = {};
 if (!aV.config.QuickEdit)
 	aV.config.QuickEdit={};
 
-aV.config.QuickEdit.unite(
+aV.Object.unite(aV.config.QuickEdit,
 	{
 		texts: 
 		{
@@ -216,11 +204,11 @@ aV.config.QuickEdit.unite(
 					var params;
 					try
 					{
-						params=eval("(" + element.aVquickEdit.params + ")");
+						params = eval("(" + element.aVquickEdit.params + ")");
 					}
 					catch (error)
 					{
-						params=(typeof element.aVquickEdit.params=="string")?element.aVquickEdit.params:element.aVquickEdit.params.toQueryString();
+						params = (typeof element.aVquickEdit.params == "string") ? element.aVquickEdit.params : aV.Object.toQueryString(element.aVquickEdit.params);
 					}
 					
 					var paramList=params.split('&');
@@ -370,9 +358,9 @@ aV.QuickEdit.onafteredit=undefined;
 aV.QuickEdit.triggerEvent=function(type, parameters, element)
 {
 	if (!parameters)
-		parameters={};
-	parameters=({type: type}).unite(parameters, false);
-	var result=true;
+		parameters = {};
+	parameters = aV.Object.unite({type: type}, parameters, false);
+	var result = true;
 
 	try 
 	{
@@ -521,11 +509,11 @@ aV.QuickEdit._makeSetRequest=function(editor, value)
 	var params;
 	try
 	{
-		params=eval("(" + element.aVquickEdit.params + ")");
+		params = eval("(" + element.aVquickEdit.params + ")");
 	}
 	catch (error)
 	{
-		params=(typeof element.aVquickEdit.params=="string") ? element.aVquickEdit.params : element.aVquickEdit.params.toQueryString();
+		params = (typeof element.aVquickEdit.params == "string") ? element.aVquickEdit.params : aV.Object.toQueryString(element.aVquickEdit.params);
 	}
 
 	var responseHandler=function(requestObject)

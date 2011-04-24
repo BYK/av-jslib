@@ -166,23 +166,28 @@ function(element)
  * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will be changed.
  * @param {Float [0,1]} opacity The opacity value which the object's opacity will be set to.
  */
-aV.CSS.setOpacity = (document.all) ?
+aV.CSS.setOpacity = ('opacity' in (document.body || document.head).style) ?
+function(element, opacity)
+{
+	element.style.opacity = opacity;
+}
+:
 function(element, opacity)
 {
 	if (!element.currentStyle.hasLayout)
 		element.style.zoom='1';
-	element.style.filter = "alpha(opacity=" + opacity * 100 + ")";
-}:
-function(element, opacity)
-{
-	element.style.opacity = opacity;
+	var alphaMatcher = /alpha\([^)]*\)/,
+	alphaStr = "alpha(opacity=" + opacity * 100 + ")",
+	filter = aV.CSS.getElementStyle._getComputed(element).filter;
+	element.style.filter = filter.match(alphaMatcher) ? filter.replace(alphaMatcher, alphaStr) : filter + alphaStr;
 };
+
 
 /**
  * Tries to get the given element's opacity value.
  * <br /><b>IMPORTANT:</b> At the moment it can only get the opacity values defined in the object's style property.
  * @return {Float [0,1]} If a valid opacity value cannot be gathered, the default return value is 1.
- * @param {HTMLElementObject} obj The HTML element ITSELF whose opacity will tried to be gathered.
+ * @param {HTMLElementObject} styleObject The HTML element ITSELF whose opacity will tried to be gathered.
  */
 aV.CSS.getOpacity = function(styleObject)
 {
@@ -191,15 +196,15 @@ aV.CSS.getOpacity = function(styleObject)
 	return (styleObject) ? arguments.callee._get(styleObject) : false;
 };
 
-aV.CSS.getOpacity._get = (document.all) ? 
+aV.CSS.getOpacity._get = ('opacity' in (document.body || document.head).style) ? 
+function(styleObject)
+{
+	return parseFloat(styleObject.opacity); //parse the opacity value to float
+}:
 function(styleObject)
 {
 	var regExpResult = styleObject.filter.match(/alpha\(opacity=(\d+)\)/);
 	return (regExpResult) ? parseFloat(regExpResult[1])/100 : 1;
-}:
-function(styleObject)
-{
-	return parseFloat(styleObject.opacity); //parse the opacity value to float
 };
 
 aV.CSS._initialize();

@@ -16,7 +16,7 @@ aV.Error = {};
 if (!aV.config.Error)
 	aV.config.Error={};
 
-aV.config.Error.unite(
+aV.Object.unite(aV.config.Error,
 	{
 		loggerPath: '',
 		message: ''

@@ -964,7 +964,7 @@ aV.DynamicSearch._onFormSubmit=function(event)
 		params.search.setName = setNameElement.value;
 		
 		if (DynamicSearchObject.properties.externalOperations && (event.target.name in DynamicSearchObject.properties.externalOperations) && (DynamicSearchObject.properties.externalOperations.hasOwnProperty(event.target.name))) 
-			document.location=DynamicSearchObject.properties.externalOperations[event.target.name].address + params.toQueryString();
+			document.location=DynamicSearchObject.properties.externalOperations[event.target.name].address + aV.Object.toQueryString(params);
 		else
 		{
 			var refreshColumns=(!aV.DynamicSearch.historyList[DynamicSearchObject.$$guid].state || aV.DynamicSearch.historyList[DynamicSearchObject.$$guid].state.setName!=params.search.setName);
@@ -986,37 +986,37 @@ aV.DynamicSearch._onFormSubmit=function(event)
 	return false;
 };
 
-aV.DynamicSearch.updateHistory=function(ignoreUpdate)
+aV.DynamicSearch.updateHistory = function(ignoreUpdate)
 {
 	if (!aV.config.DynamicSearch.history.active)
 		return false;
-	var newHistory=aV.History._get.clone();
-	var result=1;
+	var newHistory = aV.Object.clone(aV.History._get);
+	var result = 1;
 	if (!(aV.config.DynamicSearch.history.key in newHistory))
-		result=-1;
-	newHistory[aV.config.DynamicSearch.history.key]=aV.DynamicSearch.historyList;
-	if (ignoreUpdate!==false)
-		aV.DynamicSearch._ignoreNextHistoryEvent=true;
+		result = -1;
+	newHistory[aV.config.DynamicSearch.history.key] = aV.DynamicSearch.historyList;
+	if (ignoreUpdate !== false)
+		aV.DynamicSearch._ignoreNextHistoryEvent = true;
 
 	aV.History.set(newHistory);
 	return result;
 };
 
-aV.DynamicSearch._historyOnChangeHandler=function(event)
+aV.DynamicSearch._historyOnChangeHandler = function(event)
 {
 	if (!aV.config.DynamicSearch.history.active || !aV.History._get[aV.config.DynamicSearch.history.key])
 		return;
 	if (aV.DynamicSearch._ignoreNextHistoryEvent)
 	{
-		aV.DynamicSearch._ignoreNextHistoryEvent=false;
+		aV.DynamicSearch._ignoreNextHistoryEvent = false;
 		return;
 	}
 
-	var matcher=new RegExp("^" + aV.config.DynamicSearch.history.key, "");
-	if (!event.changedKeys.reduce(function(a,b){if (!a) a=matcher.test(b); return a;}))
+	var matcher = new RegExp("^" + aV.config.DynamicSearch.history.key, "");
+	if (!event.changedKeys.reduce(function(a,b){if (!a) a = matcher.test(b); return a;}))
 		return;
 	
-	aV.DynamicSearch.historyList=aV.History._get[aV.config.DynamicSearch.history.key].clone();
+	aV.DynamicSearch.historyList = aV.Object.clone(aV.History._get[aV.config.DynamicSearch.history.key]);
 
 	for (var guid in aV.DynamicSearch.historyList)
 	{
@@ -1025,9 +1025,9 @@ aV.DynamicSearch._historyOnChangeHandler=function(event)
 
 		if (!(guid in aV.DynamicSearch.list))
 			new aV.DynamicSearch(aV.DynamicSearch.historyList[guid].name, aV.DynamicSearch.historyList[guid].element, guid);
-		else	if (aV.DynamicSearch.list[guid].name!=aV.DynamicSearch.historyList[guid].name)
+		else	if (aV.DynamicSearch.list[guid].name != aV.DynamicSearch.historyList[guid].name)
 		{
-			aV.DynamicSearch.list[guid].name=aV.DynamicSearch.historyList[guid].name;
+			aV.DynamicSearch.list[guid].name = aV.DynamicSearch.historyList[guid].name;
 			aV.DynamicSearch.list[guid]._initialize();
 		}
 		else
@@ -1037,24 +1037,24 @@ aV.DynamicSearch._historyOnChangeHandler=function(event)
 
 aV.DynamicSearch._autoCompleteSelectItemHandler=function(event)
 {
-	if (event.target.form == aV.DynamicSearch.getOwnerObject(event.target).container.content.formAdvanced && event.target.operator.value=='LIKE')
-		event.target.operator.value='=';
+	if (event.target.form == aV.DynamicSearch.getOwnerObject(event.target).container.content.formAdvanced && event.target.operator.value == 'LIKE')
+		event.target.operator.value = '=';
 };
 
-aV.DynamicSearch._autoCompleteShowListboxHandler=function(event)
+aV.DynamicSearch._autoCompleteShowListboxHandler = function(event)
 {
-	if (event.target.operator.value=='=')
-		event.target.operator.value='LIKE';
+	if (event.target.operator.value == '=')
+		event.target.operator.value = 'LIKE';
 };
 
-aV.DynamicSearch._fieldOnFocusHandler=function(event)
+aV.DynamicSearch._fieldOnFocusHandler = function(event)
 {
 	event.target.select();
 };
 
-aV.DynamicSearch._clearIconHandler=function(event)
+aV.DynamicSearch._clearIconHandler = function(event)
 {
-	event.target.previousSibling.value='';
+	event.target.previousSibling.value = '';
 	//event.target.previousSibling.focus();
 };
 
@@ -1076,7 +1076,7 @@ aV.DynamicSearch.$$lastGuid=1;
 if (!aV.config.DynamicSearch)
 	aV.config.DynamicSearch={};
 
-aV.config.DynamicSearch.unite(
+aV.Object.unite(aV.config.DynamicSearch,
 	{
 		idFormats:
 		{

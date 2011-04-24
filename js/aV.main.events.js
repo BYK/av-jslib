@@ -179,7 +179,7 @@ aV.Events.trigger=function(target, type, parameters)
 	if (!parameters)
 		parameters={};
 
-	parameters=({type: type,	target: target}).unite(parameters, false);
+	parameters=aV.Object.unite({type: type,	target: target}, parameters, false);
 
 	if (target["on" + type])
 		window.setTimeout(function(){target["on" + type](parameters)}, 0);

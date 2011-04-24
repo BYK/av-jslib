@@ -12,7 +12,7 @@
 if (!aV.config.DBGrid)
 	aV.config.DBGrid = {};
 
-aV.config.DBGrid.unite(
+aV.Object.unite(aV.config.DBGrid,
 	{
 		maxSortAccumulation: 4,
 		resizeLockOffset: 6,
@@ -188,13 +188,13 @@ aV.config.DBGrid.unite(
 			},
 			dt_int: function(row, activeCell, cellContent)
 			{
-				var newValue = parseInt(activeCell.newInnerHTML) + parseInt(cellContent); 
-				activeCell.newInnerHTML = (isNaN(newValue))?aV.config.DBGrid.texts.na:newValue;
+				var newValue = parseInt(activeCell.newInnerHTML, 10) + parseInt(cellContent, 10); 
+				activeCell.newInnerHTML = isNaN(newValue) ? aV.config.DBGrid.texts.na : newValue;
 			},
 			dt_real: function(row, activeCell, cellContent)
 			{
 				var newValue = parseFloat(activeCell.newInnerHTML) + parseFloat(cellContent); 
-				activeCell.newInnerHTML = (isNaN(newValue))?aV.config.DBGrid.texts.na:newValue;
+				activeCell.newInnerHTML = isNaN(newValue) ? aV.config.DBGrid.texts.na : newValue;
 			}
 		}
 	}
@@ -612,7 +612,7 @@ aV.DBGrid.prototype.getFullSourceURL = function()
 			strParams = 'c=1&' + strParams;
 	}
 	else 
-		strParams = this.parameters.toQueryString();
+		strParams = aV.Object.toQueryString(this.parameters);
 	return this.sourceURL + '?' + strParams;
 };
 
@@ -620,7 +620,7 @@ aV.DBGrid.prototype.triggerEvent = function(type, parameters)
 {
 	if (!parameters)
 		parameters = {};
-	parameters = ({type: type,	target: this}).unite(parameters);
+	parameters = aV.Object.unite({type: type,	target: this}, parameters);
 	var result = true;
 
 	try 
@@ -830,7 +830,7 @@ aV.DBGrid.prototype.parseData = function(fullRefresh, preserveState)
 		parsedData = aV.AJAX.getResponseAsObject(this.fetcher);
 		if (!parsedData)
 			throw new Error("Invalid DBGrid data.", this.getFullSourceURL());
-		this.properties.unite(parsedData, false);
+		aV.Object.unite(this.properties, parsedData, false);
 
 		if (!this.properties.row)
 			this.properties.row = [];
@@ -1463,7 +1463,7 @@ aV.DBGrid.prototype._printRows = function(clear, i, count, insertBefore, pseudo,
 		else 
 			tableBody.appendChild(tempArea);
 		
-		setTimeout("aV.DBGrid.list[%s]._adjustHeight();".format(this.guid), 0);
+		setTimeout(function(){this._adjustHeight();}, 0);
 		this._setGroupButtonState();
 		aV.Events.trigger(window, 'domready', 
 		{

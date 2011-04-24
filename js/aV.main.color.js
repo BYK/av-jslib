@@ -21,7 +21,7 @@ aV.Color = {};
 
 if (!aV.config.Color)
 	aV.config.Color = {};
-aV.config.Color.unite(
+aV.Object.unite(aV.config.Color,
 	{
 		_RGBPattern: /rgb\(\s*(\d{1,3})\,\s*(\d{1,3})\,\s*(\d{1,3})\)|\#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i,
 		_hexRGBFormat: '#%r:s%g:s%b:s',

@@ -51,7 +51,7 @@ aV.aParser.setElementAttributes=function(element, propertyName, attributeStr)
 	}
 
 	if (element[propertyName])
-			element[propertyName].unite(attributes);
+			aV.Object.unite(element[propertyName], attributes);
 	else
 		element[propertyName]=attributes;
 

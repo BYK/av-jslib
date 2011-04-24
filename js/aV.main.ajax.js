@@ -28,7 +28,7 @@ if (!aV.config.AJAX)
 	 */
 	aV.config.AJAX = {};
 
-aV.config.AJAX.unite(
+aV.Object.unite(aV.config.AJAX,
 	{
 		/**
 		 * @memberOf aV.config.AJAX
@@ -353,7 +353,7 @@ aV.AJAX.makePostRequest = function(address, parameters, changeFunction, headers,
 		if (crossDomain)
 			parameters += '&windowname=true';
 
-		headers = (headers || {}).unite({'Content-type': 'application/x-www-form-urlencoded'});
+		headers = aV.Object.unite((headers || {}), {'Content-type': 'application/x-www-form-urlencoded'});
 		for (var header in headers)
 			if (headers.hasOwnProperty(header))
 				requestObject.setRequestHeader(header, headers[header]);
@@ -407,7 +407,7 @@ aV.AJAX.makeRequest = function(method, address, parameters, completedFunction, l
 				if (!isNaN(rangeInfo.total)) 
 					newRangeEnd = Math.min(newRangeEnd, rangeInfo.total - 1);
 				
-				headers = (headers ||	{}).unite({'Range': '%s=%s-%s'.format(rangeInfo.type, rangeInfo.end + 1, newRangeEnd)});
+				headers = aV.Object.unite((headers ||	{}), {'Range': '%s=%s-%s'.format(rangeInfo.type, rangeInfo.end + 1, newRangeEnd)});
 				aV.AJAX.makeRequest(method, address, parameters, completedFunction, loadingFunction, headers, warnOnPageLeave);
 			}
 		}
@@ -421,7 +421,7 @@ aV.AJAX.makeRequest = function(method, address, parameters, completedFunction, l
 	if (!parameters)
 		parameters = '';
 	if (parameters.constructor == Object)
-		parameters = parameters.toQueryString();
+		parameters = aV.Object.toQueryString(parameters);
 	
 	if (method.toUpperCase() == "GET") //if requested method is GET, then call the aV.AJAX.makeGetRequest function
 		return this.makeGetRequest(address + ((parameters) ? '?' + parameters : ''), triggerFunction, headers, crossDomain, warnOnPageLeave);
